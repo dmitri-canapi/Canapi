@@ -1,0 +1,19 @@
+<apex:page showHeader="false" sidebar="false">
+<script>
+    
+    function myLoop () { 
+    var date = new Date();
+    console.log(date.getTime());         
+       setTimeout(function () {   
+          try {
+              var l = window.parent.document.querySelectorAll('.cHeaderPanel');
+               l[0].style.display = "none";
+         }catch(e){
+             myLoop();            
+          }                      
+       }, 200)
+    }
+
+    myLoop(); 
+</script>
+</apex:page>

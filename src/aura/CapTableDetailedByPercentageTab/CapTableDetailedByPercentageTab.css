@@ -1,0 +1,7 @@
+.THIS .addRound {
+    background: rgba(128, 128, 128, 0.24) !important;
+    z-index: 1 !important;
+}
+.THIS .slds-popover__body{
+	min-width: 170px;
+}

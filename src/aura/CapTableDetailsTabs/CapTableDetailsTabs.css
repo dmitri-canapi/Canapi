@@ -1,0 +1,12 @@
+.THIS.customRadioCls .slds-form-element__control .slds-radio{
+    display : inline-block !important;
+}
+.THIS .label-hidden .slds-form-element__label{
+    display:none !important;
+}
+.THIS .slds-input {
+        padding-right: 0px !important;
+}
+.THIS .refreshButt {
+        margin: 5px 10px;
+}

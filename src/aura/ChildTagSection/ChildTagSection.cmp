@@ -1,0 +1,36 @@
+<aura:component controller="Review_Items_Controller" >
+    <aura:attribute name="tags" type="List" />
+    <aura:attribute name="localTags" type="List" />
+    <aura:attribute name="LoadData" type="boolean" default="true" />
+    <aura:attribute name="tagsLoad" type="List" />
+    <aura:attribute name="activeSections" type="String" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInitChild}"/>
+	<aura:registerEvent name="SampleApplicationEvent" type="c:SetTagToParrentComponent"/>
+    <aura:handler name="change" value="{!v.LoadData}" action="{!c.ParentAction}"/>
+       
+    <lightning:accordion
+                          allowMultipleSectionsOpen="true"
+                         onsectiontoggle="{! c.handleSectionToggle }"
+                         activeSectionName="{! v.activeSections }"
+                         >
+        <aura:iteration items="{!v.localTags}" var="tag">
+            <lightning:accordionSection name="{!tag.Id}" label="{!tag.Name}">
+                <aura:set attribute="actions">
+                            <lightning:buttonMenu aura:id="menu" value="{!tag.Name}" alternativeText="Show menu" menuAlignment="right" iconSize="x-small" onselect="{!c.addTag}">
+                                <lightning:menuItem value="Add" label="Add" />
+                                <lightning:menuItem value="Remove" label="Remove"  />
+                            </lightning:buttonMenu>
+                </aura:set>
+                <aura:set attribute="body">
+                    <aura:if isTrue="{!not(empty(tag.Tags__r))}">
+                        <c:ChildTagSection  tags="{!tag.Tags__r}" LoadData="{!v.LoadData}"></c:ChildTagSection>
+                        <aura:set attribute="else">
+                            No child tags
+                        </aura:set>
+                    </aura:if>
+                </aura:set>
+            </lightning:accordionSection>
+        </aura:iteration>
+    </lightning:accordion>
+
+</aura:component>

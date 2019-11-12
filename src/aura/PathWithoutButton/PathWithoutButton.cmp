@@ -1,0 +1,6 @@
+<aura:component implements="flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes,force:hasRecordId" access="global">
+    <aura:attribute name="variant" type="String" default="linear"/>    
+    <lightning:path aura:id="path" recordId="{!v.recordId}"
+        variant="{!v.variant}"
+        hideUpdateButton="true"/>
+</aura:component>

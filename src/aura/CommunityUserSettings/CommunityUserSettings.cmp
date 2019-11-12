@@ -1,0 +1,14 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" >
+    <div class="slds-text-heading_large slds-m-around_small">
+        My Settings
+    </div>
+    <lightning:tabset>
+        <lightning:tab label="ACCOUNT DETAILS" id="one">
+            <iframe class="adSettings" style="border: none;" src="/fintech/s/settings/005V0000005gZGE" width="100%" height="1025px"/>
+        </lightning:tab>
+        <lightning:tab label="EMAIL NOTIFICATIONS" id="two">
+            <iframe class="emailSettings" style="border: none;" src="/fintech/s/settings/005V0000005gZGE" width="100%" height="653px"/>
+        </lightning:tab>
+    </lightning:tabset>
+    
+</aura:component>

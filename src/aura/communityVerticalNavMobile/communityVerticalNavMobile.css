@@ -1,0 +1,57 @@
+.THIS .slds-col .ui-widget {
+   margin: 16px 0;
+}
+ 
+.THIS .slds-col.content {
+   width: 1140px;
+}
+.THIS.customNav {
+    /*width: 250px;*/
+    position: absolute;
+    z-index: 10;
+    background-color: #474656;
+    min-height: 600px;
+    height: 100% !important;
+    color: white;
+}
+.THIS .nonActiveItem {
+    background-color: white;
+    color: black;
+    border-right: 1px solid #474656;
+}
+.THIS .ul, .THIS li {
+    /*width: 250px;*/
+}
+
+.THIS .activeItem {
+    background-color: #3280CB;
+}
+.THIS .slds-navigation-list-vertical__action, .THIS .slds-navigation-list--vertical__action {
+    padding: 0.5rem 0.4rem !important;
+}
+.THIS .icon {
+    width: 40px;
+}
+.THIS .childIcon {
+    width: 35px;
+    margin-left: 15px;
+}
+.THIS .itemLabel {
+    display: inline;
+    padding: 0px 15px 0px 5px;
+}
+.THIS .child-menu-ul{
+    display:none;
+}
+.THIS .main-menu:hover .child-menu-ul {
+    display:block;
+}
+
+.THIS .slds-navigation-list--vertical__action:hover {
+    background-color: #3280CB !important;
+}
+@media only screen and (min-width: 47.9375em){
+    .THIS  {
+        display:none;
+    }
+}

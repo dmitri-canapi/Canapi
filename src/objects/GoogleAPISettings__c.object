@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Settings related to Google API integratons</description>
+    <enableFeeds>false</enableFeeds>
+    <fields>
+        <fullName>Geocoding_API_Key__c</fullName>
+        <defaultValue>&quot;AIzaSyCfCXJDhRUaqDvXrbvfjXIZlrtnMJbWI6w&quot;</defaultValue>
+        <description>API Key to be used with the Google Geocoding API</description>
+        <externalId>false</externalId>
+        <inlineHelpText>API Key to be used with the Google Geocoding API</inlineHelpText>
+        <label>Geocoding API Key</label>
+        <length>80</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Maps_JavaScript_API_Key__c</fullName>
+        <defaultValue>&quot;AIzaSyCfCXJDhRUaqDvXrbvfjXIZlrtnMJbWI6w&quot;</defaultValue>
+        <description>API Key to be used with the Google Maps JavaScript API</description>
+        <externalId>false</externalId>
+        <inlineHelpText>API Key to be used with the Google Maps JavaScript API</inlineHelpText>
+        <label>Maps JavaScript API Key</label>
+        <length>80</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Google API Settings</label>
+    <visibility>Public</visibility>
+</CustomObject>

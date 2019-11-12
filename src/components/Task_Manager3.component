@@ -1,0 +1,2281 @@
+<apex:component controller="Task_Manager3">
+<!--
+Task Manager v 1.2.3
+@author Matthew Craig <matt.craig@liveoakbank.com>
+@date 14 Sept 2015
+-----------------------------------------
+22 Dec 2014 - Task Manager 1.2.2 Release
+    - Added Follow uptasks
+    - Added Sort by Feature
+    - Added Refresh Feature
+    - Fixed scrolling to new elements
+    - Hack fix to stop "jumping" feature.
+    - Removed Debug and disabled debug logging
+14 Sept 2015 -
+    - Removed Calls to all external CDN's for JS (LOB-10337)
+    - Added a "truncate" function to knockout (LOB-10336 - ended up not using but built function left it for possible future use)
+-->
+<script>
+'use strict';
+// Build dependencies and library list (includes more than needed so we can have a boilerplate resource.)
+requirejs.config({
+    baseUrl: '{!URLFOR($Resource.Task_Manager3, '/')}',
+    paths: {
+        jquery: [
+             //'//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.1/jquery.min',
+            '{!URLFOR($Resource.Task_Manager3, 'lib/jquery/jquery-1.11.1.min')}'
+        ],
+        'jquery-ui': [
+            '{!URLFOR($Resource.Task_Manager3, 'lib/jquery-ui/ui')}'
+        ],
+        knockout: [
+            //'//cdnjs.cloudflare.com/ajax/libs/knockout/3.2.0/knockout-min',
+            '{!URLFOR($Resource.Task_Manager3, 'lib/knockout/knockout-3.2.0')}'
+        ],
+        'knockout-jqueryui': [
+            '{!URLFOR($Resource.Task_Manager3, 'lib/knockout-jqueryui')}'
+        ],
+        bootstrap: [
+            //'//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min',
+            '{!URLFOR($Resource.Task_Manager3, 'bootstrap/js/bootstrap.min')}'
+        ],
+        lodash : [
+            //'//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min',
+            '{!URLFOR($Resource.Task_Manager3, 'lib/lodash/lodash.compat.min')}'
+        ],
+        moment: [
+            //'//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min',
+            '{!URLFOR($Resource.Task_Manager3, 'lib/moment/moment.min')}'
+        ],
+        cookies: '{!URLFOR($Resource.Task_Manager3, 'lib/cookies/Cookies')}'
+    },
+    shim: {
+        bootstrap: {
+            deps: ['jquery']
+        }
+    }
+});
+define('Debug', function(){
+    'use strict';
+    var enabled = false;
+    function log (){
+        var len, ii;
+        if (enabled) {
+            len = arguments.length
+            try {
+                for (ii = 0; ii < len; ii++) {
+                    console.log(arguments[ii]);
+                }
+            } catch (ignore) {
+                // Do nothing.
+            }
+        }
+    };
+    return {
+        enabled: enabled,
+        log: log
+    };
+});
+
+/* --------------------------------------------------------------------------
+ *      JS Class/Object Definitions
+ */
+/*jslint browser: true, devel: true */
+/*properties
+    Completed, Deferred, High, 'In Progress', Low, Normal, 'Not Started',
+    'Waiting on someone else', allowedAssignedToTypes, allowedPriorities,
+    allowedStatuses, cookieName, cookieOptions, defaultOwnerType,
+    defaultPriority, defaultStatus, expires, managerId,
+    minimumCharForAutocomplete, pastDueClass, path, priorityColorClasses,
+    relatedToTypes, secure, statusCheckboxClasses, statusFilterDefault,
+    statusFilters, timeFilterDefault, timeFilters, typeFilterDefault,
+    typeFilters, userId, userName, userPhoto, whoTypes
+*/
+define('ConfigOptions', ['Debug'], function (debug) {
+    'use strict';
+    var configs = {
+        cookieName : 'LOB_task_manager',
+        cookieOptions : {
+            path: '/',
+            // domain: 'salesforce.com',         // Exclude to lock to current domain
+            expires: new Date(9999, 11, 31),     // Dec 31, 9999
+            secure: true                         // https only
+        },
+        // In Page Configurations
+        statusFilters: [
+            'All Open',
+            'Any Status',
+            'Not Started',
+            'In Progress',
+            'Completed',
+            'Waiting',
+            'Deferred'
+        ],
+        statusFilterDefault: 'All Open',
+        typeFilters: [
+            'All types',
+            'My tasks',
+            'Personal',
+            'Oaker',
+            'Assigned by manager',
+            'Tasks I\'ve assigned'
+        ],
+        typeFilterDefault: 'My tasks',
+        timeFilters: [
+            'All times',
+            'Due today',
+            'Next 7 days',
+            'Past due',
+            'In next quarter',
+            'In next year',
+            'Last 7 days',
+            'No due date'
+        ],
+        timeFilterDefault: 'All times',
+        // Map priority to gui style
+        priorityColorClasses : {
+            'High': 'flagged-urgent',
+            'Normal' : 'flagged-normal',
+            'Low' : 'flagged-low'
+        },
+        // Map Status to GUI style
+        statusCheckboxClasses : {
+            'Not Started': '',
+            'In Progress': 'inProgress',
+            'Completed' : 'complete',
+            'Deferred' : '',
+            'Waiting on someone else' : ''
+        },
+        defaultStatus: 'Not Started',
+        defaultPriority: 'Normal',
+        defaultOwnerType: 'User',
+        defaultSortByDate: true,
+        /**
+         * GET configs from apex class
+         */
+        minimumCharForAutocomplete: {!AUTOCOMPLETE_MIN_LENGTH_JSON},
+        allowedPriorities: {!ALLOWED_PRIORITIES_JSON},
+        allowedStatuses: {!ALLOWED_STATUSES_JSON},
+        relatedToTypes: {!RELATED_TO_MAP_JSON},
+        allowedAssignedToTypes: {!AVAIL_ASSIGNED_TO_TYPES_JSON},
+        whoTypes: {!AVAIL_WHO_TYPES_JSON},
+        userId: '{!$User.Id}',
+        managerId: {!managerId},
+        userName: {!userName},
+        userPhoto: {!userPhoto}
+    };
+    debug.log('Configs loaded', configs);
+    return configs;
+});
+/** Get the initial DATA from APEX Class */
+define('initialDataLoad', ['Debug'], function(debug) {
+    'use strict';
+    var taskList = {!taskList}
+    debug.log(taskList);
+    return {
+        taskList: taskList
+    };
+});
+define(
+    'selected',
+    ['knockout', 'Debug'],
+    function (ko, debug) {
+        'use strict';
+        ko.bindingHandlers.selected = {
+            update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var selected = ko.utils.unwrapObservable(valueAccessor());
+                debug.log({
+                    'bindingHandler' : 'selected',
+                    element: element,
+                    valueAccessor: valueAccessor,
+                    allBindingsAccessor: allBindingsAccessor,
+                    viewModel: viewModel,
+                    bindingContext: bindingContext
+                });
+                if (selected) {
+                    element.select();
+                }
+            }
+        };
+    },
+    this
+);
+define(
+    'truncatedText',
+    ['knockout', 'Debug'],
+    function (ko, debug) {
+        'use strict';
+        // Truncate text and add an elipsis
+        ko.bindingHandlers.truncatedText = {
+            update: function (element, valueAccessor, allBindingsAccessor) {
+                var value          = ko.utils.unwrapObservable(valueAccessor()),
+                    length         = ko.utils.unwrapObservable(allBindingsAccessor().length) || ko.bindingHandlers.truncatedText.defaultLength,
+                    truncatedValue = value.length > length ? value.substring(0, Math.min(value.length, length)) + " ..." : value;
+
+                ko.bindingHandlers.text.update(element, function () { return truncatedValue; });
+            },
+            defaultLength: 45
+        }
+    },
+    this
+);
+define(
+    'required',
+    ['knockout', 'Debug'],
+    function (ko, debug) {
+        'use strict';
+        ko.extenders.required = function(target, overrideMessage) {
+            debug.log({
+                'ko.extender': 'required',
+                target: target,
+                overrideMessage: overrideMessage
+            });
+            //add some sub-observables to our observable
+            target.hasError = ko.observable();
+            target.validationMessage = ko.observable();
+            //define a function to do validation
+            function validate(newValue) {
+               target.hasError(newValue ? false : true);
+               target.validationMessage(newValue ? "" : overrideMessage || "This field is required");
+            }
+            //initial validation
+            validate(target());
+            //validate whenever the value changes
+            target.subscribe(validate);
+            //return the original observable
+            return target;
+        };
+    },
+    this
+);
+
+// An Object Definition used by Task Def
+/*properties
+    id, name, objectType, observable
+*/
+define(
+    'ObjectDef',
+    ['knockout'],
+    function (ko) {
+        'use strict';
+        var ObjectDef = function () {
+            this.id         = ko.observable(null);
+            this.name       = ko.observable('');
+            this.objectType = ko.observable('None');
+        };
+        return ObjectDef;
+    },
+    this
+);
+
+// Person Definition used by TaskDef
+/*properties
+    id, name, objectType, observable, smallPhotoUrl
+*/
+define(
+    'PersonDef',
+    ['knockout'],
+    function (ko) {
+        'use strict';
+        var PersonDef = function () {
+            this.id            = ko.observable(null);
+            this.name          = ko.observable('');
+            this.smallPhotoUrl = ko.observable('');
+            this.objectType    = ko.observable(null);
+        };
+        return PersonDef;
+    },
+    this
+);
+
+// Task Definition
+/*jslint browser: true, devel: true, nomen: true, unparam: true, white: true */
+/*properties
+    ActivityDate, Description, Id, OwnerId, Priority, Status, Subject, WhatId,
+    WhoId, activityDate, allowedToUpdateWhoType, cancelEditState,
+    changeAssignedTo, changeAssignedToType, changeContact, changeContactType,
+    changePriority, changeRelatedTo, changeRelatedToType, changeStatus,
+    closeEdit, computed, create, createTask, creatorDetails, dateClass, delay,
+    deleteConfirm, deleteTask, deleteTaskById, deleteText, description,
+    disableRelatedTo, displayDate, displayDateShort, editMode, extend, forEach,
+    format, getAssignedTo, getAvailUser, getContact, getRelatedObjects,
+    getRelatedTo, id, initialLoad, isBefore, isNew, isValid, item, label, length,
+    message, name, objectType, observable, observableArray, originalOwner, owner,
+    ownerDetails, ownerId, pointOfContactDisplayType, priority, priorityClass,
+    priorityColorClasses, prototype, pureComputed, push, rateLimit, read,
+    relatedToDisplayType, remove, removeContact, save, selectAssignedTo,b
+    selectContact, selectRelatedTo, smallPhotoUrl, startOf, status,
+    statusBoxClass, statusCheckboxClasses, stringify, subject, term, timeout,
+    toggleEdit, toggleStatus, triggerUpdate, type, unescape, unmapContacts,
+    unmapTask, updateOwner, updateTask, userType, value, visible, what,
+    whatCount, whatId, who, whoContact, whoCount, whoCountDisplay, whoId,
+    whoName, whoType, write
+*/
+define(
+    'TaskDef',
+    ['knockout', 'jquery', 'PersonDef', 'ObjectDef', 'ConfigOptions', 'moment', 'lodash', 'Debug', 'required'],
+    function (ko, $, PersonDef, ObjectDef, ConfigOptions, moment, _, debug) {
+        'use strict';
+        var TaskDef = function () {
+            this.id                     = ko.observable(null);
+            // General Fields
+            this.activityDate           = ko.observable(null);
+            this.subject                = ko.observable('').extend({ required: 'Subject is a required input.'});
+            this.description            = ko.observable('');
+            this.priority               = ko.observable('');
+            this.status                 = ko.observable('');
+
+            // Creator Details
+            this.creatorDetails         = ko.observable(new PersonDef());
+
+            // Owner Information
+            this.ownerId                = ko.observable(null);
+            this.originalOwner          = ko.observable(new PersonDef());
+            this.ownerDetails           = ko.observable(new PersonDef());
+
+            // What Information
+            this.whatId                 = ko.observable(null);
+            this.whatCount              = ko.observable(0);
+            this.what                   = ko.observable(new ObjectDef());
+
+            // Related to (aka who)
+            this.whoId                  = ko.observable(null);
+            this.whoName                = ko.observable('');
+            this.whoType                = ko.observable('');
+            this.whoCount               = ko.observable(0);
+            this.whoContact             = ko.observable('');
+            this.who                    = ko.observableArray([]);
+            this.whoCountDisplay        = ko.pureComputed(function () {
+                var count = '';
+                // IF there is more than one contact display it on the medium view
+                if (this.who().length >= 1) {
+                    count = '+' + (this.who().length - 1);
+                } else {
+                    count = '';
+                }
+                debug.log({ pureComputed: 'whoCountDisplay', count: count});
+                return count;
+            }, this);
+
+            // Object States
+            this.editMode               = ko.observable(false);
+            this.cancelEditState        = ko.observable('idle');
+            this.visible                = ko.observable(true);
+            this.initialLoad            = true;
+            this.allowedToUpdateWhoType = ko.observable(false);
+            this.isNew                  = ko.observable(false);
+            this.subjectHasFocus        = ko.observable(false);
+            this.ownerHasFocus          = ko.observable(false);
+            this.isSaving               = false;
+            this.statusTimer            = false;
+            this.ownerName              = ko.computed(function() {
+                if (!this.ownerDetails().name())  {
+                    // Removed FOCUS element here it was breaking JQuery UI Autocomplete.
+                    // For some reason IF you focus an autocomplete feild durring the "select" action
+                    // the "blur" event returns NULL... don't know why, but was able to prove it and found
+                    // supporting evidence online.
+                    this.ownerDetails().smallPhotoUrl('');
+                }
+                debug.log({ computed: 'ownerName', ownerHasFocus: this.ownerHasFocus() });
+                return this.ownerDetails().name();
+            }, this).extend({ required: 'Owner is required.' });;
+
+            // Delete
+            this.deleteConfirm          = ko.observable(false);
+            this.deleteText             = ko.computed(function () {
+                debug.log({computed: 'deleteText'});
+                if (this.deleteConfirm()) {
+                    _.delay(function (self) { self.deleteConfirm(false); }, 7000, this);
+                    return 'Yes, I\'m sure!';
+                }
+                return 'Delete';
+            }, this).extend({rateLimit: { timeout: 10 }});
+
+            // On Update of any of these fields... SAVE or Create depending on state.
+            this.triggerUpdate   = ko.computed(function () {
+                debug.log({
+                    computed: 'triggerUpdate',
+                    activityDate: this.activityDate(),
+                    subject: this.subject(),
+                    description: this.description(),
+                    whatId: this.whatId(),
+                    who: this.who(),
+                    whoType: this.whoType(),
+                    whoId: this.whoId(),
+                    ownerId: this.ownerId(),
+                    originalOwner: this.originalOwner().name(),
+                    ownerDetails: this.ownerDetails().name(),
+                    initialLoad: this.initialLoad,
+                    isSaving: this.isSaving
+                });
+                this.activityDate();
+                this.subject();
+                this.description();
+                this.ownerId();
+                this.whatId();
+                this.who();
+                this.whoId();
+                if (this.ownerId() && this.subject() && this.priority() && this.status()) {
+                    if (!this.initialLoad && !this.isSaving) {
+                        if (this.id() && (this.id() !== 'isNew')) {
+                            this.save();
+                        } else {
+                            this.create();
+                        }
+                    } else {
+                        debug.log('not saved initial load OR save already in progress');
+                    }
+                } else {
+                    debug.log('Not saved required field not entered');
+                }
+            }, this);
+
+            // Disable Related to IF the WHO type is a lead (SF RULE)
+            this.disableRelatedTo = ko.pureComputed(function () {
+                var isDisabled = false;
+                if (this.whoType() === 'Lead') {
+                    this.whatId(null);
+                    this.what(new ObjectDef());
+                    isDisabled = true;
+                }
+                debug.log({pureComputed: 'disableRelatedTo', isDisabled: isDisabled});
+                return isDisabled;
+            }, this);
+
+            // Determine if the task is past due and call the class
+            this.dateClass = ko.pureComputed(function () {
+                var className = '',
+                    date = moment(this.activityDate(), 'MM/DD/YYYY');
+                if (date.isValid()) {
+                    if (date.startOf('day').isBefore(moment().startOf('day'))) {
+                        className = 'past-due';
+                    }
+                    if (date.startOf('day').isSame(moment().startOf('day'))) {
+                        className = 'due-today';
+                    }
+                }
+                debug.log({
+                    purecomputed: 'dateClass',
+                    date: date,
+                    className: className
+                });
+                return className;
+            }, this);
+
+            // Display the short date for the minimal view
+            this.displayDateShort = ko.pureComputed(function () {
+                var dueDate = moment(this.activityDate(), 'MM/DD/YYYY'),
+                    outDate = 'No Date';
+                if (dueDate.isValid()) {
+                    outDate = dueDate.format('MM/DD/YY');
+                }
+                debug.log({
+                    pureComputed: 'displayDateShort',
+                    outDate: outDate
+                });
+                return outDate;
+            }, this);
+
+            // Display the date for the EDIT view
+            this.displayDate = ko.pureComputed({
+                read: function () {
+                    var dueDate = moment(this.activityDate()),
+                        outDate = 'No Date';
+                    if (dueDate.isValid()) {
+                        return dueDate.format('MM/DD/YYYY');
+                    }
+                    debug.log({
+                        pureComputed: 'displayDate READ',
+                        outDate: outDate
+                    });
+                    return outDate;
+                },
+                write: function (value) {
+                    var date = moment(value).format('MM/DD/YYYY');
+                    this.activityDate(date);
+                    debug.log({
+                        pureComputed: 'dsiplayDate WRITE',
+                        date: date
+                    });
+                },
+                owner: this
+            });
+
+            // The TYPE of contact we are looking at.
+            this.pointOfContactDisplayType = ko.pureComputed(function () {
+                var display = 'None';
+                if (this.whoType()) {
+                    display = this.whoType();
+                }
+                debug.log({
+                    pureComputed: 'pointOfCotnactDisplayType',
+                    display: display
+                });
+                return display;
+            }, this);
+
+            // Determine what to display for the type of related to we are looking at
+            this.relatedToDisplayType = ko.pureComputed(function () {
+                var display = 'None';
+                if (this.what().objectType()) {
+                    display = this.what().objectType();
+                }
+                debug.log({
+                    pureComputed: 'relatedToDisplayType',
+                    display: display
+                });
+                return display;
+            }, this);
+
+            // Build the class for the priority of the task.
+            this.priorityClass  = ko.pureComputed(function () {
+                var priorityClass = '';
+                if (this.priority()) {
+                    priorityClass = ConfigOptions.priorityColorClasses[this.priority()];
+                }
+                debug.log({
+                    pureComputed: 'priorityClass',
+                    priorityClass: priorityClass
+                });
+                if (this.isNew()) {
+                    priorityClass += ' isNewTask';
+                }
+                return priorityClass;
+            }, this);
+
+            // Get the classes to determine what type of checkbox to display depending on the task status.
+            this.statusBoxClass = ko.pureComputed(function () {
+                var statusClass = '';
+                if (this.status()) {
+                    statusClass = ConfigOptions.statusCheckboxClasses[this.status()];
+                }
+                debug.log({
+                    pureComputed: 'statusBoxClass',
+                    statusClass: statusClass
+                });
+                return statusClass;
+            }, this);
+        };
+
+        TaskDef.prototype.scrollTo = function(data, event) {
+            debug.log({
+                'prototype' : 'scrollTo',
+                'data': data,
+                'arguments' : arguments,
+                'currentPosition' : $(document).scrollTop(),
+                'currentVal' : $(document).scrollTop().valueOf(),
+                'htmlPos': $('html,body').scrollTop(),
+                'target': event.target,
+                'targetPosition': $(document).find(event.target).scrollTop(),
+                'height': $(document).innerHeight()
+            });
+            try {
+                // check to see if in home page first.
+                //window.parent.postMessage($(event.target).offset().top, '*');
+                // if not in home page... try direct scroll
+                // $('html,body').scrollTop($(document).scrollTop());
+                $('html,body').animate({
+                    scrollTop: $(document).scrollTop().valueOf()
+                }, 15);
+            // setTimeout(
+            //     function() {
+            //         $('html,body').scrollTop($(document).scrollTop().valueOf())
+            //     }, 5
+            // );
+            } catch (igrnore) {
+                // ignore it.
+            }
+        };
+
+        // Delete a task (AJAX)
+        TaskDef.prototype.deleteTask = function () {
+            debug.log({'prototype': 'deleteTask', id: this.id() });
+            Task_Manager3.deleteTaskById(this.id(),
+                function (result, event) {
+                    debug.log({
+                        'ajax': 'Task_Manager3.deleteTaskById',
+                        result: result,
+                        event: event
+                    });
+                    if (event.type === 'exception') {
+                        alert([event.message]);
+                    } else if (event.status) {
+                        // don't do anything
+                    } else {
+                        alert([event.message]);
+                    }
+                });
+        };
+
+        // UNmap the ko object to convert to JSON
+        TaskDef.prototype.unmapTask = function () {
+            var date,
+                task             = {};
+                if (this.id() && (this.id() !== 'isNew')) {
+                    task.Id = this.id();
+                } else {
+                    task.Id = null;
+                }
+                task.Subject     = this.subject();
+                task.Description = this.description();
+                task.Priority    = this.priority();
+                task.Status      = this.status();
+                task.WhatId      = this.whatId();
+                task.WhoId       = this.whoId();
+                task.OwnerId     = this.ownerId();
+            date = moment(this.activityDate(), 'MM/DD/YYYY');
+            /*
+            http://raydehler.com/cloud/clod/data-loader-and-the-datetime-data-type.html
+            Date Formats
+            We recommend you specify dates in the format yyyy-MM-ddTHH:mm:ss.SSS+/-HHmm:
+
+            yyyy is the four-digit year
+            MM is the two-digit month (01-12)
+            dd is the two-digit day (01-31)
+            HH is the two-digit hour (00-23)
+            mm is the two-digit minute (00-59)
+            ss is the two-digit seconds (00-59)
+            SSS is the three-digit milliseconds (000-999)
+            +/-HHmm is the Zulu (UTC) time zone offset
+        `    */
+            if (date.isValid()) {
+                task.ActivityDate = date.format('YYYY-MM-DD');
+            } else {
+                task.ActivityDate = moment('12/31/1969', 'MM/DD/YYYY').startOf('day').format('YYYY-MM-DD');
+            }
+            debug.log({
+                'prototype': 'unmapTask',
+                task: task
+            });
+            return task;
+        };
+
+        // Un-map Contact details
+        TaskDef.prototype.unmapContacts = function () {
+            var contactList = [];
+            _.forEach(this.who(), function (whom) {
+                if (whom.id()){
+                    contactList.push(whom.id());
+                }
+            });
+            debug.log({
+                'prototype': 'unmapContacts',
+                contactList: contactList
+            });
+            return contactList;
+        };
+
+        // Save a task that has changed  AJAX
+        TaskDef.prototype.save = function () {
+            var task, contacts,
+                self = this;
+            debug.log({'prototype': 'save'});
+            // if we are not Loading, AND it is not a net new
+            if (!this.initialLoad && !this.isNew() && !this.isSaving){
+                task     = this.unmapTask();
+                contacts = this.unmapContacts();
+                this.isSaving = true;
+                debug.log({task: JSON.stringify(task), contacts: contacts});
+                Task_Manager3.updateTask(JSON.stringify(task), contacts,
+                    function (result, event) {
+                        debug.log({
+                            'ajax': 'Task_Manager3.updateTask',
+                            result: result,
+                            event: event
+                        });
+                        if (event.type === 'exception') {
+                            alert([event.message]);
+                            self.isSaving = false;
+                        } else if (event.status) {
+                            self.isSaving = false;
+                        } else {
+                            alert([event.message]);
+                            self.isSaving = false;
+                        }
+                    }
+                );
+            } else {
+                debug.log('not saved initial load OR is NEW insert');
+            }
+        };
+
+        // Save a newly created task
+        TaskDef.prototype.create = function () {
+            var self = this,
+                task, contacts, scrollTo;
+            debug.log({
+                'prototype': 'create'
+            });
+            try {
+                // check to see if in home page first.
+                window.parent.postMessage($(document).find('#edit-isNew').offset().top, '*');
+                // if not in home page... try direct scroll
+                $('html,body').animate({
+                    scrollTop: $(document).find('#edit-isNew').offset().top
+                }, 400);
+            } catch (igrnore) {
+                // ignore it.
+            }
+            if (!this.initialLoad && !this.isSaving){
+                task     = JSON.stringify(this.unmapTask());
+                contacts = this.unmapContacts();
+                this.isSaving = true;
+                Task_Manager3.createTask(task, contacts,
+                    function (result, event) {
+                        debug.log({
+                            'ajax': 'Task_Manager3.createTask',
+                            result: result,
+                            event: event
+                        });
+                        if (event.type === 'exception') {
+                            alert([event.message]);
+                            self.isSaving = false;
+                        } else if (event.status) {
+                            self.id(result);
+                            self.isNew(false);
+                            self.isSaving = false;
+                            // try {
+                            //     // check to see if in home page first.
+                            //     window.parent.postMessage($('#edit-' + result).offset().top, '*');
+                            //     // if not in home page... try direct scroll
+                            //     $('html,body').animate({
+                            //         scrollTop: $('#edit-' + result).offset().top
+                            //     }, 400);
+                            // } catch (igrnore) {
+                            //     // ignore it.
+                            // }
+                        } else {
+                            alert([event.message]);
+                            self.isSaving = false;
+                        }
+                    }
+                );
+            }
+        };
+
+        // Toggle the checkbox states
+        // IF the user clicks once it waits for the time in DELAY to save
+        // If the user clicks again during the wait time it instantly changes to "completed" saves and ends the timer.
+        TaskDef.prototype.toggleStatus = function () {
+            var newStatus = '',
+                delay = 500,
+                self = this;
+            if (this.statusTimer !== false) {
+                clearTimeout(this.statusTimer);
+                this.statusTimer = false;
+                this.status('Completed');
+                debug.log({'prototype': 'toggleStatus second', newStatus: 'Completed'});
+            } else {
+                switch(this.status()) {
+                case 'Deferred':
+                    newStatus = 'In Progress';
+                    break;
+                case 'Waiting on someone else':
+                    newStatus = 'In Progress';
+                    break;
+                case 'Completed':
+                    newStatus = 'Not Started';
+                    break;
+                case 'In Progress':
+                    newStatus = 'Completed';
+                    break;
+                case 'Not Started':
+                    newStatus = 'In Progress';
+                    break;
+                default:
+                    newStatus = 'Not Started';
+                    break;
+                }
+                this.statusTimer = setTimeout(function () {
+                    self.statusTimer = false;
+                    debug.log({'prototype': 'toggleStatus First time', newStatus: newStatus});
+                    self.status(newStatus);
+                }, delay);
+            }
+        };
+
+        // Change the status of the loan (using bootstrap dropdwon)
+        TaskDef.prototype.changeStatus = function (data) {
+            debug.log({'prototype': 'changeStatus', data: data});
+            this.status(data);
+        };
+
+        // Change the priority of the loan (using boot strap dropdown)
+        TaskDef.prototype.changePriority = function (data) {
+            debug.log({'prototype': 'changePriority', data: data});
+            this.priority(data);
+        };
+
+        // Toggle the Edit MODE State
+        TaskDef.prototype.toggleEdit = function () {
+            debug.log({'prototype': 'toggleEdit'});
+            this.editMode(!this.editMode());
+        };
+
+        // Change the OWNER of a ticket
+        TaskDef.prototype.updateOwner = function (id, name, url, type) {
+            debug.log({
+                'prototype': 'updateOwner',
+                id: id,
+                name: name,
+                url: url,
+                type: type
+            });
+            if (this.ownerId() && name) {
+                debug.log('update succeeded updating to new values');
+                this.ownerId(id);
+                this.ownerDetails(new PersonDef()
+                    .id(id)
+                    .name(name)
+                    .smallPhotoUrl(url)
+                    .objectType(type)
+                );
+            } else {
+                debug.log('update failed updating to original values');
+                this.ownerId(this.originalOwner().id());
+                this.ownerDetails(new PersonDef()
+                    .id(this.originalOwner().id())
+                    .name(this.originalOwner().name())
+                    .smallPhotoUrl(this.originalOwner().smallPhotoUrl())
+                    .objectType(this.originalOwner().objectType())
+                )
+            }
+        };
+
+        // Close the Edit mode State
+        TaskDef.prototype.closeEdit = function () {
+            debug.log({'prototype': 'closeEdit'});
+            this.editMode(false);
+        };
+
+        // Manage related to drop down
+        TaskDef.prototype.changeRelatedToType = function (data) {
+            debug.log({'prototype': 'changeRelatedToType'});
+            this.whatId(null);
+            this.whatCount(0);
+            this.what(new ObjectDef().objectType(data));
+        };
+
+        // Functions to support related to auto-complete.
+        TaskDef.prototype.getRelatedTo = function (type, input, callback) {
+            debug.log({
+                'prototype': 'getRelatedTo',
+                type: type,
+                input: input,
+                callback: callback
+            });
+            Task_Manager3.getRelatedObjects(type, input.term,
+                function (result, event) {
+                    debug.log({
+                        'ajax': 'Task_Manager3.getRelatedObjects',
+                        result: result,
+                        event: event
+                    });
+                    if (event.type === 'exception') {
+                        alert([event.message]);
+                    } else if (event.status) {
+                        _.forEach(result, function(old) {
+                            old.id = _.unescape(old.id);
+                            old.label = _.unescape(old.label);
+                            old.value = _.unescape(old.value);
+                        });
+                        callback(result);
+                    } else {
+                        alert([event.message]);
+                    }
+                }
+            );
+        };
+
+        // Select the related to item
+        TaskDef.prototype.selectRelatedTo = function (event, ui) {
+            debug.log({
+                'prototype': 'selectRelatedTo',
+                event: event,
+                ui: ui
+            });
+            this.whatId(ui.item.id);
+            this.what().id(ui.item.id).name(ui.item.label);
+        };
+
+        // if the text field of the related to is NOT in the autocomplete options... empty it.
+        TaskDef.prototype.changeRelatedTo = function (event, ui) {
+            debug.log({
+                'prototype': 'changeRelatedTo',
+                event: event,
+                ui: ui
+            });
+            if (!ui.item) {
+                this.whatId(null);
+                this.whatCount(null);
+                this.what(new ObjectDef().objectType(this.what().objectType()));
+            }
+        };
+
+        // *************************** Contacts
+        TaskDef.prototype.changeContactType = function (data) {
+            debug.log({
+                'prototype': 'changeContactType',
+                data: data
+            });
+            this.whoId(null);
+            this.whoName('');
+            this.whoCount(0);
+            this.whoType(data);
+            this.who([new PersonDef().objectType(data)]);
+        };
+
+        // Functions to support contact autocomplete.
+        TaskDef.prototype.getContact = function (type, input, callback) {
+            debug.log({
+                'prototype': 'getContact',
+                type: type,
+                input: input,
+                callback: callback
+            });
+            Task_Manager3.getRelatedObjects(type, input.term,
+                function (result, event) {
+                    debug.log({
+                        'ajax': 'Task_Manager3.getRelatedObjects',
+                        result: result,
+                        event: event
+                    });
+                    if (event.type === 'exception') {
+                        alert([event.message]);
+                    } else if (event.status) {
+                        _.forEach(result, function(old) {
+                            old.id = _.unescape(old.id);
+                            old.label = _.unescape(old.label);
+                            old.value = _.unescape(old.value);
+                        });
+                        callback(result);
+                    } else {
+                        alert([event.message]);
+                    }
+                }
+            );
+        };
+
+        // When a contact gets selected update the appropriate fields
+        TaskDef.prototype.selectContact = function (event, ui) {
+            var allowInsert = true;
+            debug.log({
+                'prototype': 'selectContact',
+                event: event,
+                ui: ui
+            });
+            switch(this.whoType()) {
+            case 'Contact':
+                if (!this.whoId()) {
+                    debug.log('Select Contact', 'Initial WHO set');
+                    this.whoId(ui.item.id);
+                    this.whoName(ui.item.label);
+                    this.who([new PersonDef().id(ui.item.id).name(ui.item.label).objectType('Contact')]);
+                    this.whoCount(1);
+                    this.allowedToUpdateWhoType(false);
+                } else {
+                    debug.log('Select Contact', 'Additional WHO set');
+                    _.forEach(this.who(), function (entryWho) {
+                        if (entryWho.id() === ui.item.id) {
+                            allowInsert = false;
+                            return false;
+                        }
+                    });
+                    if (allowInsert) {
+                        this.who.push(new PersonDef().id(ui.item.id).name(ui.item.label).objectType('Contact'));
+                        this.whoCount(this.who().length + 1);
+                    }
+                }
+                // wait longer than jquery ui to update the value
+                _.delay(function() { $(event.target).val(''); }, 5);
+                break;
+            case 'Lead':
+                debug.log('Select Lead', 'Initial WHO set');
+                this.whoId(ui.item.id);
+                this.whoName(ui.item.label);
+                break;
+            }
+        };
+
+        // When a contact gets changed IF it is not in the auto-complete list empty out the fields
+        TaskDef.prototype.changeContact = function (event, ui) {
+            debug.log({
+                'prototype': 'changeContact',
+                event: event,
+                ui: ui
+            });
+            if (!ui.item) {
+                switch(this.whoType()) {
+                case 'Contact':
+                    debug.log('Contact scheduled to be cleared');
+                    // wait for jquery ui before emptying the value
+                    _.delay(function() { $(event.target).val(''); }, 5);
+                    break;
+                case 'Lead':
+                    debug.log('contact cleared');
+                    this.whoId(null);
+                    this.whoName('');
+                    break;
+                default:
+                    debug.log('no type specified, who cleared by default');
+                    this.whoId(null);
+                    this.whoName('')
+                    break;
+                }
+            }
+        };
+
+        // *************************** AssignedTo
+
+        // If a user changes the assigned to type empty the owner details
+        TaskDef.prototype.changeAssignedToType = function (data) {
+            debug.log({
+                'prototype': 'changeAssignedToType',
+                data: data
+            });
+            this.ownerId(null);
+            this.ownerDetails(new PersonDef().objectType(data));
+        };
+        // auto-complete query for assign user
+        TaskDef.prototype.getAssignedTo = function (type, input, callback) {
+            debug.log({
+                'prototype': 'getAssignedTo',
+                type: type,
+                input: input,
+                callback: callback
+            });
+            Task_Manager3.getAvailUser(type, input.term,
+                function (result, event) {
+                    debug.log({
+                        'ajax': 'Task_Manager3.getAvailUser',
+                        result: result,
+                        event: event
+                    });
+                    if (event.type === 'exception') {
+                        alert([event.message]);
+                    } else if (event.status) {
+                        _.forEach(result, function(old) {
+                            old.id = _.unescape(old.id);
+                            old.label = _.unescape(old.label);
+                            old.value = _.unescape(old.value);
+                        });
+                        callback(result);
+                    } else {
+                        alert([event.message]);
+                    }
+                }
+            );
+        };
+
+        // When a user selects a owner update the appropriate information
+        TaskDef.prototype.selectAssignedTo = function (event, ui) {
+            debug.log({
+                'prototype': 'selectAssignedTo',
+                event: event,
+                ui: ui
+            });
+            if (ui.item) {
+                this.ownerId(ui.item.id);
+                this.ownerDetails(
+                    new PersonDef()
+                        .id(ui.item.id)
+                        .name(ui.item.label)
+                        .smallPhotoUrl(ui.item.smallPhotoUrl)
+                        .objectType(ui.item.userType)
+                );
+                this.originalOwner(
+                    new PersonDef()
+                        .id(ui.item.id)
+                        .name(ui.item.label)
+                        .smallPhotoUrl(ui.item.smallPhotoUrl)
+                        .objectType(ui.item.userType)
+                );
+            }
+            debug.log(
+                {
+                    'result': 'Finished selectAssignedTo',
+                    ownerId: this.ownerId(),
+                    ownerDetails:
+                        {
+                            id : this.ownerDetails().id(),
+                            name: this.ownerDetails().name(),
+                            smallPhotoUrl: this.ownerDetails().smallPhotoUrl(),
+                            objectType: this.ownerDetails().objectType()
+                        },
+                    originalOwner:
+                        {
+                            id : this.originalOwner().id(),
+                            name: this.originalOwner().name(),
+                            smallPhotoUrl: this.originalOwner().smallPhotoUrl(),
+                            objectType: this.originalOwner().objectType()
+                        }
+                }
+            );
+        };
+
+        // If the user changes the assigned to to a field that is not in the autocomlpete empty the field.
+        TaskDef.prototype.changeAssignedTo = function (event, ui) {
+            debug.log({
+                'prototype': 'changeAssignedTo',
+                event: event,
+                ui: ui,
+                'arguments': arguments
+            });
+            if (!ui.item) {
+                debug.log('changeAssignedTo failed validation. Resetting to default');
+                this.ownerId(this.originalOwner().id());
+                this.ownerDetails(new PersonDef()
+                    .id(this.originalOwner().id())
+                    .name(this.originalOwner().name())
+                    .smallPhotoUrl(this.originalOwner().smallPhotoUrl())
+                    .objectType(this.originalOwner().objectType())
+                );
+            }
+        };
+
+        // Remove a contact from the contact list.
+        TaskDef.prototype.removeContact = function (data, event) {
+            debug.log({
+                'prototype': 'removeContact',
+                data: data,
+                event: event
+            });
+            if (this.whoId() !== data.id()) {
+                debug.log('Removed Contact is not primary, removal allowed.');
+                this.who.remove(function(item) { return item.id() === data.id(); });
+            } else {
+                debug.log('Removed Contact is primary, removal NOT allowed.');
+            }
+        };
+
+        return TaskDef;
+    },
+    this
+);
+define(
+    'taskManagerViewModel',
+    ['knockout', 'lodash', 'TaskDef', 'initialDataLoad',
+     'PersonDef', 'ObjectDef', 'moment', 'ConfigOptions', 'cookies', 'Debug',
+     'knockout-jqueryui/datepicker', 'knockout-jqueryui/autocomplete', 'selected'],
+    function (ko, _, TaskDef, initData, PersonDef, ObjectDef, moment, ConfigOptions, Cookies, debug) {
+        'use strict';
+        // Convert json array to object for tasks
+        debug.log({
+            'loading requirejs module': 'taskManagerViewModel',
+            configOptions: ConfigOptions,
+            initData: initData
+        });
+        var mapData = function (inList) {
+            var whom, whoList, task, date,
+                taskList = [];
+            // Prep the data
+            _.forEach(inList, function (entry) {
+                whom = null;
+                whoList = [];
+                if (entry.who && entry.who.length > 0) {
+                    _.forEach(entry.who, function (entryWho) {
+                        whom = new PersonDef()
+                            .id(entryWho.id)
+                            .name(_.unescape(entryWho.name))
+                            .smallPhotoUrl(entryWho.smallPhotoUrl)
+                            .objectType(_.unescape(entryWho.objectType));
+                        whoList.push(whom);
+                    });
+                }
+                task = new TaskDef()
+                    .id(entry.id)
+                    .ownerId(entry.ownerId)
+                    .ownerDetails(
+                        new PersonDef()
+                            .id(entry.ownerDetails.id)
+                            .name(_.unescape(entry.ownerDetails.name))
+                            .smallPhotoUrl(entry.ownerDetails.smallPhotoUrl)
+                            .objectType(_.unescape(entry.ownerDetails.objectType))
+                    )
+                    .originalOwner(new PersonDef()
+                            .id(entry.ownerDetails.id)
+                            .name(_.unescape(entry.ownerDetails.name))
+                            .smallPhotoUrl(entry.ownerDetails.smallPhotoUrl)
+                            .objectType(_.unescape(entry.ownerDetails.objectType))
+                    )
+                    .creatorDetails(
+                        new PersonDef()
+                            .id(entry.creatorDetails.id)
+                            .name(_.unescape(entry.creatorDetails.name))
+                            .smallPhotoUrl(entry.creatorDetails.smallPhotoUrl)
+                            .objectType(_.unescape(entry.creatorDetails.objectType))
+                    )
+                    .activityDate(moment(entry.activityDate, 'YYYY-MM-DD').startOf('day').format('MM/DD/YYYY'))
+                    .subject(_.unescape(_.unescape(entry.subject)))
+                    .priority(entry.priority)
+                    .status(entry.status)
+                    .description(_.unescape(_.unescape(entry.description)))
+                    .whatId(entry.whatId)
+                    .whatCount(entry.whatCount)
+                    .what(
+                        new ObjectDef()
+                            .id(entry.what.id)
+                            .name(_.unescape(entry.what.name))
+                            .objectType(_.unescape(entry.what.objectType))
+                    )
+                    .whoId(entry.whoId)
+                    .whoName(_.unescape(entry.whoName))
+                    .whoCount(entry.whoCount)
+                    .whoType(_.unescape(entry.whoType))
+                    .who(whoList)
+                    .editMode(false);
+                if (entry.whoType) {
+                    task.allowedToUpdateWhoType(false);
+                } else {
+                    task.allowedToUpdateWhoType(true);
+                }
+                task.initialLoad = false;
+                taskList.push(task);
+            });
+            debug.log({ 'function': 'mapData', taskList: taskList });
+            return taskList;
+        };
+        var taskManagerViewModel = function () {
+            debug.log({ 'function': 'taskManagerViewModel'});
+            this.relatedToAutoCompleteList = ko.observableArray([]);
+            this.myTaskList                = ko.observableArray(mapData(initData.taskList));
+            this.allowedPriorities         = ko.observableArray(ConfigOptions.allowedPriorities.sort().reverse());
+            this.relatedToTypes            = ko.observableArray(ConfigOptions.relatedToTypes.sort());
+            this.allowedStatuses           = ko.observableArray(ConfigOptions.allowedStatuses.sort().reverse());
+            this.allowedAssignedToTypes    = ko.observableArray(ConfigOptions.allowedAssignedToTypes.sort().reverse());
+            this.whoTypes                  = ko.observableArray(ConfigOptions.whoTypes.sort().reverse());
+            this.autoCompleteMinLength     = ko.observable(ConfigOptions.minimumCharForAutocomplete);
+            this.userId                    = ko.observable(ConfigOptions.userId);
+            this.managerId                 = ko.observable(ConfigOptions.managerId);
+            this.statusFilter              = ko.observable('');
+            this.statusFilterDefault       = ko.observable(ConfigOptions.statusFilterDefault);
+            this.statusFilters             = ko.observableArray(ConfigOptions.statusFilters);
+            this.defaultStatus             = ConfigOptions.defaultStatus;
+            this.defaultPriority           = ConfigOptions.defaultPriority;
+            this.defaultOwnerType          = ConfigOptions.defaultOwnerType;
+            this.userName                  = ConfigOptions.userName;
+            this.userPhoto                 = ConfigOptions.userPhoto;
+            this.refreshingInProgress      = ko.observable(false);
+
+            // remove a task from the array (does not perform ajax delete)
+            this.removeTask                = function (taskId) {
+                debug.log({
+                    'function': 'Remove Task Requested',
+                    taskId: taskId
+                });
+                this.myTaskList.remove(function (item) { return item.id === taskId });
+            };
+            // When a user clicks delete determine what to do
+            this.clickDelete = function (data, event) {
+                debug.log({
+                    'function': 'User clicked DELETE TASK',
+                    data: data,
+                    event: event
+                });
+                if (data.deleteConfirm()) {
+                    // If we have already asked them... delete task.
+                    this.myTaskList.remove(data);
+                    data.deleteTask();
+                } else {
+                    // ask the use if they are sure
+                      data.deleteConfirm(true);
+                }
+            };
+
+            this.refreshTasks = function() {
+                //console.log(this.statusFilter());
+                var self = this,
+                    tzCalc = new Date(),
+                    minutesToOffset = tzCalc.getTimezoneOffset();
+                this.refreshingInProgress(true);
+                Task_Manager3.getUserTasks(this.userId(),this.statusFilter(),
+                    function (result, event) {
+                        debug.log({
+                            'ajax': 'Task_Manager3.getUserTasks',
+                            result: result,
+                            event: event
+                        });
+                        if (event.type === 'exception') {
+                            alert([event.message]);
+                            self.refreshingInProgress(false);
+                        } else if (event.status) {
+                            if(result.length==250){
+                            	document.getElementById("warningMessage").style.display = "block";
+                            } else {
+                            	document.getElementById("warningMessage").style.display = "none";
+                            }
+                            _.forEach(result, function(task) {
+                                if (task.activityDate) {
+                                    task.activityDate = moment(task.activityDate).add(minutesToOffset, 'minutes').format('YYYY-MM-DD');
+                                } else {
+                                    task.activityDate = null;
+                                }
+                            });
+                            self.myTaskList(mapData(result));
+                            self.refreshingInProgress(false);
+                            self.getCookie();
+                        } else {
+                            alert([event.message]);
+                            self.refreshingInProgress(false);
+                        }
+                    }
+                );
+            };
+            // Insert a new task.
+            this.addTask = function () {
+                debug.log({
+                    'function': 'addTask'
+                });
+                var newTask = new TaskDef()
+                        .id('isNew')
+                        .editMode(true)
+                        .subject('New Task')
+                        .status(this.defaultStatus)
+                        .priority(this.defaultPriority)
+                        .creatorDetails(new PersonDef()
+                            .id(this.userId())
+                            .name(this.userName)
+                            .smallPhotoUrl(this.userPhoto)
+                            .objectType('User')
+                        )
+                        .ownerId(this.userId())
+                        .ownerDetails(
+                            new PersonDef()
+                                .id(this.userId())
+                                .name(this.userName)
+                                .smallPhotoUrl(this.userPhoto)
+                                .objectType('User')
+                        )
+                        .originalOwner(
+                            new PersonDef()
+                                .id(this.userId())
+                                .name(this.userName)
+                                .smallPhotoUrl(this.userPhoto)
+                                .objectType('User')
+                        )
+                        .allowedToUpdateWhoType(true)
+                        .subjectHasFocus(true);
+                newTask.initialLoad = false;
+                this.myTaskList.splice(0,0, newTask);
+                newTask.create();
+            };
+            // Create a follow up for a task.
+            this.createFollowupTask  = function (index, oldTask, event) {
+                debug.log({
+                    'function': 'createFollowupTask',
+                    index: index,
+                    oldTask: oldTask,
+                    event: event
+                });
+                var newTask = new TaskDef()
+                        .id('isNew')
+                        .editMode(true)
+                        .subject('Follow Up Task For - ' + oldTask.subject())
+                        .status(this.defaultStatus)
+                        .priority(oldTask.priority())
+                        .creatorDetails(new PersonDef()
+                            .id(this.userId())
+                            .name(this.userName)
+                            .smallPhotoUrl(this.userPhoto)
+                            .objectType())
+                        .ownerId(oldTask.ownerId())
+                        .ownerDetails(
+                            new PersonDef()
+                                .id(oldTask.ownerId())
+                                .name(oldTask.ownerDetails().name())
+                                .smallPhotoUrl(oldTask.ownerDetails().smallPhotoUrl())
+                                .objectType(oldTask.ownerDetails().objectType())
+                        )
+                        .originalOwner(
+                            new PersonDef()
+                                .id(oldTask.ownerId())
+                                .name(oldTask.ownerDetails().name())
+                                .smallPhotoUrl(oldTask.ownerDetails().smallPhotoUrl())
+                                .objectType(oldTask.ownerDetails().objectType())
+                        )
+                        .allowedToUpdateWhoType(true)
+                        .whatId(oldTask.whatId())
+                        .what(new ObjectDef()
+                            .id(oldTask.what().id())
+                            .name(oldTask.what().name())
+                            .objectType(oldTask.what().objectType())
+                        )
+                        .whoId(oldTask.whoId())
+                        .whoName(oldTask.whoName())
+                        .whoType(oldTask.whoType())
+                        .whoCount(oldTask.whoCount())
+                        .whoContact(oldTask.whoContact())
+                        .who(oldTask.who())
+                        .activityDate(null)
+                        .isNew(true);
+                newTask.initialLoad = false;
+                this.myTaskList.splice(index + 1,0, newTask);
+                newTask.create();
+            };
+            /*****************************************************
+             * Status Filter
+             */
+            // change the status filter.
+            this.changeStatusFilter        = function (status, event) {
+                debug.log({
+                    'function': 'changeStatusFilter',
+                    event: event,
+                    status: status
+                });
+                var self = this,
+                    tzCalc = new Date(),
+                    minutesToOffset = tzCalc.getTimezoneOffset();
+                this.refreshingInProgress(true);
+                Task_Manager3.getUserTasks(this.userId(),status,
+                    function (result, event) {
+                        debug.log({
+                            'ajax': 'Task_Manager3.getUserTasks',
+                            result: result,
+                            event: event
+                        });
+                        if (event.type === 'exception') {
+                            alert([event.message]);
+                            self.refreshingInProgress(false);
+                        } else if (event.status) {
+                            if(result.length==250){
+                            	document.getElementById("warningMessage").style.display = "block";
+                            } else {
+                            	document.getElementById("warningMessage").style.display = "none";
+                            }
+                            _.forEach(result, function(task) {
+                                if (task.activityDate) {
+                                    task.activityDate = moment(task.activityDate).add(minutesToOffset, 'minutes').format('YYYY-MM-DD');
+                                } else {
+                                    task.activityDate = null;
+                                }
+                            });
+                            self.myTaskList(mapData(result));
+                            self.refreshingInProgress(false);
+                            self.getCookie();
+                            
+                        } else {
+                            alert([event.message]);
+                            self.refreshingInProgress(false);
+                        }
+                    }
+                );
+                
+                this.statusFilter(status);
+                
+                
+                
+            };
+            // Processs the status filter
+            this.processStatusFilter        = function () {
+                debug.log({
+                    'function': 'processStatusFilter'
+                });
+                switch(this.statusFilter()) {
+                case 'Any Status':
+                    debug.log({'statusFilter run': 'Any Status'});
+                    break;
+                case 'All Open':
+                    debug.log({'statusFilter run': 'All Open'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        if (task.status() === 'Completed') {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Not Started':
+                    debug.log({'statusFilter run': 'Not Started'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        if (task.status() !== 'Not Started') {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'In Progress':
+                    debug.log({'statusFilter run': 'In Progress'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        if (task.status() !== 'In Progress') {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Completed':
+                    debug.log({'statusFilter run': 'Completed'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        if (task.status() !== 'Completed') {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Waiting':
+                    debug.log({'statusFilter run': 'Waiting'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        if (task.status() !== 'Waiting on someone else') {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Deferred':
+                    debug.log({'statusFilter run': 'Deferred'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        if (task.status() !== 'Deferred') {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                }
+            };
+
+            /******************************************
+             * Type Filters
+             */
+            this.typeFilter                = ko.observable('');
+            this.typeFilterDefault         = ko.observable(ConfigOptions.typeFilterDefault);
+            this.typeFilters               = ko.observableArray(ConfigOptions.typeFilters);
+            // Change the status filter
+            this.changeTypeFilter          = function (type, event) {
+                debug.log({
+                    'function': 'changeTypeFilter',
+                    type: type,
+                    event: event
+                });
+                this.typeFilter(type);
+            };
+            // Process the status filter
+            this.processTypeFilter         = function () {
+                var self = this;
+                debug.log({
+                    'function': 'processTypeFilter'
+                });
+                switch(self.typeFilter()) {
+                case 'All types':
+                    debug.log({ 'TypeFilter': 'All types'});
+                    break;
+                case 'My tasks':
+                    debug.log({ 'TypeFilter': 'My tasks'});
+                    _.forEach(self.myTaskList(), function (task) {
+                        if (!task.visible()) { return true; }
+                        if (task.ownerDetails().id() !== self.userId()) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Personal':
+                    debug.log({ 'TypeFilter': 'Personal'});
+                    _.forEach(self.myTaskList(), function (task) {
+                        if (!task.visible()) { return true; }
+                        if (!((task.ownerDetails().id() === self.userId()) && (task.creatorDetails().id() === self.userId()) && (task.whatCount() === 0))) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Oaker':
+                    debug.log({ 'TypeFilter': 'Oaker'});
+                    _.forEach(self.myTaskList(), function (task) {
+                        if (!task.visible()) { return true; }
+                        if (task.what().objectType() !== 'OaKeR') {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Assigned by manager':
+                    debug.log({ 'TypeFilter': 'Assigned by manager'});
+                    _.forEach(self.myTaskList(), function (task) {
+                        if (!task.visible()) { return true; }
+                        if (task.creatorDetails().id() !== self.managerId()) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Tasks I\'ve assigned':
+                    debug.log({ 'TypeFilter': 'Tasks I\'ve assigned'});
+                    _.forEach(self.myTaskList(), function (task) {
+                        if (!task.visible()) { return true; }
+                        if ((task.creatorDetails().id() !== self.userId()) || (task.ownerId() === self.userId())) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                }
+            };
+            /******************************************
+             * Time Filters
+             */
+            this.timeFilterDefault         = ko.observable(ConfigOptions.timeFilterDefault);
+            this.timeFilters               = ko.observableArray(ConfigOptions.timeFilters);
+            this.timeFilter                = ko.observable('');
+            // Change the time filter
+            this.changeTimeFilter          = function (time, event) {
+                debug.log({
+                    'function': 'changeTimeFilter',
+                    time: time,
+                    event: event
+                });
+                this.timeFilter(time);
+            };
+            // Process the time filter
+            this.processTimeFilter        = function () {
+                var self         = this,
+                    outputFormat = 'MM/DD/YYYY',
+                    today        = moment(new Date()).startOf('day'),
+                    pastDue      = moment(new Date()).startOf('day').subtract(1, 'days'),
+                    sevenDays    = moment(new Date()).startOf('day').add(7, 'days'),
+                    nextQuarter  = moment(new Date()).startOf('quarter').add(1, 'quarters'),
+                    nextYear     = moment(new Date()).startOf('day').add(1, 'year'),
+                    nintyDaysAgo = moment(new Date()).startOf('day').subtract(90, 'days'),
+                    sevenDaysAgo = moment(new Date()).startOf('day').subtract(7, 'days');
+                debug.log({
+                    'function': 'processTimeFilter',
+                    outputFormat: outputFormat,
+                    today: today.format(outputFormat),
+                    pastDue: pastDue.format(outputFormat),
+                    sevenDays: sevenDays.format(outputFormat),
+                    nextQuarter: nextQuarter.format(outputFormat),
+                    nextYear: nextYear.format(outputFormat),
+                    nintyDaysAgo: nintyDaysAgo.format(outputFormat),
+                    sevenDaysAgo: sevenDaysAgo.format(outputFormat)
+                });
+                switch(this.timeFilter()) {
+                case 'All times':
+                    debug.log({ 'TimeFilter': 'All times'});
+                    break;
+                case 'Due today':
+                    debug.log({ 'TimeFilter': 'Due today'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), outputFormat);
+                        if (!date.isValid() || date.isAfter(today)) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Next 7 days':
+                    debug.log({ 'TimeFilter': 'Next 7 days'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), 'MM/DD/YYYY');
+                        //if (!date.isValid() || date.isAfter(sevenDays)) {
+                        if (date.isAfter(sevenDays)) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Past due':
+                    debug.log({ 'TimeFilter': 'Past due'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), 'MM/DD/YYYY');
+                        if (!date.isValid() || date.isAfter(pastDue)) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'In next quarter':
+                    debug.log({ 'TimeFilter': 'In next quarter'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), 'MM/DD/YYYY');
+                        if (!date.isValid() || date.isAfter(nextQuarter)) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'In next year':
+                    debug.log({ 'TimeFilter': 'In next year'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), 'MM/DD/YYYY');
+                        if (!date.isValid() || date.isAfter(nextYear)) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'Last 90 days':
+                    debug.log({ 'TimeFilter': 'Last 90 days'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), 'MM/DD/YYYY');
+                        if (!date.isValid() || date.isBefore(nintyDaysAgo) || date.isAfter(today)) {
+                            task.visible(false);
+                        }
+                    });
+                break;
+                    case 'Last 7 days':
+                    debug.log({ 'TimeFilter': 'Last 7 days'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), 'MM/DD/YYYY');
+                        if (!date.isValid() || date.isBefore(sevenDaysAgo) || date.isAfter(today)) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                case 'No due date':
+                    debug.log({ 'TimeFilter': 'No due date'});
+                    _.forEach(this.myTaskList(), function (task) {
+                        var date;
+                        if (!task.visible()) { return true; }
+                        date = moment(task.activityDate(), 'MM/DD/YYYY');
+                        if (date.isValid()) {
+                            task.visible(false);
+                        }
+                    });
+                    break;
+                }
+            };
+            /******************************************
+             * Search Filters
+             */
+            this.searchFilter = ko.observable('').extend({rateLimit: { timeout: 400, method: "notifyWhenChangesStop"}});
+            this.searchFilter.subscribe(function() {
+                debug.log('Search triggered');
+                this.processFilters();
+            }, this);
+            this.processSearchFilter = function () {
+                var self = this;
+                debug.log({
+                    'function': 'processSearchFilter'
+                });
+                _.forEach(this.myTaskList(), function (task) {
+                    if (!task.visible()) { return true; }
+                    // Subject
+                    if (task.subject() && task.subject().toLowerCase().search(self.searchFilter().toLowerCase()) > -1) {
+                        return true;
+                    }
+                    // What
+                    if (task.what().name() && task.what().name().toLowerCase().search(self.searchFilter().toLowerCase()) > -1) {
+                        return true;
+                    }
+                    // Description
+                    if (task.description() && task.description().toLowerCase().search(self.searchFilter().toLowerCase()) > -1) {
+                        return true;
+                    }
+                    // Who
+                    if (task.whoName() && task.whoName().toLowerCase().search(self.searchFilter().toLowerCase()) > -1) {
+                        return true;
+                    }
+                    // Owner
+                    if (task.ownerDetails().name() && task.ownerDetails().name().toLowerCase().search(self.searchFilter().toLowerCase()) > -1) {
+                        return true;
+                    }
+                    // If it made it this far it has nothing we want.
+                    task.visible(false);
+                });
+            };
+            // When something on the page changes a filter...
+            // process all of them.
+            this.processFilters = function () {
+                //console.log('prFilter');
+                debug.log({
+                    'function': 'processFilters'
+                });
+                _.forEach(this.myTaskList(), function (task) {
+                    task.visible(true);
+                });
+                this.processTimeFilter();
+                this.processStatusFilter();
+                this.processTypeFilter();
+                this.processSearchFilter();
+                this.setCookie();
+            };
+            /****
+             * Page View Mode
+             */
+            this.singleLineTaskLayout = ko.observable(false);
+            this.changeLayout = function (data, event) {
+                debug.log({
+                    'function': 'changeLayout',
+                    data: data,
+                    event: event
+                });
+                if (this.cookieLoadDone) {
+                    this.singleLineTaskLayout(data);
+                    this.setCookie();
+                }
+            };
+            /** Display Filter Type */
+            this.sortByDate = ko.observable(false);
+            this.defaultSortType = ko.observable(ConfigOptions.sortByDate);
+            this.changeSortType = function (toggleSortByDate) {
+                debug.log({
+                    'function': 'changeSortType',
+                    toggleSortByDate: toggleSortByDate
+                });
+                /**
+                 * sort by prioirty then by date then by alpha subject
+                 * @param  {task1} a the first task
+                 * @param  {task2} b the second tsk
+                 * @return {integer}   the javascript default sort returns 1, 0, -1
+                 */
+                function sortByPriority(a, b) {
+                     var aTime, bTime;
+                    // Sort by Priority/Date/Subject.
+                    switch (a.priority()) {
+                    case 'High':
+                        switch (b.priority()) {
+                        case 'High':
+                            aTime = moment(a.activityDate(), 'MM/DD/YYYY'),
+                            bTime = moment(b.activityDate(), 'MM/DD/YYYY');
+                            if (aTime.isValid() && bTime.isValid() && aTime.isSame(bTime)) {
+                                // a = high, b = high sort by SUBJECT
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                            }
+                            if (aTime.isValid() && bTime.isValid() && aTime.isBefore(bTime)) {
+                                return -1;
+                            }
+                            if (aTime.isValid() && bTime.isValid() && aTime.isAfter(bTime)) {
+                                return 1;
+                            }
+                            if (!aTime.isValid() && !bTime.isValid()) {
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                            }
+                            if (!bTime.isValid()) {
+                                return -1;
+                            }
+                            if (!aTime.isValid()) {
+                                return 1;
+                            }
+                            return 0;
+                            break;
+                        case 'Normal':
+                            // a = high, b = normal promote a
+                            return -1;
+                            break;
+                        case 'Low':
+                            // a = high , b = low promote a
+                            return -1;
+                            break;
+                        }
+                        break;
+                    case 'Normal':
+                        switch (b.priority()) {
+                        case 'High':
+                            // a = normal, b = high promote b
+                            return 1;
+                            break;
+                        case 'Normal':
+                            aTime = moment(a.activityDate(), 'MM/DD/YYYY'),
+                            bTime = moment(b.activityDate(), 'MM/DD/YYYY');
+                            if (aTime.isValid() && bTime.isValid() && aTime.isSame(bTime)) {
+                                // a = high, b = high sort by SUBJECT
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                            }
+                            if (aTime.isValid() && bTime.isValid() && aTime.isBefore(bTime)) {
+                                return -1;
+                            }
+                            if (aTime.isValid() && bTime.isValid() && aTime.isAfter(bTime)) {
+                                return 1;
+                            }
+                            if (!aTime.isValid() && !bTime.isValid()) {
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                            }
+                            if (!bTime.isValid()) {
+                                return -1;
+                            }
+                            if (!aTime.isValid()) {
+                                return 1;
+                            }
+                            break;
+                        case 'Low':
+                            // a = normal, b = low, promote a
+                            return -1
+                            break;
+                        }
+                        break;
+                    case 'Low':
+                        switch (b.priority()) {
+                        case 'High':
+                            // a = low, b = high, promote b
+                            return 1;
+                            break;
+                        case 'Normal':
+                            // a = low, b = normal, promote b
+                            return 1;
+                            break;
+                        case 'Low':
+                            // a = low, b = low, sort by subject
+                            aTime = moment(a.activityDate(), 'MM/DD/YYYY'),
+                            bTime = moment(b.activityDate(), 'MM/DD/YYYY');
+                            if (aTime.isValid() && bTime.isValid() && aTime.isSame(bTime)) {
+                                // a = high, b = high sort by SUBJECT
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                            }
+                            if (aTime.isValid() && bTime.isValid() && aTime.isBefore(bTime)) {
+                                return -1;
+                            }
+                            if (aTime.isValid() && bTime.isValid() && aTime.isAfter(bTime)) {
+                                return 1;
+                            }
+                            if (!aTime.isValid() && !bTime.isValid()) {
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                            }
+                            if (!bTime.isValid()) {
+                                return -1;
+                            }
+                            if (!aTime.isValid()) {
+                                return 1;
+                            }
+                            return 0;
+                            break;
+                        }
+                        break;
+                    }
+                };
+                function sortByDate(a, b) {
+                    var aTime = moment(a.activityDate(), 'MM/DD/YYYY'),
+                        bTime = moment(b.activityDate(), 'MM/DD/YYYY');
+                    // Sort By DATE then Priority then by subject String.
+                    // If a and b are the same VALID date
+                    if (aTime.isValid() && bTime.isValid() && aTime.isSame(bTime)) {
+                        switch (a.priority()) {
+                        case 'High':
+                            switch (b.priority()) {
+                            case 'High':
+                                // a = high, b = high sort by SUBJECT
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                                return 0;
+                                break;
+                            case 'Normal':
+                                // a = high, b = normal promote a
+                                return -1;
+                                break;
+                            case 'Low':
+                                // a = high , b = low promote a
+                                return -1;
+                                break;
+                            }
+                            break;
+                        case 'Normal':
+                            switch (b.priority()) {
+                            case 'High':
+                                // a = normal, b = high promote b
+                                return 1;
+                                break;
+                            case 'Normal':
+                                // a = normal, b = normal sort by subject.
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                                break;
+                            case 'Low':
+                                // a = normal, b = low, promote a
+                                return -1
+                                break;
+                            }
+                            break;
+                        case 'Low':
+                            switch (b.priority()) {
+                            case 'High':
+                                // a = low, b = high, promote b
+                                return 1;
+                                break;
+                            case 'Normal':
+                                // a = low, b = normal, promote b
+                                return 1;
+                                break;
+                            case 'Low':
+                                // a = low, b = low, sort by subject
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                                return 0;
+                                break;
+                            }
+                            break;
+                        }
+                    }
+                    if (aTime.isValid() && bTime.isValid() && aTime.isBefore(bTime)) {
+                        return -1;
+                    }
+                    if (aTime.isValid() && bTime.isValid() && aTime.isAfter(bTime)) {
+                        return 1;
+                    }
+                    // If a and b are the same INVALID date
+                    if (!aTime.isValid() && !bTime.isValid()) {
+                        switch (a.priority()) {
+                        case 'High':
+                            switch (b.priority()) {
+                            case 'High':
+                                // a = high, b = high sort by SUBJECT
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                                return 0;
+                                break;
+                            case 'Normal':
+                                // a = high, b = normal promote a
+                                return -1;
+                                break;
+                            case 'Low':
+                                // a = high , b = low promote a
+                                return -1;
+                                break;
+                            }
+                            break;
+                        case 'Normal':
+                            switch (b.priority()) {
+                            case 'High':
+                                // a = normal, b = high promote b
+                                return 1;
+                                break;
+                            case 'Normal':
+                                // a = normal, b = normal sort by subject.
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                                break;
+                            case 'Low':
+                                // a = normal, b = low, promote a
+                                return -1
+                                break;
+                            }
+                            break;
+                        case 'Low':
+                            switch (b.priority()) {
+                            case 'High':
+                                // a = low, b = high, promote b
+                                return 1;
+                                break;
+                            case 'Normal':
+                                // a = low, b = normal, promote b
+                                return 1;
+                                break;
+                            case 'Low':
+                                // a = low, b = low, sort by subject
+                                if (a.subject().toLowerCase() > b.subject().toLowerCase()) {
+                                    return 1;
+                                }
+                                if (a.subject().toLowerCase() < b.subject().toLowerCase()) {
+                                    return -1;
+                                }
+                                if (a.subject().toLowerCase() === b.subject().toLowerCase()) {
+                                    return 0;
+                                }
+                                return 0;
+                                break;
+                            }
+                            break;
+                        }
+                    }
+                    if (!bTime.isValid()) {
+                        //return -1;
+                        return 1;
+                    }
+                    if (!aTime.isValid()) {
+                        //return 1;
+                        return -1;
+                    }
+                    return 0;
+                };
+
+                this.sortByDate(toggleSortByDate);
+                if (toggleSortByDate) {
+                    debug.log({'sort list': 'sortByDate'});
+                    this.myTaskList.sort(sortByDate);
+                } else {
+                    debug.log({'sort list': 'sortByPriority'});
+                    this.myTaskList.sort(sortByPriority);
+                }
+                if (this.cookieLoadDone) {
+                    this.setCookie();
+                }
+            }
+            /**
+             * Cookie Functions -> for Filter storage
+             */
+            this.cookieName                = ConfigOptions.cookieName;
+            this.cookieOptions             = ConfigOptions.cookieOptions;
+            this.cookieLoadDone            = false;
+            this.getCookie                 = function() {
+                var configsFromCookie = {};
+                debug.log({
+                    'function': 'getCookie'
+                });
+                try {
+                    configsFromCookie = JSON.parse(_.unescape(Cookies.get(this.cookieName)));
+                    debug.log({configsFromCookie: configsFromCookie});
+                    if (configsFromCookie && configsFromCookie.hasOwnProperty('sortByDate')) {
+                        this.sortByDate(configsFromCookie.sortByDate);
+                    } else {
+                        debug.log('sort by date value falling back to default');
+                        this.sortByDate(this.defaultSortType());
+                    }
+                    if (configsFromCookie && configsFromCookie.hasOwnProperty('timeFilter')) {
+                        this.timeFilter(configsFromCookie.timeFilter);
+                    } else {
+                        debug.log('filter by time value falling back to default');
+                        this.timeFilter(this.timeFilterDefault());
+                    }
+                    if (configsFromCookie && configsFromCookie.hasOwnProperty('typeFilter')) {
+                        this.typeFilter(configsFromCookie.typeFilter);
+                    } else {
+                        debug.log('filter by type value falling back to default');
+                        this.typeFilter(this.typeFilterDefault());
+                    }
+                    if (configsFromCookie && configsFromCookie.hasOwnProperty('statusFilter')) {
+                            this.statusFilter(configsFromCookie.statusFilter);
+                    } else {
+                        debug.log('filter by status value falling back to default');
+                        this.statusFilter(this.statusFilterDefault());
+                    }
+                    if (configsFromCookie && configsFromCookie.hasOwnProperty('singleLineTaskLayout')) {
+                       this.singleLineTaskLayout(configsFromCookie.singleLineTaskLayout);
+                    } else {
+                        debug.log('layout value falling back to default');
+                        this.singleLineTaskLayout(this.defaultSortType());
+                    }
+                } catch (ignore) {
+                    debug.log('No cookie found falling back to all defaults');
+                    this.sortByDate(this.defaultSortType());
+                    this.timeFilter(this.timeFilterDefault());
+                    this.typeFilter(this.typeFilterDefault());
+                    this.statusFilter(this.statusFilterDefault());
+                    this.singleLineTaskLayout(false);
+                }
+                this.changeSortType(this.sortByDate());
+                this.processFilters();
+                this.cookieLoadDone = true;
+            };
+            this.setCookie                = function() {
+                    var configsForCookie = {};
+                    debug.log({
+                        'function': 'setCookie'
+                    });
+                    if (this.cookieLoadDone) {
+                        configsForCookie = {
+                            timeFilter: this.timeFilter(),
+                            typeFilter: this.typeFilter(),
+                            statusFilter: this.statusFilter(),
+                            singleLineTaskLayout: this.singleLineTaskLayout(),
+                            sortByDate:this.sortByDate()
+                        };
+                        debug.log({
+                            configsForCookie: configsForCookie
+                        });
+                        // Get Filters from UI
+                        Cookies.set(
+                            this.cookieName,
+                            JSON.stringify(configsForCookie),
+                            this.cookieOptions
+                    );
+                }
+            };
+            this.getCookie();
+        };
+        return taskManagerViewModel;
+    }
+);
+require(
+    ['knockout', 'taskManagerViewModel', 'jquery', 'bootstrap', 'Debug'],
+    function (ko, taskManagerViewModel, $, debug) {
+        'use strict';
+        ko.applyBindings(new taskManagerViewModel());
+        // Add accessibilty and keyboard navigation to bootstrap dropdown menus
+        // https://medium.com/@mariusc23/making-bootstrap-dropdowns-more-accessible-27b2566abdda
+        $(document).on('shown.bs.dropdown', function(event) {
+            var dropdown = $(event.target);
+            // Set aria-expanded to true
+            dropdown.find('.dropdown-menu').attr('aria-expanded', true);
+            // Set focus on the first link in the dropdown
+            setTimeout(function() {
+                dropdown.find('.dropdown-menu li:first-child a').focus();
+            }, 10);
+        });
+        // On dropdown close
+        $(document).on('hidden.bs.dropdown', function(event) {
+            var dropdown = $(event.target);
+            // Set aria-expanded to false
+            dropdown.find('.dropdown-menu').attr('aria-expanded', false);
+            // Set focus back to dropdown toggle
+            dropdown.find('.dropdown-toggle').focus();
+        });
+    }
+);
+</script>
+</apex:component>

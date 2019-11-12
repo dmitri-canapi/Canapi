@@ -1,0 +1,391 @@
+<apex:page controller="CustomDocumentController" showHeader="false" sidebar="false" standardStylesheets="true">
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
+    <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}"/> 
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.css')}"/>
+    <style type="text/css" media="screen">
+        html, body{
+            margin:0px;
+            padding:0px;
+            height:100%;
+            overflow:hidden !important;
+        }  
+        .dhxwins_vp_auto{
+        	overflow:hidden !important;
+        }
+        div#layoutObj {
+            position: relative;
+            margin-top: 5px;
+            margin-left: 0px;
+            width: 100%;
+            height: 85%;
+        }
+        .notification, .notification:hover {
+        	line-height: 0.7em;
+            text-decoration: none;
+            padding: 5px 5px 5px 5px;
+            position: relative;
+            display: inline-block;
+            border-radius: 2rem!important;
+            border: 1px solid rgb(221, 219, 218);
+            background: #6fb1da;
+        	color: white;
+        	font-size: 12px;
+        }
+        .badge{
+            position: absolute;
+            top: 4px; right: 5px; 
+            border-radius: 50%;
+        	text-decoration: none;
+        	color: white;
+        }
+		.badge:hover{
+           	color: red !important;
+        	text-decoration: none;
+        }
+    	.dhx_popup_arrow_right{
+        	display: none !important;
+        }
+        .uneven{
+            <!--background-color: #f3f3f3a1;-->
+        }
+        .slds-button {
+            position: relative;
+            display: inline-block;
+            line-height: 1.875rem;
+            color: rgb(172, 28, 44);
+            -webkit-appearance: none;
+            white-space: normal;
+            user-select: none;
+            padding: 0px;
+            background: border-box transparent;
+            border-width: 1px;
+            border-style: solid;
+            border-color: transparent;
+            border-image: initial;
+            border-radius: 0.25rem;
+            text-decoration: none;
+        }
+        .slds-button_brand, .slds-button--brand {
+            padding-left: 1rem;
+            padding-right: 1rem;
+            text-align: center;
+            vertical-align: middle;
+            background-color: rgb(172, 28, 44);
+            color: rgb(255, 255, 255);
+            border-width: 1px;
+            border-style: solid;
+            border-image: initial;
+            transition: border 0.15s linear 0s;
+            border-color: rgb(172, 28, 44);
+        }
+        .slds-button_neutral{
+            padding-left: 1rem;
+            padding-right: 1rem;
+            text-align: center;
+            vertical-align: middle;
+            background-color: rgb(255, 255, 255);
+            border-width: 1px;
+            border-style: solid;
+            border-image: initial;
+            transition: border 0.15s linear 0s;
+            border-color: rgb(205, 202, 202);
+            color: rgb(172, 28, 44);
+            border-width: 1px;
+            border-style: solid;
+            border-image: initial;
+            transition: border 0.15s linear 0s;
+            border-color: rgb(205, 202, 202);
+        }
+        .dhtmlx-NotifyMessage > div{
+        	background-color: #76fbb6 !important;
+        }
+        a {
+        	text-decoration: none;
+        }
+        a:hover {
+        	text-decoration: underline;
+        }
+        .grid_hover  {
+        	background-color: #f9d3f136;
+        }
+         div.gridbox_material.gridbox table.obj tr td {
+    		border-bottom: 1px solid rgb(205, 202, 202);
+        }
+        .disabled {
+        	background: rgb(201, 199, 197);
+        }
+        div.gridbox_material.gridbox table.obj tr td, .dhx_grid_adjust , .standartTreeRow{
+        	font-size: 13px;
+        }
+</style>
+   
+<body>
+    <input type="text" id="stext" style="width: 306px;height: 20px; text-indent: 5px;" placeHolder="Search this list"/>
+    <span style="margin-left: 15px;" id="TagFilter"></span>
+    <input type="text" id="SearchDocuments" style="width: 300px;height: 20px; text-indent: 5px;float:right" placeHolder="Search by title" onkeyup="filterDocs(null)"/>
+    <br/>
+    <div id="layoutObj"></div>
+    
+	<button class="slds-button slds-button_brand disabled" id="LinkButton" style=" float: right;  margin: 5px; border-color: white;" type="button" title="Link" onclick="LinkDocToRI();">Link</button>    
+    <button class="slds-button slds-button_neutral" style=" float: right;  margin: 5px;" type="button" title="Close" onclick="closeParentPopup();">Close</button>
+    
+    
+    <script type="text/javascript">
+    var reviewItemId;
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    reviewItemId = vars["id"];
+    
+    var myLayout = new dhtmlXLayoutObject({
+        parent: "layoutObj",
+        pattern: '3L'
+    });
+    myLayout.cells("a").hideHeader();
+    myLayout.cells("b").hideHeader();
+    myLayout.cells("c").hideHeader();
+    myLayout.cells("a").setWidth(310);
+    //myLayout.cells("a").fixSize(true, false);
+    
+    
+    function closeParentPopup(){
+        var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
+        parent.postMessage('CloseLightningPopupFromVF', url);
+    }
+ 
+    TagTree = myLayout.cells("a").attachTree();
+    TagTree.setImagePath("{!URLFOR($Resource.DHTMLX, '/skins/skyblue/imgs/dhxtree_skyblue/')}");
+    TagTree.setOnClickHandler(filterDocs);
+      
+    function filterDocs(id){
+        
+        if (!id){
+            id = TagTree.getSelectedItemId();
+        }
+
+        if (id){
+        	$("#TagFilter").html("Selected Tag: " + TagTree.getItemText(id));
+            TagTree.setItemColor(id,'black','red');
+        }
+		var searchText = ($("#SearchDocuments").val().length>1) ? $("#SearchDocuments").val() : null;
+        CustomDocumentController.GetDocumentsFilteredRI (id,searchText,function(result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            } else {
+                var data = result;
+                data = ($('<div>').html(data).text());
+                myGrid.clearAll();
+                myGrid.parse(data,"json"); 
+                $( "#LinkButton" ).addClass( "disabled" );
+                $("#LinkButton").html('Link');
+                myEditor.setContent('');
+                myEditor.setReadonly(true);
+            }
+        }); 
+    };
+    
+    myEditor = myLayout.cells("c").attachEditor();
+    myEditor.setReadonly(true);
+    myEditor.attachEvent("onAccess", function(eventName, evObj){
+        if (eventName == "keyup") {
+            if (myEditor.getContent()=='' || myEditor.getContent() == null){
+            	$( "#LinkButton" ).addClass( "disabled" );
+            } else {
+                $( "#LinkButton" ).removeClass( "disabled" );
+            }
+        }
+    });
+
+    function eXcell_tags(cell){ //the eXcell name is defined here
+        if (cell){                // the default pattern, just copy it
+            this.cell = cell;
+            this.grid = this.cell.parentNode.grid;
+        }
+        this.edit = function(){}  //read-only cell doesn't have edit method
+        // the cell is read-only, so it's always in the disabled state
+        this.isDisabled = function(){ return true; }
+        this.setValue=function(val){
+            var CellObj = this;
+            CustomDocumentController.getDocsTagsRecords (val,function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    //console.log(result);
+                    var resultArray = result;
+                    var options2 = [];
+                    if (resultArray!=null){
+                        var res = resultArray;
+                        //console.log(res);
+                        for (var i=0;i<res.length;i++){
+                            var tName = res[i].Tag__r.Name;
+                            if (res[i].Tag__r.ParentTag__c!=null){
+                                tName = res[i].Tag__r.ParentTag__r.Name + ':' + tName;
+                                
+                                if (res[i].Tag__r.ParentTag__r.ParentTag__c!=null){
+                                    tName = res[i].Tag__r.ParentTag__r.ParentTag__r.Name + ':' + tName;
+                                }
+                            }
+                            
+                            options2.push({ value: res[i].Id, label: tName}); 
+                        }
+                    }
+                    
+                    var tagsBadges ='';
+                    for (var i=0;i<options2.length;i++){
+                        tagsBadges += "<span id='"+ options2[i].value +"' class='notification' style=''><span>"+ options2[i].label +"</span></span>";
+                    }
+                    CellObj.setCValue(tagsBadges,val);     
+                    
+                }
+            }); 
+        }
+    }
+    eXcell_tags.prototype = new eXcell;// nests all other methods from the base class
+    
+    myGrid = myLayout.cells("b").attachGrid();
+    myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
+    //myGrid.load("../common/grid.xml");
+    myGrid.setHeader("TYPE,DOCUMENT,TAGS");
+    myGrid.setInitWidths("38,220,*");
+    myGrid.setColAlign("left,left,left");
+    myGrid.setColTypes("img,link,tags");
+    myGrid.setColSorting("str,str,str");
+    myGrid.enableMultiline(true);
+    myGrid.enableAlterCss("even","uneven");
+    myGrid.enableRowsHover(true,'grid_hover');
+    
+
+    //start grid
+    myGrid.init();
+    myGrid.attachEvent("onBeforeDrag", function(id){ return false; });
+    
+    CustomDocumentController.GetDocumentsRI (function(result, event) {
+        if (event.type == 'exception') {
+            alert(event.message);
+        } else {
+            var data = result;
+            data = ($('<div>').html(data).text());
+            myGrid.parse(data,"json");  
+        }
+    }); 
+    
+    myGrid.attachEvent("onRowSelect", function(id,ind){
+        myEditor.setReadonly(false);
+        CustomDocumentController.GetDocNotes (id,reviewItemId,function(result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            } else {
+                 myEditor.setContent(result);
+                console.log(result);
+                if (result==''|| result==null){
+                    $( "#LinkButton" ).addClass( "disabled" );
+                    $("#LinkButton").html('Link');
+                } else {
+                	$( "#LinkButton" ).removeClass( "disabled" );
+                    $("#LinkButton").html('Update Note');
+                }
+            }
+        }); 
+    });
+        
+    CustomDocumentController.getAccountTagsRecords(null, function(result, event) {
+        if (event.type == 'exception') {
+            alert(event.message);
+        } else {
+            data = result;
+            
+            var finalData = [];
+            var t =[];
+            t.push('All');
+            t.push(0);
+            t.push('All');
+            finalData.push(t);
+            
+            var parents = [];
+            for (var i=0;i<data.length;i++){
+                var temp = [];
+                temp.push(data[i].Id);
+                if (data[i].ParentTag__c!=null){
+                    temp.push(data[i].ParentTag__c); 
+                    parents.push(data[i].ParentTag__c);
+                }else{
+                    temp.push('All');
+                }
+                temp.push(data[i].Name);
+                finalData.push(temp);
+            }
+            
+            TagTree.parse(finalData, "jsarray");
+            TagTree.openAllItems('All');
+            for (var i=0;i<parents.length;i++){
+                TagTree.openAllItems(parents[i]);
+            }
+            TagTree.sortTree('0', 'ASC', true);
+        }
+    });
+    	
+	function LinkDocToRI(){
+        var selectedId = myGrid.getSelectedRowId();
+        var content = myEditor.getContent();
+        console.log(content);
+        if (!selectedId || content=='' || content==null){
+            /*dhtmlx.message({
+                type: "error",
+                text: "Please, select a document."
+            })*/
+        } else {
+            CustomDocumentController.LinkDocToRI (reviewItemId,selectedId,content,function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    var text = '';
+                    if ($("#LinkButton").html()=='Link'){
+                        text = 'Document Linked to Review Item.';
+                    } else {
+                        text = 'Note successfully updated.';
+                    }
+                    dhtmlx.message({
+                        expire:3500,
+                        type:"NotifyMessage",
+                        text: text
+                    })
+                }
+            });
+        }
+    }
+    
+    function openModal(o,type,isCommunity){
+        /*if (isCommunity){
+            dhxWins = new dhtmlXWindows();
+            dhxWins.attachViewportTo("layoutObj");
+            
+            w1 = dhxWins.createWindow("w1", 20, 30, 600, 500);
+            w1.setText("File Preview");
+            w1.centerOnScreen();
+            
+            var vars = {};
+            var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+    
+            
+            w1.attachHTMLString('<iframe src="/fintech/apex/FilePreview?id=' + o + '&type=' + type + '&isCommunity=' + isCommunity +  '" style="border: none;min-width:600px;width: 100%;height: 100vh;"></iframe>');
+            
+        } else {*/
+
+            var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
+            parent.postMessage('showFilePreview' + '-del-'+ o , url);
+        //}
+    }
+    
+    $("#stext").on('keyup', function (e) {
+        if (e.keyCode == 13) {
+            TagTree.findItem(document.getElementById('stext').value);
+        }
+    });
+    </script>
+    
+</body>
+     
+</apex:page>

@@ -1,0 +1,24 @@
+<aura:component controller="CommunityPostToChatterController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,forceCommunity:availableForAllPageTypes" access="global" >
+    <aura:attribute name="groups" type="Object"/>
+    <aura:attribute name="group" type="string"/>
+    <aura:attribute name="context" type="string" default="GLOBAL"/>
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	
+    
+	
+    <div id="customChatterComponent" aura:id="customChatterComponent">
+    {!v.body}
+    </div>
+    
+    <div style="width:220px">
+        <div class="slds-form_horizontal slds-form slds-grid slds-wrap">
+            <lightning:select name="cStat" label="Post To:" value="{!v.group}" aura:id="statusPicklist" onchange="{!c.onChange}">
+                <option value="GLOBAL">My Followers</option>
+                <aura:iteration items="{!v.groups}" var="opt">
+                    <option value="{!opt.pickListValue}">{!opt.pickListLabel}</option>
+                </aura:iteration>
+            </lightning:select>
+        </div>
+    </div>
+</aura:component>

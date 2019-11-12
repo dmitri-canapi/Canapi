@@ -1,0 +1,8 @@
+.THIS .slds-modal__container  {
+    max-width: 70% !important;
+    width: 100% !important;
+}
+.THIS .cButton {
+    margin-top: -74px;
+    margin-right: 65px;
+}

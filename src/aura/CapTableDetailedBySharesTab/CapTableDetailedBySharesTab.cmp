@@ -1,0 +1,303 @@
+<aura:component controller="CapTableController">
+    <!-- attributes -->
+    <aura:attribute name="calculatedInvestorInfo" type="Object"/>
+    <aura:attribute name="rawCapTableData" type="Object"/>
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="filterValue" type="String"/>
+    
+    <aura:attribute name="sortField" type="integer" default="0"/>
+    <aura:attribute name="sortDirection" type="String" default="desc"/> 
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="isAllowEditing" type="Boolean"/>
+    <aura:attribute name="isCommunityUser" type="Boolean"/>
+    <aura:attribute name="showPlus" type="Boolean"/>
+    	
+    <!-- handlers-->
+    <aura:handler event="c:Cap_ChangeFilter"  action="{!c.init}"/>
+    <aura:handler event="c:CapTableDataChanged" action="{!c.init}"/>
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    
+    <aura:registerevent name="addRecord" type="c:Cap_AddRecord"></aura:registerevent>
+    
+   
+	<aura:handler name="init" value="{!this}" action="{!c.init}" afterRender="{!c.sortTable}"/>
+
+	<div class="slds-scrollable_x" style="overflow-y: auto !important;">
+        <table id="SharesTable" style="float: left;" class="slds-table slds-table_cell-buffer slds-table_bordered slds-no-row-hover slds-table_striped">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <th class="slds-text-title_caps" scope="col" data-id="0" onclick="{!c.sortTable}">
+                        <div class="slds-truncate slds-text-align--left" style="display: inline;" data-id="0">Shareholder</div>
+                        <aura:if isTrue="{!v.sortField==0}">
+                            <span data-id="0"> &nbsp;
+                                {!v.sortDirection=='asc' ? '&#8593;' : '&#8595;'}
+                            </span>
+                        </aura:if>
+                        <aura:if isTrue="{!v.showPlus}"><a onclick="{!c.addShareholder}" style="margin-left: 5px; font-size: 23px; line-height: 5px; vertical-align: middle;">+</a></aura:if>
+                    </th>
+                    <aura:iteration items="{!v.rawCapTableData.rounds}" var="round" indexVar="idx">
+                         <th class="slds-text-title_caps country" scope="col" data-id="{!idx+1}" onclick="{!c.sortTable}" data-record="{!idx}" onmouseenter="{!c.showRoundTooltip}"  onmouseleave="{!c.hideRoundTooltip}">
+                            <span style="display:none">{!round.fullName}</span>
+                            <div class="slds-truncate slds-text-align--right" data-id="{!idx+1}">
+                                <div style="position: static; z-index: 1;" data-id="{!idx+1}" >
+                                    <span align="left" data-id="{!idx+1}">{!round.fullName}</span>
+                                    <aura:if isTrue="{!v.sortField==idx+1}">
+                                        <span data-id="{!idx+1}"> &nbsp;
+                                            {!v.sortDirection=='asc' ? '&#8593;' : '&#8595;'}
+                                        </span>
+                                    </aura:if>
+                                    <aura:if isTrue="{!idx == 0}">
+	                                    <div class="slds-popover slds-hide" role="tooltip" aura:id="roundTooltip" data-roundId="{!round.id}" style="position: absolute; top: 23px; left: 0px; z-index: 2; width: max-content;">
+                                            <div class="slds-popover__body">
+                                                <div style="display:inline-block">
+                                                    <div style="float:left;clear: both;" data-roundId="{!round.id}"><a onclick="{!c.navToRound}" aria-describedby="roundTooltip" data-roundId="{!round.id}">{!round.fullName}</a></div>
+                                                    <aura:if isTrue="{!v.showPlus}"><div style="float:left;margin-left: 15px;float: right;text-transform: capitalize; font-size: 11px; margin-bottom: 5px;  cursor: pointer;" data-roundName="{!round.fullName}" data-roundId="{!round.id}" onclick="{!c.removeRound}">Delete Series</div></aura:if>
+                                                      <aura:if isTrue="{!and(round.totalInvestedDollars !=null, round.totalInvestedDollars!=0)}">
+                                                          <div style="float:left;clear: both;" title="Total Committed">Total Committed:</div>
+                                                          <div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.totalInvestedDollars}" style="currency" maximumFractionDigits="2"/></div>
+                                                      </aura:if>
+                                                      <aura:if isTrue="{!and(round.sharePrice !=null, round.sharePrice!=0)}">
+                                                        <div style="float:left;clear: both;" title="Share Price">Share Price:</div>
+                                                    	<div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.sharePrice}" style="currency" maximumFractionDigits="4"/></div>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!and(round.preMoneyValuation !=null, round.preMoneyValuation!=0)}">
+                                                        <div style="float:left;clear: both;" title="Pre-Money Valuation">Pre-Money Valuation:</div>
+                                                        <div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.preMoneyValuation}" style="currency" maximumFractionDigits="2"/></div>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!and(round.postMoneyValuation, round.postMoneyValuation!=0)}">
+                                                        <div style="float:left;clear: both;" title="Post-Money Valuation">Post-Money Valuation:</div>
+                                                        <div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.postMoneyValuation}" style="currency" maximumFractionDigits="2"/></div>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!and(round.CloseDate, round.CloseDate!=0)}">
+                                                        <div style="float:left;clear: both;" title="Close Date">Close Date:</div>
+                                                    	<div style="float:left;margin-left: 15px;float: right;">{!round.CloseDate}</div>
+                                                    </aura:if>
+                                                      
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <aura:set attribute="else">
+	                                    	<div class="slds-popover slds-hide" role="tooltip" aura:id="roundTooltip" data-roundId="{!round.id}" style="position: absolute; top: 23px; left: -80px; z-index: 2; width: max-content;">
+                                            <div class="slds-popover__body">
+                                                <div style="display:inline-block">
+                                                    <div style="float:left;clear: both;" data-roundId="{!round.id}"><a onclick="{!c.navToRound}" aria-describedby="roundTooltip" data-roundId="{!round.id}">{!round.fullName}</a></div>
+                                                    <aura:if isTrue="{!v.showPlus}"><div style="float:left;margin-left: 15px;float: right;text-transform: capitalize; font-size: 11px; margin-bottom: 5px;  cursor: pointer;" data-roundName="{!round.fullName}" data-roundId="{!round.id}" onclick="{!c.removeRound}">Delete Series</div></aura:if>
+                                                    <aura:if isTrue="{!and(round.totalInvestedDollars !=null, round.totalInvestedDollars!=0)}">
+                                                          <div style="float:left;clear: both;" title="Total Committed">Total Committed:</div>
+                                                          <div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.totalInvestedDollars}" style="currency" maximumFractionDigits="2"/></div>
+                                                      </aura:if>
+                                                      <aura:if isTrue="{!and(round.sharePrice !=null, round.sharePrice!=0)}">
+                                                        <div style="float:left;clear: both;" title="Share Price">Share Price:</div>
+                                                    	<div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.sharePrice}" style="currency" maximumFractionDigits="4"/></div>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!and(round.preMoneyValuation !=null, round.preMoneyValuation!=0)}">
+                                                        <div style="float:left;clear: both;" title="Pre-Money Valuation">Pre-Money Valuation:</div>
+                                                        <div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.preMoneyValuation}" style="currency" maximumFractionDigits="2"/></div>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!and(round.postMoneyValuation, round.postMoneyValuation!=0)}">
+                                                        <div style="float:left;clear: both;" title="Post-Money Valuation">Post-Money Valuation:</div>
+                                                        <div style="float:left;margin-left: 15px;float: right;"><lightning:formattedNumber value="{!round.postMoneyValuation}" style="currency" maximumFractionDigits="2"/></div>
+                                                    </aura:if>
+                                                    <aura:if isTrue="{!and(round.CloseDate, round.CloseDate!=0)}">
+                                                        <div style="float:left;clear: both;" title="Close Date">Close Date:</div>
+                                                    	<div style="float:left;margin-left: 15px;float: right;">{!round.CloseDate}</div>
+                                                    </aura:if>
+                                                      
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </div>
+                        </th>
+                    </aura:iteration>
+                    <aura:if isTrue="{!v.showPlus}">
+                        <th width="20px" class="addRound">
+                            <a onclick="{!c.addSeries}" style="font-size: 23px; line-height: 5px; vertical-align: middle;">+</a>
+                        </th>
+                        <aura:set attribute="else">
+                            <th></th>
+                        </aura:set>
+                    </aura:if>
+                    <th class="slds-text-title_caps slds-text-align--right" scope="col" data-id="total" onclick="{!c.sortTable}">
+                        <div class="slds-truncate slds-text-align--right" style="display:inline" data-id="total">Total Investment</div>
+                        <aura:if isTrue="{!v.sortField==-1}">
+                            <span data-id="total"> &nbsp;
+                                {!v.sortDirection=='asc' ? '&#8593;' : '&#8595;'}
+                            </span>
+                        </aura:if>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.calculatedInvestorInfo}" var="row" indexVar="rowIdx">
+                    <tr class="slds-hint-parent">
+                        <td data-record="{!rowIdx}" onmouseenter="{!c.showShareHolderTooltip}"  onmouseleave="{!c.hideShareHolderTooltip}">
+                            <span style="display:none;">{!row.shareholder}</span>
+                            <div class="slds-truncate slds-text-align--left" style="display: inline;"><a onclick="{!c.navToShareholder}" data-shareholderId="{!row.id}">{!row.shareholder}</a></div>
+                        	
+                            <div class="slds-popover slds-hide" role="tooltip" aura:id="shareHolderTooltip" data-roundId="{!row.id}" style="margin-left:5px;min-height: auto; z-index: 2; width: max-content;display: inline-block;">
+                                <div class="slds-popover__body" style="min-width: auto !important;    padding: 0px;">
+                                    <aura:if isTrue="{!v.showPlus}">
+                                        <p style="text-align: right;  text-transform: capitalize; font-size: 11px; cursor: pointer;" data-roundName="{!row.shareholder}" data-roundId="{!row.id}"><p onclick="{!c.removeShareholder}" aria-describedby="roundTooltip" data-roundName="{!row.shareholder}" data-roundId="{!row.id}">Delete Shareholder</p></p>
+                                	</aura:if>
+                                </div>
+                            </div>
+                        </td>
+                        <aura:iteration items="{!row.roundInvestments}" var="roundInvestment" indexVar="colIdx">
+                            <td aura:id="{!'shares-td-' + rowIdx + ':' + colIdx}" id="{!'shares-td-' + rowIdx + ':' + colIdx}">
+                                <span style="display:none">
+                                	<aura:if isTrue="{!v.filterValue=='All'}">
+                                    	{!roundInvestment.TotalShares}
+                                	</aura:if>
+                                    <aura:if isTrue="{!v.filterValue=='Voting'}">
+                                    	{!roundInvestment.VotingShares}
+                                	</aura:if>
+                                    <aura:if isTrue="{!v.filterValue=='Non-Voting'}">
+                                    	{!roundInvestment.NonVotingShares}
+                                	</aura:if>
+                                </span>
+                                <div class="slds-truncate slds-text-align--right" data-record="{!rowIdx + ':' + colIdx}" onclick="{!c.showEditBox}" aria-describedby="editBox">
+                                    <aura:if isTrue="{!v.filterValue=='All'}">
+                                    	<lightning:formattedNumber value="{!roundInvestment.TotalShares}" maximumFractionDigits="0"/>
+                                	</aura:if>
+                                    <aura:if isTrue="{!v.filterValue=='Voting'}">
+                                    	<lightning:formattedNumber value="{!roundInvestment.VotingShares}" maximumFractionDigits="0"/>
+                                	</aura:if>
+                                    <aura:if isTrue="{!v.filterValue=='Non-Voting'}">
+                                    	<lightning:formattedNumber value="{!roundInvestment.NonVotingShares}" maximumFractionDigits="0"/>
+                                	</aura:if>
+                                </div>
+                                    <div class="slds-popover slds-popover_big slds-hide minWidth" role="tooltip" aura:id="editBox" style="position: absolute; top: -8px;max-width: 282px;">
+                                        <aura:if isTrue="{!v.filterValue=='All'}">
+                                            <div class="slds-form" style="text-align: center;">
+                                                <div style="text-align: left;">
+                                                    <label aura:id="additionalFieldsLabels1" class="slds-form-element__label slds-hide addFieldsLabel">Total Shares</label>
+                                                    <input  style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" inputmode="numeric" data-number-stepfactor="100"  value="{!roundInvestment.TotalShares}" aura:id="editBoxInputTS" name="editBoxInputTS" placeholder="Total Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}" step="{!roundInvestment.StepTS}" onkeydown="{!c.doKeypress}" onblur="{!c.saveOnBlur}" class="slds-input" />
+                                                    <button class="slds-button slds-button--neutral" style="width: 43px;height: 30px;" data-record="{!rowIdx + ':' + colIdx}" onclick="{!c.showAllFields}">
+                                                        <div aura:id="moreButton1" data-record="{!rowIdx + ':' + colIdx}" style="width: 12px;font-size: 36px; transform: rotate(90deg);">‣</div>
+                                                        <div aura:id="moreButton2" class="slds-hide" data-record="{!rowIdx + ':' + colIdx}" style="height: 32px;font-size: 36px;transform: rotate(270deg);" >‣</div>
+                                                    </button>
+                                                </div>
+                                                <div aura:id="additionalFields" class="slds-hide">
+                                                    <div style="text-align: left;">
+                                                        <label aura:id="additionalFieldsLabels2" class="slds-form-element__label slds-hide addFieldsLabel">Voting Shares</label>
+                                                        <input style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" value="{!roundInvestment.VotingShares}" aura:id="editBoxInputVS" name="editBoxInputVS" placeholder="Voting Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}"  step="{!roundInvestment.StepVS}" onkeydown="{!c.doKeypress}" class="slds-input" />
+                                                    </div>
+                                                    <div style="text-align: left;">
+                                                        <label aura:id="additionalFieldsLabels3" class="slds-form-element__label slds-hide addFieldsLabel" for="horizontal-input-id-01">Non-Voting Shares</label>
+                                                        <input style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" value="{!roundInvestment.NonVotingShares}" aura:id="editBoxInputNVS" name="editBoxInputNVS" placeholder="Non-Voting Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}" step="{!roundInvestment.StepNVS}" onkeydown="{!c.doKeypress}" class="slds-input" />
+                                                    </div>
+                                                    <button class="slds-button slds-button--neutral slds-button--brand" style="margin-bottom: 8px;" onclick="{!c.saveShares}" id="{!rowIdx + ':' + colIdx}" data-investorId="{!row.id}" data-record="{!rowIdx + ':' + colIdx}" data-colIdx="{!colIdx}">Save</button>
+                                                </div>
+                                            </div>
+                                        </aura:if>
+                                        <aura:if isTrue="{!v.filterValue=='Voting'}">
+                                            <div class="slds-form" style="text-align: center;">
+                                                <div style="text-align: left;">
+                                                    <label aura:id="additionalFieldsLabels1" class="slds-form-element__label slds-hide addFieldsLabel">Voting Shares</label>
+                                                    <input  style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" inputmode="numeric"  value="{!roundInvestment.VotingShares}" aura:id="editBoxInputVS" name="editBoxInputVS" placeholder="Voting Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}" step="{!roundInvestment.StepVS}" onkeydown="{!c.doKeypress}" onblur="{!c.saveOnBlur}" class="slds-input" />
+                                                    <button class="slds-button slds-button--neutral" style="width: 43px;height: 30px;" data-record="{!rowIdx + ':' + colIdx}" onclick="{!c.showAllFields}">
+                                                        <div aura:id="moreButton1" data-record="{!rowIdx + ':' + colIdx}" style="width: 12px;font-size: 36px; transform: rotate(90deg);">‣</div>
+                                                        <div aura:id="moreButton2" class="slds-hide" data-record="{!rowIdx + ':' + colIdx}" style="height: 32px;font-size: 36px;transform: rotate(270deg);" >‣</div>
+                                                    </button>
+                                                </div>
+                                                <div aura:id="additionalFields" class="slds-hide">
+                                                    <div style="text-align: left;">
+                                                        <label aura:id="additionalFieldsLabels2" class="slds-form-element__label slds-hide addFieldsLabel">Total Shares</label>
+                                                        <input style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" value="{!roundInvestment.TotalShares}" aura:id="editBoxInputTS" name="editBoxInputTS" placeholder="Total Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}"  step="{!roundInvestment.StepTS}" onkeydown="{!c.doKeypress}" class="slds-input" />
+                                                    </div>
+                                                    <div style="text-align: left;">
+                                                        <label aura:id="additionalFieldsLabels3" class="slds-form-element__label slds-hide addFieldsLabel" for="horizontal-input-id-01">Non-Voting Shares</label>
+                                                        <input style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" value="{!roundInvestment.NonVotingShares}" aura:id="editBoxInputNVS" name="editBoxInputNVS" placeholder="Non-Voting Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}" step="{!roundInvestment.StepNVS}" onkeydown="{!c.doKeypress}" class="slds-input" />
+                                                    </div>
+                                                    <button class="slds-button slds-button--neutral slds-button--brand" style="margin-bottom: 8px;" onclick="{!c.saveShares}" id="{!rowIdx + ':' + colIdx}" data-investorId="{!row.id}" data-record="{!rowIdx + ':' + colIdx}" data-colIdx="{!colIdx}">Save</button>
+                                                </div>
+                                            </div>
+                                        </aura:if>
+                                        <aura:if isTrue="{!v.filterValue=='Non-Voting'}">
+                                            <div class="slds-form" style="text-align: center;">
+                                                <div style="text-align: left;">
+                                                    <label aura:id="additionalFieldsLabels1" class="slds-form-element__label slds-hide addFieldsLabel">Non-Voting Shares</label>
+                                                    <input  style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" inputmode="numeric"  value="{!roundInvestment.NonVotingShares}" aura:id="editBoxInputNVS" name="editBoxInputNVS" placeholder="Non-Voting Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}" step="{!roundInvestment.StepNVS}" onkeydown="{!c.doKeypress}" onblur="{!c.saveOnBlur}" class="slds-input" />
+                                                    <button class="slds-button slds-button--neutral" style="width: 43px;height: 30px;" data-record="{!rowIdx + ':' + colIdx}" onclick="{!c.showAllFields}">
+                                                        <div aura:id="moreButton1" data-record="{!rowIdx + ':' + colIdx}" style="width: 12px;font-size: 36px; transform: rotate(90deg);">‣</div>
+                                                        <div aura:id="moreButton2" class="slds-hide" data-record="{!rowIdx + ':' + colIdx}" style="height: 32px;font-size: 36px;transform: rotate(270deg);" >‣</div>
+                                                    </button>
+                                                </div>
+                                                <div aura:id="additionalFields" class="slds-hide">
+                                                    <div style="text-align: left;">
+                                                        <label aura:id="additionalFieldsLabels2" class="slds-form-element__label slds-hide addFieldsLabel">Total Shares</label>
+                                                        <input style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" value="{!roundInvestment.TotalShares}" aura:id="editBoxInputTS" name="editBoxInputTS" placeholder="Total Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}"  step="{!roundInvestment.StepTS}" onkeydown="{!c.doKeypress}" class="slds-input" />
+                                                    </div>
+                                                    <div style="text-align: left;">
+                                                        <label aura:id="additionalFieldsLabels3" class="slds-form-element__label slds-hide addFieldsLabel" for="horizontal-input-id-01">Voting Shares</label>
+                                                        <input style="max-width: 100px;margin: 5px;" type="number" id="{!rowIdx + ':' + colIdx}" data-record="{!rowIdx + ':' + colIdx}" value="{!roundInvestment.VotingShares}" aura:id="editBoxInputVS" name="editBoxInputVS" placeholder="Voting Shares" data-investorId="{!row.id}" data-colIdx="{!colIdx}" onchange="{!c.doKeypress}" step="{!roundInvestment.StepVS}" onkeydown="{!c.doKeypress}" class="slds-input" />
+                                                    </div>
+                                                    <button class="slds-button slds-button--neutral slds-button--brand" style="margin-bottom: 8px;" onclick="{!c.saveShares}" id="{!rowIdx + ':' + colIdx}" data-investorId="{!row.id}" data-record="{!rowIdx + ':' + colIdx}" data-colIdx="{!colIdx}">Save</button>
+                                                </div>
+                                            </div>
+                                        </aura:if>
+                             	</div>
+                                
+                            </td>
+                            
+                        </aura:iteration>
+                        <aura:if isTrue="{!v.showPlus}">
+                            <td width="20px" class="addRound"></td>
+                            <aura:set attribute="else">
+                                <td></td>
+                            </aura:set>
+                        </aura:if>
+                        <td data-label="Total Investment">
+                            <aura:if isTrue="{!v.filterValue=='All'}">
+                                 <span style="display:none">{!row.totalShares}</span>
+                                <div class="slds-truncate slds-text-align--right"><lightning:formattedNumber value="{!row.totalShares}" maximumFractionDigits="0"/></div>
+                            </aura:if>
+                            <aura:if isTrue="{!v.filterValue=='Voting'}">
+                                <span style="display:none">{!row.currentAccVS}</span>
+                                <div class="slds-truncate slds-text-align--right"><lightning:formattedNumber value="{!row.currentAccVS}" maximumFractionDigits="0"/></div>
+                            </aura:if>
+                            <aura:if isTrue="{!v.filterValue=='Non-Voting'}">
+                                <span style="display:none">{!row.currentAccNVS}</span>
+                                <div class="slds-truncate slds-text-align--right"><lightning:formattedNumber value="{!row.currentAccNVS}" maximumFractionDigits="0"/></div>
+                            </aura:if>
+                        </td>
+                    </tr>
+                </aura:iteration>
+                
+                <tr style="background: #e1e1e1;">
+                    <td data-label="Shareholder" scope="row" >
+                        <div class="slds-truncate slds-text-align--right" style="font-weight: bold;">Total:</div>
+                    </td>
+                    <aura:iteration items="{!v.rawCapTableData.allRoundTotalInvestedShares}" var="roundShares">
+                        <td>
+                            <div class="slds-truncate slds-text-align--right" style="font-weight: bold;"><lightning:formattedNumber value="{!roundShares}" maximumFractionDigits="0"/></div>
+                        </td>
+                    </aura:iteration>
+                    <aura:if isTrue="{!v.showPlus}">
+                        <td width="20px" class="" style="-moz-transform: rotate(-90.0deg); -o-transform: rotate(-90.0deg); -webkit-transform: rotate(-90.0deg); filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0.083); height: 20px;  position: absolute;  top: 50%; background: transparent;margin-top: 20px;">Add Series...</td>
+                        <aura:set attribute="else">
+                            <td></td>
+                        </aura:set>
+                    </aura:if>
+                    <td data-label="Total Investment">
+                        <div class="slds-truncate slds-text-align--right" style="font-weight: bold;"><lightning:formattedNumber value="{!v.rawCapTableData.totalSharesInvested}" maximumFractionDigits="0"/></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div aura:id="Modalbackdrop" class="slds-backdrop slds-backdrop_closed"></div>
+    <aura:if isTrue="{!v.Spinner}">
+    <div aura:id="spinnerId" class="slds-spinner_container">
+       <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+         <span class="slds-assistive-text">Loading</span>
+         <div class="slds-spinner__dot-a"></div>
+         <div class="slds-spinner__dot-b"></div>
+       </div>
+    </div>
+ </aura:if>
+</aura:component>

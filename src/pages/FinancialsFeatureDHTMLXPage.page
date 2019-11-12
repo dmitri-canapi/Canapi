@@ -1,0 +1,808 @@
+<apex:page extensions="FinancialsFeatureDHTMLXController" standardController="Account"  showHeader="false" sidebar="false" standardStylesheets="true" docType="html-5.0">
+    
+    <apex:includeScript value="{!URLFOR($Resource.jquery)}"/>
+    <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}"/> 
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/material/dhtmlx.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/terrace/dhtmlx.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/web/dhtmlx.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/skyblue/dhtmlx.css')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.tributejs, '/tribute-master/dist/tribute.js')}"/> 
+    <apex:stylesheet value="{!URLFOR($Resource.tributejs, '/tribute-master/dist/tribute.css')}"/>
+    
+    <apex:includeScript value="/soap/ajax/26.0/connection.js" />
+    
+    
+    
+    <style type="text/css" media="screen">
+        html, body{
+        margin:0px;
+        padding:0px;
+        height:100%;
+        overflow:hidden !important;
+        }   
+        .dhxwins_vp_auto {
+        overflow:hidden !important;
+        }
+        div#layoutObj {
+        position: relative;
+        /*margin-top: 15px;*/
+        margin-left: 0px;
+        width: 100%;
+        /*height: 364px;*/
+        }
+        .uneven{
+        background-color: #f3f3f3a1;
+        }
+        a {
+        text-decoration: none;
+        }
+        a:hover {
+        text-decoration: underline;
+        }
+        div.gridbox_material.gridbox table.obj tr td {
+        border-bottom: 1px solid rgb(205, 202, 202);
+        }
+        .grid_hover  {
+        background-color: #f9d3f136;
+        }
+        div.gridbox_material.gridbox table.obj tr td, .dhx_grid_adjust , .standartTreeRow{
+        font-size: 13px;
+        }
+        .dhx_cell_hdr_text input{
+        display:none;
+        }
+        td{
+        text-align:left;
+        padding-left: 10px !important;
+        }
+        div.gridbox_dhx_terrace.gridbox table.obj tr td {
+        padding-left: 5px;
+        padding-right: 5px;
+        }
+        div.gridbox_dhx_terrace.gridbox table.hdr td div.hdrcell { 
+        padding-left: 5px;
+        }
+        .hdrcell{
+        padding-left: 0px!important;
+        }
+        
+        .dhxtree_dhx_terrace span.selectedTreeRow {
+        background-color: #d9eaff !important;
+        }
+        .dhtmlx-info a {
+        text-decoration: underline;
+        }
+        .dhx_combo_edit {
+        text-align: left;
+        }
+        div.gridbox div.ftr td {
+        font-style: normal !important;
+        background-color:#e2efff;
+        border: none;
+        border-bottom: 1px solid rgb(205, 202, 202);
+        border-right: 1px solid #dfdfdf !important;
+        }
+        .hdr td {
+        border-right: 1px solid #dfdfdf !important;
+        }
+        .popupDiv {
+        padding: 10px;
+        margin: 8px 0px 0px -35px;
+        line-height: 1.25em;
+        position:fixed;
+        display:none;
+        z-index:999;
+        z-index: 999;
+        background: white;
+        border-radius: .25rem;
+        min-width:200px;
+        width: max-content;
+        min-height: 2rem;
+        box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.16);
+        border: 1px solid rgb(221, 219, 218);
+        }
+        div.gridbox_material.gridbox table.hdr td.dhxgrid_sort_desc_col div, div.gridbox_material.gridbox table.hdr td.dhxgrid_sort_asc_col div {
+        padding-left: 6px !important;
+        }
+        .popupFieldLabel {
+        float:left;
+        clear: both;
+        text-transform: uppercase;
+        }
+        .popupFieldValue {
+        margin-left: 15px;
+        float: right;
+        }
+        .td_btn_img{
+        display: none
+        }
+        .xhdr table, .ftr table {
+       	 padding-right: 0px !important;
+        }
+        #wrapper{
+        	height:400px;
+        } 
+        .tribute-container li{
+        	margin-left:0px !important;
+        }
+    </style>
+    <body>
+        <div id="wrapper">
+            <div id="toolbarObj" style="height:35px"></div>
+            <div id="layoutObj">
+                
+            </div>
+            <br/><br/><br/>
+        </div>
+        
+        <script type="text/javascript">
+        
+        var tribute = new Tribute({
+            collection: [{
+                trigger: '{',
+                selectTemplate: function (item) {
+                    return '{' + item.original.value + '}';
+                },
+                values: []
+            }
+                        ]
+        });
+        
+        function sendToLC(param, recordId) {
+            let searchParams = new URLSearchParams(window.location.href);
+            var lexOrigin = 'https://'+searchParams.get('returnUrl');
+            var message = {param:param, recordId:recordId};
+            parent.postMessage(message, lexOrigin);
+        }
+        
+        var yPos;
+        var xPos;
+        $("body").mousemove(function(e) {
+            yPos = e.pageY;
+            xPos = e.pageX;
+        })
+        
+        var formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        });
+        
+        var ParentUrl = (window.location != window.parent.location) ? document.referrer : document.location.href;
+        parent.postMessage('setBaseUrl' + '-del-'+ document.location.href , ParentUrl);
+        
+        dhtmlXForm.prototype.items.input5 = {
+            
+            render: function(item, data) {
+                
+                item._type = "input5";
+                item._enabled = true;
+                
+                this.doAddLabel(item, data);
+                real_type = "text";
+                if(typeof data['override_type'] !== 'undefined'){
+                    real_type = data['override_type'];
+                }
+                this.doAddInput(item, data, "INPUT", real_type, true, true, "dhxlist_txt_textarea");
+                this.doAttachEvents(item);
+                
+                item._value = data.value;//(data.value||"");
+                item.childNodes[1].childNodes[0].value = item._value;
+                
+                this.setAttribute(item, data, 'placeholder');
+                this.setAttribute(item, data, 'min');//mobile only
+                this.setAttribute(item, data, 'max');//mobile only
+                this.setAttribute(item, data, 'step');//mobile only
+                
+                this.setNoValueAttribute(item, data, 'autofocus');
+                this.setNoValueAttribute(item, data, 'required');
+                
+                return this;
+                
+            },
+            
+            setAttribute: function(item, data, attr) {
+                if(typeof data[attr] !== 'undefined')
+                    item.childNodes[1].childNodes[0].setAttribute(attr, data[attr]); 
+            }, 
+            
+            setNoValueAttribute: function(item, data, attr) {
+                if(typeof data[attr] !== 'undefined')
+                    item.childNodes[1].childNodes[0].setAttributeNode(document.createAttribute(attr)); 
+            }
+        };
+        
+        (function(){
+            for (var a in {doAddLabel:1,doAddInput:1,doAttachEvents:1,destruct:1,doUnloadNestedLists:1,setText:1,getText:1,setValue:1,getValue:1,updateValue:1,enable:1,disable:1,setWidth:1,setReadonly:1,isReadonly:1,setFocus:1,getInput:1})
+                dhtmlXForm.prototype.items.input5[a] = dhtmlXForm.prototype.items.input[a];
+        })();
+        
+        Date.prototype.monthNames = [
+            "January", "February", "March",
+            "April", "May", "June",
+            "July", "August", "September",
+            "October", "November", "December"
+        ];
+        Date.prototype.getMonthName = function() {
+            return this.monthNames[this.getMonth()];
+        };
+        Date.prototype.getShortMonthName = function () {
+            return this.getMonthName().substr(0, 3);
+        };
+        
+        window.addEventListener("message", function(event) {
+            if (event.data.includes('RefreshGrid')) {
+                refreshGrid();
+            }
+        }, false);
+        
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        var recordId = vars["recordId"];
+        var dhtmlxSkin = vars["skin"];
+        var communityName = vars["communityName"];
+        var isCommunity = JSON.parse(vars["isCommunity"]);
+        var componentHeight = vars["componentHeight"];
+        var isAllowEditing = JSON.parse(vars["isAllowEditing"]);
+        
+        var jsRounds;
+        var advancedEditWin;
+        var RoundTooltip;
+        var exportHeaderLabels;
+        
+        var componentHeightInt = Number(componentHeight);
+        componentHeightInt = componentHeightInt - 36;
+        document.getElementById("layoutObj").style.height = componentHeightInt + "px"; 
+        
+        var lSkin = "dhx_" + dhtmlxSkin;
+        if (dhtmlxSkin=='material'){
+            lSkin =dhtmlxSkin;
+        }
+        
+        if(dhtmlxSkin=='material'){
+            var sheet = document.createElement('style')
+            sheet.innerHTML = ".dhxgrid_sort_desc, .dhxgrid_sort_asc {width:0px;} .selectedTreeRow {background-color: transparent;}";
+            document.body.appendChild(sheet);
+        }
+        
+        Toolbar = new dhtmlXToolbarObject({
+            parent: "toolbarObj",
+            icons_path: ("{!URLFOR($Resource.DHTMLX)}" + '/customIcons/' )
+        });
+        
+        
+        Toolbar.attachEvent("onClick", function(id){
+            console.log(id);
+            if (id=="new_board_meeting"){
+                FinancialsFeatureDHTMLXController.getBoardGradeOption('Board_Meeting__c', 'Grade__c',function(result, event) {
+                    if (event.type == 'exception') {
+                        console.log(event.message);
+                        alert(event.message);
+                    } else{
+                        console.log(result);
+                        var dhxWins = new dhtmlXWindows();
+                        dhxWins.attachViewportTo("wrapper");
+                        advancedEditWin = dhxWins.createWindow("w1", 0, 0, 400, 150);
+                        advancedEditWin.setText("New Report Period"); 
+                        advancedEditWin.center();
+                        advancedEditWin.setModal(true);
+                        advancedEditWin.button("park").hide();
+                        advancedEditWin.button("minmax").hide();
+                        var advancedEditWinLayout = advancedEditWin.attachLayout("1C");
+                        advancedEditWinLayout.setSkin(lSkin);
+                        advancedEditWinLayout.cells("a").hideHeader();
+                        var options = [{value:'', text:'--none--'}];
+                        for(let key of Object.keys(result)){
+                            options.push({value:key, text:result[key]});
+                        }
+                        
+                        var formContent = [{type:"block", list:[{type:"calendar",label:"Date", name:'date',skin:"dhx_skyblue", dateFormat:"%Y-%m-%d", width:240, offsetLeft:40, offsetTop:20}]},
+                                           {type:"block", list:[{type:"button", name:"save", value:"Save",offsetTop:10,width:80, offsetLeft:90},{type:"newcolumn"}, {type:"button", name:"cancel", value:"Cancel",offsetTop:10,width:80, offsetLeft:20}]}
+                                          ];
+                        
+                        var advancedEditWinForm = advancedEditWinLayout.cells("a").attachForm(formContent);
+                        
+                        
+                        advancedEditWinForm.attachEvent("onButtonClick", function(name){
+                            if (advancedEditWinForm.validate()&&name=='save'){
+                                let current_datetime = new Date(advancedEditWinForm.getItemValue('date'));
+                                let formatted_date = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
+                                var request = {Date__c:formatted_date};
+                                saveBoard(request, advancedEditWin);
+                                
+                            } else if(name=='cancel'){
+                                advancedEditWin.close();
+                            }   
+                        });
+                    }
+                });
+                
+            }else if (id=='new_metric'){
+                openAccountWindow(null);
+            } else if (id=="Export"){
+                var csv = 'Record ID,'+exportHeaderLabels + '\n';
+                var columnDivider = ',';
+                CapSharesGrid.setCSVDelimiter("Æ");
+                s = CapSharesGrid.serializeToCSV().replaceAll('_blank','');
+                var arrayOfStrings = s.split('Æ');
+                
+                for(let cell of arrayOfStrings){
+                    if(cell.includes('\n')){
+                        var val = cell.substring(0, cell.lastIndexOf('\n'))
+                        if(!isNaN(val) && val.toString().indexOf('.') != -1){
+                            val = parseFloat(cell).toFixed(2);
+                        }
+                        csv+= val+'\n';
+                        cell = cell.substring(cell.lastIndexOf('\n')+1, cell.length);
+                        
+                    }
+                    if(cell.includes('^/')){
+                        csv+=cell.substring(cell.indexOf('^/')+2,cell.lastIndexOf('^'))+',"'+cell.substring(0,cell.indexOf('^/'))+'",'
+                    }else if(!isNaN(cell) && cell.toString().indexOf('.') != -1){
+                        var val = parseFloat(cell).toFixed(2);
+                        csv +=val+','; 
+                    }else{
+                        csv+= cell+',';
+                    }
+                    
+                }
+                
+                csv+='\n' ;
+                
+                var hiddenElement = document.createElement('a');
+                hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+                hiddenElement.target = '_self'; // 
+                hiddenElement.download = 'Financials.csv';  // CSV file Name* you can change it.[only name not .csv] 
+                document.body.appendChild(hiddenElement); // Required for FireFox browser
+                hiddenElement.click(); 
+            }
+        });
+        
+        eXcell_link.prototype.getTitle = eXcell_link.prototype.getContent;
+        
+        var newOpts = Array(Array('new_board_meeting', 'obj', 'New Report Period...',null),Array('new_metric','obj', 'New Account...'   , null));
+        if (!isCommunity || (isCommunity  && isAllowEditing)){
+            Toolbar.addButtonSelect("new", 0, "Add..", newOpts, "plusGreen.png", "plusGreen.png",true,true,3,false);
+            Toolbar.addSeparator("sep1", 1);
+        }
+        
+        Toolbar.addButton("Export", 10, "Export", "excel.ico");
+        if (!isCommunity){
+            Toolbar.addButtonTwoState("AllowEdits", 11, "Editable on the Portal","pencil.png");
+        }
+        
+        Toolbar.setSkin(lSkin);
+        if (isAllowEditing && !isCommunity){
+            Toolbar.setItemState("AllowEdits", true, false);
+        }
+        
+        Toolbar.attachEvent("onStateChange", function(id, state){
+            
+            refreshGrid();
+            
+            if (id=='AllowEdits'){
+                FinancialsFeatureDHTMLXController.AllowEditingUpdate (recordId,state,function(result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } 
+                });
+            }
+        });
+        
+        Layout = new dhtmlXLayoutObject({
+            parent: "layoutObj",
+            pattern: "1C",
+            cells: [{id: "a", text: "dhtmlxGrid"}],
+            skin: lSkin
+        });
+        Layout.cells("a").hideHeader();
+        
+        var CapSharesGrid;
+        
+        
+        refreshGrid();
+        
+        function setDollarAmmount(stage,rId,cInd,nValue,oValue){
+            
+            if (stage==2){
+                FinancialsFeatureDHTMLXController.setFinancials (rId,jsRounds[cInd-2].Id ,nValue,function(result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        dhtmlx.message({
+                            text: 'Financials Updated.'
+                        });
+                        refreshGrid();
+                    }
+                }); 
+            }
+            
+        }  
+        
+        function deleteBoard (name,sid){
+            var isConfirmed = confirm("Are you sure you'd like to delete the Board Meeting " + name + " ?");
+            if (isConfirmed){
+                FinancialsFeatureDHTMLXController.deleteBoard (sid,function(result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        refreshGrid();
+                    }
+                });
+            }
+        }
+        
+        function saveBoard (data, advancedEditWin){
+            console.log(data);
+            FinancialsFeatureDHTMLXController.createReportPeriod (JSON.stringify(data), recordId ,function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    dhtmlx.message({
+                        text: 'Report Period create successfully.'
+                    });
+                    advancedEditWin.close();
+                    refreshGrid();
+                }
+            }); 
+            
+            
+        }
+        
+        function saveMetric (data, advancedEditWin,accId){
+            console.log(data.getItemValue('Name'));
+            
+            FinancialsFeatureDHTMLXController.createChartOfAccounts (data.getItemValue('Name'), data.getItemValue('Category'), data.getItemValue('Formula'), accId, recordId ,function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    dhtmlx.message({
+                        text: accId ? 'Metric updated successfully.' :'Metric create successfully.'
+                    });
+                    advancedEditWin.close();
+                    refreshGrid();
+                }
+            }); 
+            
+            
+        }
+        
+        
+        function GridMenuHandler(menuitemId,type){   
+            var menuData = CapSharesGrid.contextID.split("_"); 
+            if (menuitemId=='DeleteAccount'){
+                var isConfirmed = confirm("Are you sure you would like to delete Account " + CapSharesGrid.cells(menuData[0],0).getValue().split("^")[0] + " ? This will remove the data row for all Report Periods.");
+                if (isConfirmed){
+                    var metricid =  CapSharesGrid.cells(menuData[0],0).getValue().split("^")[1];
+                    metricid = metricid.substring(1, metricid.length);
+                    FinancialsFeatureDHTMLXController.deleteChartOfAccounts (metricid,function(result, event) {
+                        if (event.type == 'exception') {
+                            alert(event.message);
+                        } else {
+                            refreshGrid();
+                        }
+                    });
+                }
+            } else if(menuitemId=='EditAccount'){
+                openAccountWindow(menuData[0]);
+            }
+            
+            
+            /*else if (menuitemId=='DeleteBoardMeeting'){
+            	var isConfirmed = confirm("Are you sure you would like to delete the Report Period " + jsRounds[menuData[1]-1].Date__c + "?");
+                if (isConfirmed){
+                    FinancialsFeatureDHTMLXController.deleteBoard (jsRounds[menuData[1]-1].Id,function(result, event) {
+                        if (event.type == 'exception') {
+                            alert(event.message);
+                        } else {
+                            refreshGrid();
+                        }
+                    });
+                    
+                }
+            }*/
+            
+            return true;    
+        }
+        
+        function openAccountWindow(accId){
+            var title = 'New Account';
+            
+            if(accId!=null){
+                title = 'Edit ' + CapSharesGrid.cells(accId,0).getValue().split("^")[0];
+            }
+            var dhxWins = new dhtmlXWindows();
+            dhxWins.attachViewportTo("wrapper");
+            advancedEditWin = dhxWins.createWindow("w1", 10, 10, 500, 225);
+            advancedEditWin.setText(title); 
+            advancedEditWin.center();
+            advancedEditWin.setModal(true);
+            advancedEditWin.button("park").hide();
+            advancedEditWin.button("minmax").hide();
+            var advancedEditWinLayout = advancedEditWin.attachLayout("1C");
+            advancedEditWinLayout.setSkin(lSkin);
+            advancedEditWinLayout.cells("a").hideHeader();
+            
+            var formContent = [{type:"block", list:[
+                {type: "settings", position: "label-left", labelWidth: 160, inputWidth: 220},
+                {type:"input", name:"Name", label:"Chart of Account's Name",offsetTop:10, required:true, value: accId!=null ? CapSharesGrid.cells(accId,0).getValue().split("^")[0] : ''},
+                {type: "select", name: "Category",id: "Category", label: "Category", value: accId!=null ? CapSharesGrid.cells(accId,1).getValue() : "",required:true, options:[{value: "Revenue", text: "Revenue"},{value: "Expense", text: "Expense"},{value: "Metric", text: "Metric"}]},
+                {type:"input", className:"formulaInput", name:"Formula", label:"Formula", rows:3 , hidden: (accId!=null && CapSharesGrid.cells(accId,1).getValue()=='Metric') ? false : true, 
+                 required: (accId!=null && CapSharesGrid.cells(accId,1).getValue()=='Metric') ? true : false,
+                 value: (accId!=null) ? CapSharesGrid.getUserData(accId,"Formula") : '',
+                },
+            ]},
+                
+                {type:"block", list:[{type:"button", name:"save", value:"Save",offsetTop:10,width:80, offsetLeft:140},{type:"newcolumn"}, {type:"button", name:"cancel", value:"Cancel",offsetTop:10,width:80, offsetLeft:20}]}];
+            var advancedEditWinForm = advancedEditWinLayout.cells("a").attachForm(formContent);
+            
+            tribute.attach(document.querySelectorAll('.formulaInput textarea'));
+            
+            advancedEditWinForm.attachEvent("onButtonClick", function(name){
+                if (advancedEditWinForm.validate()&&name=='save'){
+                    saveMetric(advancedEditWinForm, advancedEditWin,accId);
+                } else if(name=='cancel'){
+                    advancedEditWin.close();
+                }   
+            });
+            
+            advancedEditWinForm.attachEvent("onChange", function (name, value, state){
+                if (name=='Category'){
+                    if (value=='Metric'){
+                        advancedEditWinForm.showItem('Formula');
+                        advancedEditWinForm.setRequired('Formula',true);
+                    } else {
+                        advancedEditWinForm.hideItem('Formula');
+                        advancedEditWinForm.setRequired('Formula',false);
+                    }
+                } 
+                return true;
+                
+            });
+
+        }
+        
+        function refreshGrid(){
+            Layout.cells("a").progressOn();
+            FinancialsFeatureDHTMLXController.getCapTableData (recordId, function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    var data = result;
+                    jsRounds =  data.rounds;
+                    console.log(data);
+                    
+                    try{CapSharesGrid.destructor();}catch(e){}
+                    CapSharesGrid = Layout.cells("a").attachGrid();
+                    
+                    var TableHeaders = 'Chart of Accounts,Category';
+                    
+                    var TableWidths = '"",""';
+                    var TableAligns = 'left,left';
+                    var TableColTypes = 'link,rotxt';
+                    var TableColSorting = 'str,str';
+                    //var SerializableColumns = 'true';
+                    var TotalRevenueFooter = 'Total Revenue,';
+                    var TotalExpenseFooter = 'Total Expense,';
+                    var TotalRevenueFooterStyles = ["color:#04844b","color:#04844b"];
+                    var TotalExpenseFooterStyles = ["color:#ff9a3c","color:#ff9a3c"];
+                    
+                    var i=1;
+                    var rowTotalCol = '';
+                    
+                    rowTotalCol = 'ron[=';
+                    CapSharesGrid.setMathRound(0);
+                    
+                    
+                    exportHeaderLabels = 'Metric,Category';
+                    
+                    var rows = [];
+                    for(let row of data.rows){
+                        
+                        var newRow = {'key':row, 'value': row};
+                        rows.push(newRow);
+                    }
+                    try{
+                        console.log(tribute);
+                        tribute.appendCurrent(rows);
+                    }catch(e){
+                        tribute.collection[0].values=[];
+                        tribute.append(0,rows);
+                    }
+                    
+                    
+                    
+                    for(let item of data.rounds){
+                        exportHeaderLabels += ',' + item.Name;
+                        //SerializableColumns += ',true';
+                        let current_datetime = new Date(item.Date__c);
+                        let formatted_date = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
+                        TableHeaders+=',' + '<div style="width:100%; text-align:left;position: absolute;height: 100%;" onmouseenter="showRoundTooltip(this)" onmouseleave="hideRoundTooltip(this)"   id="' + item.Id + '">' + formatted_date; 
+                        
+                        
+                        TableHeaders+= '<div id="' + item.Id +  '-popup" class="popupDiv" onclick="event.stopPropagation()"><div style="display:inline-block">';
+                        
+                        TableHeaders+='<div style="float:left;clear: both;min-width: 120px; text-transform: uppercase; text-align: left; "><a style="color:	#006dcc !important;" href="/' + item.Id + '">' + formatted_date + '</a></div>';
+                        
+                        /*if (!isCommunity || (isCommunity && isAllowEditing)){
+                            TableHeaders+='<div style="float:left;float: right;text-transform: capitalize; font-size: 11px; margin-bottom: 5px;  cursor: pointer;" onclick="deleteBoard(\'' + formatted_date + '\'\\,\'' + item.Id + '\')">Delete Report Period</div>';
+                        }*/
+                        
+                        
+                        
+                        TableHeaders+='</div></div></div>';
+                        TableWidths+=',""';
+                        TableAligns+=',left';
+                        
+                        TableColTypes+=',edn';
+                        
+                        
+                        TableColSorting+=',int';
+                        
+                        TotalRevenueFooter+=',#stat_sumR';
+                        TotalExpenseFooter+=',#stat_sumE';
+                        TotalRevenueFooterStyles.push("color:#04844b");
+                        TotalExpenseFooterStyles.push("color:#ff9a3c");
+                        i++;
+                    }
+                    
+                    GridMenu = new dhtmlXMenuObject();
+                    GridMenu.renderAsContextMenu();
+                    GridMenu.attachEvent("onClick",GridMenuHandler);
+                    GridMenu.loadStruct('{items:[{id: "DeleteAccount", text: "Delete Account..."},{id: "EditAccount", text: "Edit Account..."}]}');
+                    
+                    if (!isCommunity || (isCommunity && isAllowEditing)){
+                        CapSharesGrid.enableContextMenu(GridMenu);
+                    }                
+                    CapSharesGrid.setHeader(TableHeaders);
+                                       
+                      
+                    //calculation of the total Revenue
+                    CapSharesGrid._in_header_stat_sumR=function(tag,index,data){       
+                        var calc=function(){                              
+                            var sumR=0;                            
+                            this.forEachRow(function(id){       
+                                if(CapSharesGrid.cells(id,1).getValue() == 'Revenue') {
+                                    sumR+=this.cellById(id,index).getValue()*1;     
+                                } 
+                                
+                            })
+                            return this._aplNF(sumR,0);
+                        }
+                        this._stat_in_header(tag,calc,index,data);            
+                    }
+                    
+                    //calculation of the total Expense
+                      CapSharesGrid._in_header_stat_sumE=function(tag,index,data){       
+                        var calc=function(){                              
+                            var sumE=0;                            
+                            this.forEachRow(function(id){       
+                                if(CapSharesGrid.cells(id,1).getValue() == 'Expense') {
+                                    sumE+=this.cellById(id,index).getValue()*1;     
+                                }                                 
+                            })
+                            return this._aplNF(sumE,0);
+                        }
+                        this._stat_in_header(tag,calc,index,data);            
+                    }
+                    
+                    // set values ofr Total
+                      console.log(TotalRevenueFooterStyles);
+                    CapSharesGrid.attachFooter(TotalRevenueFooter,TotalRevenueFooterStyles);//#04844b
+                    CapSharesGrid.attachFooter(TotalExpenseFooter,TotalExpenseFooterStyles);
+                    
+                    
+
+
+                    //                    
+                    CapSharesGrid.setInitWidths(TableWidths);
+                    CapSharesGrid.setColAlign(TableAligns);
+                    CapSharesGrid.setColTypes(TableColTypes);
+                    CapSharesGrid.setColSorting(TableColSorting);
+                    
+                    //CapSharesGrid.setSerializableColumns(SerializableColumns);
+                    CapSharesGrid.enableAlterCss("even","uneven");
+                    CapSharesGrid.enableRowsHover(true,'grid_hover');
+                    CapSharesGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxgrid_'+ dhtmlxSkin + '/');
+                    CapSharesGrid.init();                   
+                    
+                    CapSharesGrid.serializeToCSV(true);
+                    
+                    for(var i=0;i< data.rounds.length+1; i++){
+                        
+                        CapSharesGrid.setNumberFormat("0,000",i+1,".",",");
+                        
+                    }
+                    //CapSharesGrid.clearAll();
+                    var res = data.data;
+                    res = ($('<div>').html(res).text());
+                    CapSharesGrid.parse(res,"json"); 
+                    Layout.cells("a").progressOff();
+                    CapSharesGrid.setColumnHidden(1,true);
+                    CapSharesGrid.groupBy(1,["#title"]);
+                    
+                    
+                    CapSharesGrid.attachEvent("onCellChanged", function(rId,cInd,nValue){
+                        CapSharesGrid.callEvent("onGridReconstructed",[]);
+                    });
+                    
+                    CapSharesGrid.attachEvent("onRowDblClicked", function(rId,cInd){
+                        if ((!isCommunity || (isCommunity  && isAllowEditing)) && (CapSharesGrid.cells(rId,1).getValue()!='Metric')){
+                            return true;
+                        }
+                        return false;
+                    });
+                    
+                    CapSharesGrid.attachEvent("onEditCell",function(stage,rId,cInd,nValue,oValue){
+                        console.log(stage,rId,cInd,nValue,oValue);
+                        setDollarAmmount(stage,rId,cInd,nValue,oValue);
+                        if (stage == 1){
+                            this.editor.obj.onkeypress=function(e)
+                            {  //editor area
+                                var ValidChars = "0123456789";
+                                if (ValidChars.indexOf((String.fromCharCode((e||event).keyCode))) == -1)
+                                    return false;//allow
+                                else
+                                    return true; //deny
+                            }
+                            return true;
+                        }
+                        return true;
+                    });
+                    
+                    
+                    
+                    CapSharesGrid.attachEvent("onBeforeContextMenu",function(id,ind){
+                        CapSharesGrid.selectRowById(id,true);
+                        if (ind!=0){
+                            GridMenu.hideItem('EditAccount');
+                            GridMenu.hideItem('DeleteAccount');
+                        } else {
+                            GridMenu.showItem('EditAccount');
+                            GridMenu.showItem('DeleteAccount');
+                        }
+                        return true;
+                    });
+                    
+                    
+                    
+                }
+            });
+            
+        }
+        
+        function hideRoundTooltip(e){
+            $( "#"+ e.id + '-popup' ).hide(); 
+        }
+        
+        function showRoundTooltip(e){
+            $( "#"+ e.id + '-popup' ).show();
+        }
+        
+        
+        
+        function stopPropagation(e){
+            e.stopImmediatePropagation();
+        }
+        
+        String.prototype.replaceAll = function(search, replace){
+            return this.split(search).join(replace);
+        }
+        
+        if (window.attachEvent)
+            window.attachEvent("onresize",resizeLayout);
+        else
+            window.addEventListener("resize",resizeLayout, false);
+        function resizeLayout(){
+            window.clearTimeout(t);
+            var t = window.setTimeout(function(){
+                Layout.setSizes(false);
+            },200);
+        }
+        
+        </script>
+        
+    </body>
+</apex:page>

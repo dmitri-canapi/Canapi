@@ -1,0 +1,32 @@
+<aura:component controller="AllianceAnnouncements" implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" >
+    <aura:attribute name="news" type="Object"/>
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
+    <aura:if isTrue="{!not(empty(v.news))}">
+        <div style="width:100%; padding: 20px 20%;background-color: #F2F2F3;">
+            <img src="{!$Resource.AllianceCommunityAssets + '/Icons/18-Canapi-Icons-28.svg'}" style="width: 70px;"/>
+            <div style="font-size:16px;font-weight: 700;margin-left: 10px;padding-top: 15px;display:inline">
+                Canapi News
+            </div>
+            <hr style=" border-top: 1px solid black; margin: 10px;"/>
+            
+            <aura:iteration items="{!v.news}" var="rec" >
+                <div style="margin-bottom: 20px;">
+                    <img src="{!$Resource.AllianceCommunityAssets + '/Logo/PNG/18-CAN-Canapi-Logo-Mark-Color.png'}" style="width: 75px;margin: -15px 0px 0px -15px;"/>
+                    <div style="font-size: 11px; margin-left: -10px; display: inline-block;">
+                        <div><a href="#">Canapi News</a></div>
+                        <div style="color: #696969;">
+                            <lightning:formattedDateTime value="{!rec.Release_date__c}" year="numeric" day="2-digit" month="long" hour="2-digit" minute="2-digit"/>
+                        </div>
+                    </div>
+                    <div>
+                        <H4>{!rec.Headline__c}</H4>
+                        <div style="text-align: justify;">
+                            <ui:outputRichText value="{!rec.Body__c}"/>
+                        </div>
+                    </div>
+                </div>
+            </aura:iteration>
+        </div>
+    </aura:if>    
+</aura:component>

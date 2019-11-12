@@ -1,0 +1,541 @@
+<apex:page showheader="true" sidebar="true" standardStylesheets="false" controller="ChatterSubscriptionsController">
+<html> 
+<head> 
+  <!-- Always force latest IE rendering engine or request Chrome Frame -->
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chatter Feed Manager</title>
+  <apex:stylesheet value="{!URLFOR($Resource.ChatterResources, '/html/bootstrap/css/bootstrap.css')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.ChatterResources, '/html/stylesheets/styles.css')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.CP2_Resources, 'flipload/flipload.min.css')}"/>
+</head>
+<body>
+<header id="title" class="clearfix">
+      <div class="row">
+        <div class="col-xs-7">
+          <h1 style="float: none;">Chatter Subscriptions Manager</h1>
+        </div> 
+        <div class="col-md-5 filter-bar">
+          <div class="btn-group" data-toggle="buttons">
+            <label class="btn btn-primary active">
+            <input type="radio" name="options" id="option1" value="all" checked="checked" /> All
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" name="options" id="option2" value="following" /> Following
+            </label>
+            <label class="btn btn-primary">
+              <input type="radio" name="options" id="option3" value="not following" /> Not Following
+            </label>
+          </div>
+        </div>
+      </div>
+  </header>
+  <div class="container">
+    <div class="channels">
+
+      <!-- Channel Row -->
+      <section class="channel" id="GroupsSection">
+        <div class="row-shadow left"></div>
+        <div class="row">
+          <div class="col-xs-6">
+            <h4>All Groups</h4>
+          </div>
+          <div class="col-xs-6 filter">
+          	 <div class="input-group">
+              <input type="text" class="form-control search" data-entity="Groups" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="channel-topics">
+          <a href="#" class="scroll-right"><span class="glyphicon glyphicon-chevron-right"></span></a> <a href="#" class="scroll-left"><span class="glyphicon glyphicon-chevron-left"></span></a>
+          <ul>
+          	<div id ="Groups"></div>
+          </ul>
+        </div>
+        <div class="row-shadow right"></div>
+      </section> 
+      <!-- /Channel Row -->
+
+      <!-- Channel Row -->
+      <section class="channel" id="TopicsSection">
+        <div class="row-shadow left"></div>
+        <div class="row">
+          <div class="col-xs-6">
+            <h4>Topics</h4>
+          </div>
+          <div class="col-xs-6 filter">
+            <div class="input-group">
+              <input type="text" class="form-control search" data-entity="Topics" />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+              </span>
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="TopicFilter">
+                Filter Topics<span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                 <div id="TopicsDropdown"></div>
+              </ul>
+            </div>
+            
+          </div>
+        </div>
+        <div class="channel-topics">
+          <a href="#" class="scroll-right"><span class="glyphicon glyphicon-chevron-right"></span></a> <a href="#" class="scroll-left"><span class="glyphicon glyphicon-chevron-left"></span></a>
+           <ul>
+           	<div id="Topics"></div>
+           </ul>
+          </div>
+          <div class="row-shadow right"></div>
+        </section>
+        <!-- /Channel Row -->
+
+          <!-- Channel Row -->
+      <section class="channel" id="PeopleSection">
+        <div class="row-shadow left"></div>
+        <div class="row">
+          <div class="col-xs-6">
+            <h4>People</h4>
+          </div>
+           <div class="col-xs-6 filter">
+
+            <div class="input-group">
+              <input type="text" class="form-control search" data-entity="People"  />
+              <span class="input-group-btn">
+                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-search"></span></button>
+              </span>
+            </div>
+
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="PeopleFilter">
+                Filter People<span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" role="menu">
+                <div id="PeopleDropdown"></div>
+              </ul>
+            </div>
+           
+          </div>
+        </div>
+        <div class="channel-topics">
+          <a href="#" class="scroll-right"><span class="glyphicon glyphicon-chevron-right"></span></a> <a href="#" class="scroll-left"><span class="glyphicon glyphicon-chevron-left"></span></a>
+           <ul>
+           	<div id="People"></div>
+           </ul>
+          </div>
+          <div class="row-shadow right"></div>
+        </section>
+        <!-- /Channel Row -->
+        </div>
+      </div>
+      <apex:includeScript value="{!URLFOR($Resource.ChatterResources, 'html/javascripts/jquery-2.1.1.min.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.ChatterResources, 'html/bootstrap/js/bootstrap.min.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.ChatterResources, 'html/javascripts/scripts.js')}"/>
+      <!--apex:includeScript value="{!URLFOR($Resource.ChatterManagerIcons, 'icons/')}"/-->
+	    <apex:includeScript value="{!URLFOR($Resource.CP2_Resources, 'flipload/flipload.min.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.CP2_Resources, 'js/underscore-min.js')}"/>
+      </body>
+      </html>
+      <script> 
+      //This is groups from constructor
+      var Groups = {!Groups};
+console.log(Groups);
+      var UserGroups = {!UserGroups};
+      var Topics = {!TopicInfo};
+      var UserTopics = {!UserTopics};
+      var UserObjectives = {!UserObjectives};
+      var People = {!People};
+      var UserPeople = {!UserPeople};
+      var Departments = {!Departments};
+      var Categories = {!Categories};
+      var TheObj = {!Groups};
+      
+      //Order these objects by post count
+      Topoics = _.sortBy(Topics,'Posts').reverse();
+      Groups = _.sortBy(Groups,'PostCount').reverse();
+
+	  function GetGroupsFromController(Data){ 
+	  	$.each(Data, function(i,val){
+			var currentDt = new Date(val.CreatedDate);
+		    var mm = currentDt.getMonth() + 1;
+		    var dd = currentDt.getDate();
+		    var yyyy = currentDt.getFullYear();
+		    var date = mm + '/' + dd + '/' + yyyy;
+		    var $html = $('<li class="popover-item">' +
+            '<a href="javascript:void(0);" class="topic-block" id="'+ val.Id +'"> ' +
+            '<div class="topic-cover"><span class="inner-circle"></span><img src="' + val.GroupPhoto + '"/></div>'+
+            '<h6>'+ val.Name +'</h6>' +
+            '</a>' +
+	        '<div class="head hide">' +
+	          '<div class="row clearfix">' +
+	            '<div class="col-xs-3">'+
+	              '<div class="topic-cover"><img src="' + val.GroupPhoto + '"/></div>'+
+	            '</div>'+
+	            '<div class="col-xs-9">'+
+	              '<h4>'+ val.Name +'</h4>'+
+	              '<p class="topic-meta">'+ date +'</p>'+
+	            '</div>'+
+	          '</div>'+
+	        '</div> '+
+	        '<div class="content hide">'+
+	          '<p><a href="/'+ val.Id  +'" target="_blank" class="btn-primary btn-sm">'+ val.Name +'<span class="glyphicon glyphicon-chevron-right"></span></a></p>' +
+	          '<p>'+ (val.Description  ? val.Description : 'Description coming soon...') +'</p>'+
+	          '<div class="stat-bar clearfix">' +
+	            '<div><a href="#"><strong id="followers-'+ val.Id+'">'+ val.MemberCount +'</strong></a>Follows</div>'+
+	            '<div><a href="#"><strong>' + val.OwnerName +'</strong></a>Owner</div>'+
+	            '<div><a href="#"><strong>'+ (val.PostCount ? val.PostCount : '0') +'</strong></a>Posts</div>'+
+	          '</div>'+
+	        '</div>'+
+	        '</li>');
+
+			$('#Groups').append($html);
+			popOver($html);
+		});//End each
+
+		//Now we loop through all user gruops and set following and checkmark div.
+		$.each(UserGroups, function(i,val){
+			$('#'+val.CollaborationGroupId).addClass("following").append('<div class="checkmark"></div>');
+		});
+	}//End function
+
+	function GetTopicsFromController(Data){ 
+
+		$.each(Data, function(i,val){
+			var currentDt = new Date(val.CreatedDate);
+		    var mm = currentDt.getMonth() + 1;
+		    var dd = currentDt.getDate();
+		    var yyyy = currentDt.getFullYear();
+		    var date = mm + '/' + dd + '/' + yyyy;
+		    var $html = $('<li class="popover-item">' +
+            '<a href="javascript:void(0);" class="topic-block '+ val.TopicCategory +'" id="'+ val.Id + '"> ' +
+            '<div class="topic-cover"><span class="inner-circle"></span><img src="/img/icon/t4v35/standard/topic2_120.png"/></div>'+
+            '<h6>'+ val.Name +'</h6>' +
+            '</a>' +
+	        '<div class="head hide">' +
+	          '<div class="row clearfix">' +
+	            '<div class="col-xs-3">'+
+	              '<div class="topic-cover"><img src="/img/icon/t4v35/standard/topic2_120.png"/></div>'+
+	            '</div>'+
+	            '<div class="col-xs-9">'+
+	              '<h4>'+ val.Name +'</h4>'+
+	              '<p class="topic-meta">'+ date +'</p>'+
+	            '</div>'+
+	          '</div>'+
+	        '</div> '+
+	        '<div class="content hide">'+
+	          '<p><a href="/'+ val.Id  +'" target="_blank" class="btn-primary btn-sm">'+ val.Name +'<span class="glyphicon glyphicon-chevron-right"></span></a></p>' +
+	          '<p>' + (val.TopicDescription  ? val.TopicDescription : 'Description coming soon...') + '</p>'+
+	          '<div class="stat-bar clearfix">' +
+	            '<div><a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers.length +'</strong></a>Follows</div>'+
+	            '<div><a href="#"><strong>' + val.TopicOwner + '</strong></a>Owner</div>'+
+	            '<div><a href="#"><strong>' + (val.Posts ? val.Posts : '0') + '</strong></a>Posts</div>'+
+	          '</div>'+
+	        '</div>'+
+	        '</li>');
+
+			$('#Topics').append($html);
+			popOver($html);
+		});//End each
+
+		//Now we loop through all user gruops and set following and checkmark div.
+		$.each(UserTopics, function(i,val){
+			$('#'+val.ParentId).addClass("following").append('<div class="checkmark"></div>');
+		});
+
+		$.each(Categories, function(i,val){
+			$('#TopicsDropdown').append('<li><a href="javascript:void(0)" class="TopicFilterOption">'+ val +'</a></li>');
+		});
+		
+	}//End get topics function
+
+
+
+	function GetPeopleFromController(Data){ 
+		$.each(Data, function(i,val){
+      var dept = val.Department;
+      if (dept) {
+        dept = dept.replace(" ", "-");
+        dept = dept.replace(" ", "-");
+      } else {
+        dept = val.Department;
+      }
+			var $html = $('<li class="popover-item">' +
+            '<a href="javascript:void(0);" class="topic-block '+ dept +'" id="'+ val.Id + '"> ' +
+            '<div class="topic-cover"><span class="inner-circle"></span><img src="' + val.UserPhoto + '"/></div>'+
+            '<h6>'+ val.Name +'</h6>' +
+            '</a>' +
+	        '<div class="head hide">' +
+	          '<div class="row clearfix">' +
+	            '<div class="col-xs-3">'+
+	              '<div class="topic-cover"><img src="' + val.UserPhoto + '"/></div>'+
+	            '</div>'+
+	            '<div class="col-xs-9">'+
+	              '<h4>'+ val.Name +'</h4>'+
+	              '<p class="topic-meta">Department:'+ val.Department +'</p>'+
+	            '</div>'+
+	          '</div>'+
+	        '</div> '+
+	        '<div class="content hide">'+
+	          '<p><a href="/'+ val.Id  +'" target="_blank" class="btn-primary btn-sm">'+ val.Name +'<span class="glyphicon glyphicon-chevron-right"></span></a></p>' +
+	          '<p>Department:' + val.Department + '</p>'+
+	          '<div class="stat-bar clearfix">' +
+	            '<div><a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers +'</strong></a>Follows</div>'+
+	            '<div><a href="#"><strong >' + val.Name + '</strong></a>Owner</div>'+
+	            '<div><a href="#"><strong>' + val.PostCount + '</strong></a>Posts</div>'+
+	          '</div>'+
+	        '</div>'+
+	        '</li>');
+
+			$('#People').append($html);
+			popOver($html);
+		});//End each
+
+		//Now we loop through all user gruops and set following and checkmark div.
+		$.each(UserPeople, function(i,val){
+			$('#'+val.ParentId).addClass("following").append('<div class="checkmark"></div>');
+		});
+
+		$.each(Departments, function(i,val){
+			$('#PeopleDropdown').append('<li><a href="javascript:void(0)" class="PeopleFilterOption">'+ val +'</a></li>');
+		});
+	}//End get topics function
+
+	$(document).ready(function() {
+		
+		//Controller method to get all groups
+		GetGroupsFromController(Groups);
+		//Get topics
+		GetTopicsFromController(Topics);
+		//Get peeps
+		GetPeopleFromController(People);
+		
+		$('[name="options"]').change(function () {
+			var FilterChosen = $('[name="options"]:checked').val();
+		
+			//Now based on the FilterChosen we hide show
+			if (FilterChosen == 'following') {
+				$('.following').parent().fadeIn(500);
+				$('.topic-block').not('.following').parent().fadeOut(500);
+			} else if (FilterChosen == 'not following') {
+				$('.topic-block').not('.following').parent().fadeIn(500);
+				$('.following').parent().fadeOut(500);
+			} else {
+				$('.topic-block').parent().fadeIn(500);
+			}
+
+		});
+
+		$('.search').keyup(function () {
+			var f = $.proxy(filterObjects, null, this);
+			delay(f, 200);
+		});
+
+		var filterObjects = function(el){
+        	var searchVal = $(el).val().toLowerCase();
+        	var currentDiv = $(el).attr('data-entity');
+        	if (currentDiv == 'Groups'){
+        		TheObj = Groups;
+        	} else if (currentDiv == 'Topics'){
+        		TheObj = Topics;
+        	} else {
+        		TheObj = People;
+        	}
+        	var newDocs = _.filter(TheObj, function(doc){
+        		var isNameMatch = doc.Name.toLowerCase().search(searchVal) > -1;
+				return isNameMatch;
+			});//End new docs
+        	
+        	$('#' + currentDiv).empty();
+        	if (currentDiv == 'Groups'){
+        		GetGroupsFromController(newDocs);
+        	} else if (currentDiv == 'Topics'){
+        		GetTopicsFromController(newDocs);
+        	} else {
+        		GetPeopleFromController(newDocs);
+        	}
+			
+        };//End filter docs method=
+
+		$('.PeopleFilterOption').click(function () {
+			var DepartmentChosen = $(this).text();
+      $('#PeopleFilter').text(DepartmentChosen);
+      if (DepartmentChosen) {
+        var DepartmentChosen = DepartmentChosen.replace(" ", "-");
+      } else {
+        var DepartmentChosen = val.Department;
+      }
+
+      //Handle abbreviations
+      if (DepartmentChosen == 'BAG') {
+        DepartmentChosen = 'Business-Advisory-Group';
+      } else if (DepartmentChosen == 'FEC') {
+        DepartmentChosen = 'Family-Entertainment-Centers';
+      }
+
+ 			//Now remove all based on class except for chosen dept.
+			if (DepartmentChosen != 'All') {
+				$('#PeopleSection').find('.topic-block').not('.'+ DepartmentChosen).parent().fadeOut(500);
+				$('#PeopleSection').find('.' +DepartmentChosen).parent().fadeIn(500);
+			} else {
+				$('#PeopleSection').find('.topic-block').parent().fadeIn(500);
+			}			
+		});
+
+		$('.ObjectiveFilterOption').click(function () {
+			var DepartmentChosen = $(this).text();
+			$('#ObjectiveFilter').text(DepartmentChosen);
+
+      //Replace spaces
+      if (DepartmentChosen) {
+        var DepartmentChosen = DepartmentChosen.replace(" ", "-");
+      } else {
+        var DepartmentChosen = val.Department;
+      }
+
+      //Handle abbreviations
+      if (DepartmentChosen == 'BAG') {
+        DepartmentChosen = 'Business-Advisory-Group';
+      } else if (DepartmentChosen == 'FEC') {
+        DepartmentChosen = 'Family-Entertainment-Centers';
+      }
+
+		});
+
+		$('.TopicFilterOption').click(function () {
+			var CategoryChosen = $(this).text();
+			$('#TopicFilter').text(CategoryChosen);
+
+			//Now remove all based on class except for chosen dept.
+			if (CategoryChosen != 'All') {
+				$('#TopicsSection').find('.topic-block').not('.'+ CategoryChosen).parent().fadeOut(500);
+				$('#TopicsSection').find('.' +CategoryChosen).parent().fadeIn(500);
+			} else {
+				$('#TopicsSection').find('.topic-block').parent().fadeIn(500);
+			}	
+		});
+
+		//Sets width of topics UL to content
+		var width = 0;
+		$(".channel-topics ul li").each(function() {
+		  width += $(this).outerWidth( true );
+		});
+		$(".channel-topics ul").css('width', width + 0);
+
+		// Adds or removes following class and checkmark div
+		$(document).on('click','.topic-block',function() {
+            //console.log('foll/unf');
+			//Make the call to subscribe here
+			var $this = $(this);
+			var divId = $this.attr('id');
+			//box = document.getElementById(divId), flip = new Flipload(box);
+			//flip.load();
+			//Ajax call to subscribe or unsbuscribe and apply correct class
+			if($this.hasClass('following')){
+				ChatterSubscriptionsController.Unsubscribe(divId,function(data){ 
+				    $this.removeClass('following');
+	      			$this.find('.checkmark').remove();
+	      			//Decrement followers
+	      			var followers = $('#followers-'+ divId).text();
+	      			followers = parseInt(followers,10);
+	      			followers = followers - 1;
+	      			$('#followers-'+ divId).html(followers);
+	      			if ($('#'+ divId).is(':hover')){
+	      				$('#'+divId).popover('show');
+	      			}
+	      			//Flip done
+	      			//flip.done();
+	      		});
+		   } else {
+		    	ChatterSubscriptionsController.Subscribe(divId,function(data){
+		    		$this.addClass("following");
+		    		$this.append('<div class="checkmark"></div>');
+
+		    		//Increment followers
+	      			var followers = $('#followers-'+ divId).text();
+	      			followers = parseInt(followers,10);
+	      			followers = followers + 1;
+	      			$('#followers-'+ divId).html(followers);
+	      			if($('#'+ divId).is(':hover')) {
+	      				$('#'+divId).popover('show');
+	      			} 
+					//Flip over
+		    		//flip.done();
+		    	});
+		    }	
+		});//End onclick function
+
+		  // Kill anchor binding
+		  $('a.topic-block').bind("click", function (e) {
+		        e.preventDefault();
+		    });
+
+		  $('a.scroll-left').bind("click", function (e) {
+		        e.preventDefault();
+		    });
+
+		  $('a.scroll-right').bind("click", function (e) {
+		        e.preventDefault();
+		    });
+
+		// Scroll buttons
+		$('.scroll-left').click(function () {
+		    var leftPos = $(this).closest ('div.channel-topics').scrollLeft();
+		    $(this).closest ("div.channel-topics").animate({
+		        scrollLeft: leftPos - 600
+		    }, 0);
+		});
+
+		$('.scroll-right').click(function () {
+		    var leftPos = $(this).closest ('div.channel-topics').scrollLeft();
+		    $(this).closest ("div.channel-topics").animate({
+		        scrollLeft: leftPos + 600
+		    }, 0);
+		});
+	});
+
+	var popOver = function($el){
+		$el.find('.topic-block').popover({
+		    trigger: "hover",
+		    delay: { "show": 1000, "hide": 40 },
+		    html : true,
+		    title: function() {
+		      return $(this).parent().find('.head').html();
+		    },
+		    content: function() {
+		      return $(this).parent().find('.content').html();
+		    },
+		    container: 'body',
+		    placement: 'right'
+		  });
+	};
+
+	//add a delay so that the search function doesn't execute on each keyup
+    var delay = (function() {
+        var timer = 0;
+        return function(callback, ms) {
+            clearTimeout (timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+	(function($) {
+    var oldHide = $.fn.popover.Constructor.prototype.hide;
+
+    $.fn.popover.Constructor.prototype.hide = function() {
+        if (this.options.trigger === "hover" && this.tip().is(":hover")) {
+            var that = this;
+            // try again after what would have been the delay
+            setTimeout(function() {
+                return that.hide.call(that, arguments);
+            }, that.options.delay.hide);
+            return;
+        }
+        oldHide.call(this, arguments);
+    };
+})(jQuery);
+	</script>
+</apex:page>

@@ -1,0 +1,35 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" >
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="recordId" type="Id"/>
+    
+    <aura:attribute name="isCommunityUser" type="Boolean"/>
+    
+    <aura:attribute name="skin" type="String" default="skyblue"/>
+    <aura:attribute name="communityName" type="String"/>
+    <aura:attribute name="componentHeight" type="String" default="400"/>
+    
+    <aura:attribute name="BaseUrl" type="String" />
+
+        <div class="slds-box">
+        <article class="slds-card">
+            <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title" style="width: 200px; display: inline-block;">
+                            <span class="slds-card__header-link slds-text-heading--small">Financials </span>
+                        </h2>
+                    </div>
+                </header>
+            </div>
+            <div class="slds-card__body">
+                <div aura:id="detailTabsDiv" class="hidden ">
+                            <iframe id="vfFrame" aura:id="vfFrame" style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}" src="{!'/apex/FinancialsFeatureDHTMLXPage?recordId=' + v.recordId + '&amp;isCommunity=false&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight + '&amp;isAllowEditing=true' }"/>
+                </div>
+            </div>
+        </article>
+            </div>
+
+    
+    
+    
+</aura:component>

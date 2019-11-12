@@ -1,0 +1,100 @@
+<apex:component access="global">
+
+<apex:attribute name="listAccounts" Type="String" Description="Account Object being passed"/>
+  
+<script type="text/javascript"> 
+// Google API key if needed: AIzaSyBcCbqE9YdMvL1lmNgLtmg_P1c7w0WObrk
+</script>
+<apex:includeScript value="https://code.jquery.com/jquery-1.9.1.js"/>
+<apex:includeScript value="https://code.jquery.com/ui/1.10.3/jquery-ui.js"/>
+<script type="text/javascript" src="https://maps.google.com/maps/api/js?key=AIzaSyBcCbqE9YdMvL1lmNgLtmg_P1c7w0WObrk&sensor=false"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js?key=AIzaSyBcCbqE9YdMvL1lmNgLtmg_P1c7w0WObrk"></script>
+<script type="text/javascript"> 
+
+$(document).ready(function() {
+    var myOptions = {
+        center: new google.maps.LatLng(54, -2),
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    var accounts = {!listAccounts};
+
+    var map = new google.maps.Map(document.getElementById("map"), myOptions);
+   
+
+    var geocoder = new google.maps.Geocoder();
+    var markerBounds = new google.maps.LatLngBounds();
+
+
+    // Loop through each account and build a full street address and tool tip
+    // Add them to the map one at a time.
+
+    $.each(accounts, function(i, item) {
+        var gAddr = "'" + item.BillingStreet  + "'," +  
+                    ", " + "'" + item.BillingCity + "'," + 
+                    ", " + "'"  + item.BillingState + "'," +
+                    ", " + "'"  + item.BillingPostalCode + "'";
+
+        console.log(gAddr);
+        
+        // Account/001m000000bu3ODAAY/view
+        var tooltip = "Name: <a href='../lightning/r/Account/" + item.Id + "/view'> "+ item.Name + "</a><br>";
+                    tooltip += "Funding: " + item.Funding_Status__c + "<br>";
+                    tooltip += "investment: " + item.Total_Investment__c + "<br>";
+        
+        console.log(tooltip);
+
+
+          geocoder.geocode( { 'address': gAddr}, function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location});
+                
+                markerBounds.extend(results[0].geometry.location);
+                map.fitBounds(markerBounds);
+
+                var infoWindow = new google.maps.InfoWindow();
+
+                google.maps.event.addListener(marker, 'click', function () {
+                    infoWindow.setContent(tooltip);
+                    infoWindow.open(map, this);
+                });
+            } else {
+                alert("Geocode was not successful for the following reason: " + status);
+            }
+        });  
+
+
+   
+
+
+
+    });//End each
+   
+   });   // End ready    
+
+
+
+
+
+
+
+</script>
+
+
+<style>
+    #map {
+      font-family: Arial;
+      font-size:12px;
+      line-height:normal !important;
+      height:500px;
+      width: 100%;
+      background:transparent;
+    }
+</style>
+
+<div id="map"></div> 
+
+</apex:component>

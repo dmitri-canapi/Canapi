@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>application/zip</contentType>
+    <description>Marker Clusterer JavaScript library and images. https://github.com/googlemaps/v3-utility-library/tree/master/markerclusterer</description>
+</StaticResource>

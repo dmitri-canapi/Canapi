@@ -1,0 +1,8 @@
+<design:component label="Two Column Custom Home Page Template">
+    <flexipage:template >
+	        <flexipage:region name="topleft" defaultWidth="Large" />
+            <flexipage:region name="bottomleftleft" defaultWidth="Small" />
+            <flexipage:region name="bottomleftright" defaultWidth="Small" />
+            <flexipage:region name="right" defaultWidth="Medium" />
+       </flexipage:template>
+</design:component>

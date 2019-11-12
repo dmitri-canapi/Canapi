@@ -1,0 +1,193 @@
+<apex:page controller="CustomDocumentController" showHeader="false" sidebar="false" standardStylesheets="true">
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
+    <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}"/> 
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.css')}"/>
+    
+    <style type="text/css" media="screen">
+        html, body{
+            margin:0px;
+            padding:0px;
+            height:100%;
+            overflow:hidden;
+            width:100%;
+        }   
+        div#layoutObj {
+            position: relative;
+            margin-top: 5px;
+            margin-left: 0px;
+            width: 100%;
+            height: 210px;
+        }
+        .notification, .notification:hover {
+        	line-height: 0.7em;
+            text-decoration: none;
+            padding: 5px 5px 5px 5px;
+            position: relative;
+            display: inline-block;
+            border-radius: 2rem!important;
+            border: 1px solid rgb(221, 219, 218);
+            background: #6fb1da;
+            color: white;
+        	font-size: 12px;
+        }
+        .badge{
+            position: absolute;
+            top: 4px; right: 5px; 
+            border-radius: 50%;
+            text-decoration: none;
+            color: white;
+        }
+        .badge:hover{
+            color: red !important;
+            text-decoration: none;
+        }
+        .dhx_popup_arrow_right{
+            display: none !important;
+        }
+        .uneven{
+            background-color: #f3f3f3a1;
+        }
+        .viewAllLink {
+            cursor: pointer;
+            font-size: .8125rem;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        div.gridbox_material.gridbox{
+         border: none !important;
+        }
+        div.gridbox_material.gridbox table.hdr td div.hdrcell {
+            color: rgba(105, 105, 105, 0.63) !important;
+        }
+        a {
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .grid_hover  {
+            background-color: #f9d3f136;
+        }
+         div.gridbox_material.gridbox table.obj tr td {
+            border-bottom: 1px solid rgb(205, 202, 202);
+        }
+</style>
+<body>
+    <h2 id="VFPtitle" style="padding-left: 0; padding-bottom: 7px; font-size: 1rem; font-weight: 700; line-height: 1.5;">UPLOADED DOCUMENTS</h2>
+    <div id="layoutObj"></div>
+    <div class="viewAllLink"><a id="ViewAllLink" onclick="window.parent.location = '/fintech/s/documents';">View All</a></div>
+    
+    <script type="text/javascript">
+
+    function eXcell_tags(cell){ //the eXcell name is defined here
+        
+        if (cell){                // the default pattern, just copy it
+            this.cell = cell;
+            this.grid = this.cell.parentNode.grid;
+        }
+        this.edit = function(){}  //read-only cell doesn't have edit method
+        // the cell is read-only, so it's always in the disabled state
+        this.isDisabled = function(){ return true; }
+        this.setValue=function(val){
+            var CellObj = this;
+            CustomDocumentController.getDocsTagsRecords (val,function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    //console.log(result);
+                    var resultArray = result;
+                    var options2 = [];
+                    if (resultArray!=null){
+                        var res = resultArray;
+                        //console.log(res);
+                        for (var i=0;i<res.length;i++){
+                            var tName = res[i].Tag__r.Name;
+                            if (res[i].Tag__r.ParentTag__c!=null){
+                                tName = res[i].Tag__r.ParentTag__r.Name + ':' + tName;
+                                
+                                if (res[i].Tag__r.ParentTag__r.ParentTag__c!=null){
+                                    tName = res[i].Tag__r.ParentTag__r.ParentTag__r.Name + ':' + tName;
+                                }
+                            }
+                            
+                            options2.push({ value: res[i].Id, label: tName}); 
+                        }
+                    }
+                    
+                    var tagsBadges ='';
+                    for (var i=0;i<options2.length;i++){
+                        tagsBadges += "<span id='"+ options2[i].value +"' class='notification' style=''><span>"+ options2[i].label +"</span></span>";
+                    }
+                    CellObj.setCValue(tagsBadges,val);     
+                    
+                }
+            }); 
+        }
+    }
+    eXcell_tags.prototype = new eXcell;// nests all other methods from the base class
+    
+    myGrid = new dhtmlXGridObject('layoutObj');
+    myGrid.setHeader("TYPE,DOCUMENT,DATE,ACCESS,TAGS");
+    //myGrid.setInitWidths("38,220,70,80,*");
+
+    myGrid.setInitWidthsP("5,30,10,15,40");
+    myGrid.setColAlign("left,left,left,left,left");
+    myGrid.setColTypes("img,link,rotxt,rotxt,tags");
+    myGrid.setColSorting("str,str,str,str,str");
+    myGrid.enableRowsHover(true,'grid_hover');
+    myGrid.enableAutoWidth(true);
+    myGrid.enableAlterCss("even","uneven");
+    myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
+    //start grid
+   
+    dhtmlxEvent(window, "resize", function(){
+        var fullWidth =  $('body').width();
+        myGrid.setColWidth(0,String(fullWidth*5/100));
+        myGrid.setColWidth(1,String(fullWidth*30/100)); 
+        myGrid.setColWidth(4,String(fullWidth*40/100));
+        myGrid.setColWidth(2,String(fullWidth*10/100));
+        myGrid.setColWidth(3,String(fullWidth*15/100));
+    });
+    myGrid.init();
+    myGrid.attachEvent("onBeforeDrag", function(id){ return false; });
+    myGrid.attachEvent("onBeforeSelect", function(new_row,old_row){
+        return false;
+    });
+    
+    CustomDocumentController.GetDocumentsHomePage (function(result, event) {
+        if (event.type == 'exception') {
+            alert(event.message);
+        } else {
+            var data = result;
+            data = ($('<div>').html(data).text());
+            myGrid.parse(data,"json");  
+        }
+    }); 
+    
+    CustomDocumentController.isCommunity (function(result, event) {
+        if (event.type == 'exception') {
+            alert(event.message);
+        } else {
+            if (!result){
+                $('#VFPtitle').hide();
+                $('#ViewAllLink').attr("href", "/lightning/n/Documents");
+                $('#ViewAllLink').prop('onclick',null);
+            }
+        }
+    }); 
+    
+    function openModal(o){
+        dhxWins = new dhtmlXWindows();
+        dhxWins.attachViewportTo("layoutObj");
+        
+        w1 = dhxWins.createWindow("w1", 20, 30, 400, 250);
+        w1.setText("File Preview");
+        w1.centerOnScreen();
+        
+        w1.attachHTMLString('<iframe src="/fintech/apex/RestrictedFilePreview?id=' + o + '" style="border: none;min-width:400px;width: 100%;height: 100vh;"></iframe>');
+    }
+        
+    </script>
+    
+</body>
+</apex:page>

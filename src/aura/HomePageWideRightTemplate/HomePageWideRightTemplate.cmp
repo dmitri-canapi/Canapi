@@ -1,0 +1,39 @@
+<aura:component implements="lightning:homeTemplate">
+    <aura:attribute name="topleft" type="Aura.Component[]" />
+    <aura:attribute name="right" type="Aura.Component[]" />
+    <aura:attribute name="bottomleftleft" type="Aura.Component[]" />
+    <aura:attribute name="bottomleftright" type="Aura.Component[]" />
+
+    <div>
+        <lightning:layout horizontalAlign="spread" multipleRows="true">
+            <lightning:layoutItem size="7" flexibility="grow">
+                <lightning:layout horizontalAlign="spread" multipleRows="true">
+                        <lightning:layoutItem flexibility="grow"
+                                              size="12">
+                            {!v.topleft}
+                        </lightning:layoutItem>
+                    	<lightning:layoutItem size="12">
+                            <lightning:layout multipleRows="true">
+                                <lightning:layoutItem flexibility="grow"
+                                                      size="6"
+                                                      class="slds-p-top_x-small">
+                                    {!v.bottomleftleft}
+                                </lightning:layoutItem>                    
+                                <lightning:layoutItem flexibility="grow"
+                                                      size="6"
+                                                      class="slds-p-left_x-small slds-p-top_x-small">
+                                    {!v.bottomleftright}
+                                </lightning:layoutItem>                                        
+                            </lightning:layout>
+                        </lightning:layoutItem>
+                </lightning:layout>
+            </lightning:layoutItem>
+            <lightning:layoutItem flexibility="grow"
+                                  size="5"
+                                  class="slds-p-left_x-small">
+                {!v.right}
+            </lightning:layoutItem>
+        </lightning:layout>
+    </div>
+    
+</aura:component>

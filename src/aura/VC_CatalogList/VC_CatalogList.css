@@ -1,0 +1,9 @@
+.THIS tr, .THIS th {
+    width:50%;
+}
+.THIS th {
+    font-weight: 800 !important;
+}
+.THIS .slds-form-element_horizontal .slds-form-element__control{
+    padding-left:20% !important;
+}

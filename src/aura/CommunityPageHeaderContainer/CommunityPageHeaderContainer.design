@@ -1,0 +1,10 @@
+<design:component>
+    <design:attribute name="imageName"
+                    label="Image Name" default="18-Canapi-Icons-11.svg"/>
+    <design:attribute name="objectName"
+                    label="Object Name"/>
+    <design:attribute name="breadcrumb1"
+                    label="Breadcrumb Label"/>
+    <design:attribute name="breadcrumb1Link"
+                    label="Breadcrumb Link"/>
+</design:component>

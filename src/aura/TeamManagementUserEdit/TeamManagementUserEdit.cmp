@@ -1,0 +1,34 @@
+<aura:component access="global" >
+    <aura:attribute name="recordId" type="String"  />
+    <lightning:overlayLibrary aura:id="popuplib"/>
+   	
+    <lightning:recordEditForm onsubmit="{!c.handleSubmit}"
+                              onsuccess="{!c.handleSuccessMessage}"
+                              recordId="{!v.recordId}"
+                              objectApiName="User" aura:id="editForm">
+        <!-- the messages component is for error messages -->
+        <lightning:messages />
+        <lightning:layout multipleRows="true">
+            <lightning:inputField fieldName="Title" />
+            
+            <lightning:layoutItem size="6">
+                <lightning:inputField fieldName="FirstName" />
+            </lightning:layoutItem>
+            <lightning:layoutItem size="6">
+                <lightning:inputField fieldName="LastName" />
+            </lightning:layoutItem>
+        </lightning:layout>
+        
+        
+        <lightning:inputField fieldName="Email" />
+        <lightning:inputField fieldName="Phone" />
+        <lightning:inputField fieldName="MobilePhone" />
+        <lightning:inputField fieldName="Department" />
+        <lightning:inputField fieldName="Manager__c" />
+        <div class="slds-m-top_medium">
+            <lightning:button  variant="brand" type="submit" name="save" label="Save" />
+        </div>
+    </lightning:recordEditForm>
+
+    
+</aura:component>

@@ -1,0 +1,62 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="DistributionList" >
+	<aura:handler name="init" value="{!this}" action="{!c.loadData}"/>
+
+
+	<aura:attribute name="tableRecords" type="List"/>
+       
+    
+  <div class="slds-m-around--xx-medium">   
+    <button class="slds-button slds-button--brand" onclick="{!c.downloadCsv}">Download As CSV</button> <br/><br/>
+
+        <div class="slds">
+		<table class="slds-table slds-table--bordered">
+			<thead>
+				<tr>
+                    <th>Fund</th>
+                    <th>Total Commitment</th>
+                    <th>Account Name</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Title</th>
+                    <th>Email</th>
+				</tr>
+			</thead>
+			<tbody>
+                <aura:iteration items="{!v.tableRecords}" var="row">
+                    
+                    <aura:iteration items="{!row.Contacts.records}" var="cont" indexVar="ind"> 
+                        <tr>
+                            <aura:if isTrue="{!ind==0}">
+                                <td rowspan="{!row.Contacts.totalSize}">
+                                    <aura:iteration items="{!row.Commitments__r.records}" var="comm" indexVar="ind2"> 
+                                        <aura:if isTrue="{!ind2!=0}">
+                                            ;&nbsp;
+                                        </aura:if>  
+                                        <a href="{!'/' + comm.Fund__c}">{!comm.Fund__r.Name}</a>
+                                    </aura:iteration>
+                                    <aura:if isTrue="{!row.Commitments__r==null}">
+                                        [No Commitments Found]
+                                    </aura:if>
+                                </td>
+                                <td rowspan="{!row.Contacts.totalSize}">
+                                    <lightning:formattedNumber value="{!row.totalComm}" style="currency" maximumFractionDigits="2"/>
+                                </td>
+                                <td rowspan="{!row.Contacts.totalSize}">
+                                    <a href="{!'/' + cont.AccountId}">{!cont.Account.Name}</a>
+                                </td>
+                            </aura:if> 
+                            
+                            <td><a href="{!'/' + cont.Id}">{!cont.FirstName}</a></td>
+                            <td><a href="{!'/' + cont.Id}">{!cont.LastName}</a></td>
+                            <td>{!cont.Title}</td>
+                            <td><a href="{!'mailto:' + cont.Email}">{!cont.Email}</a></td>
+                        </tr>
+                    </aura:iteration>
+                </aura:iteration>
+			</tbody>
+		</table>
+	</div>
+      <br/>
+      	<button class="slds-button slds-button--brand" onclick="{!c.downloadCsv}">Download As CSV</button> <br/><br/>
+    </div>
+</aura:component>

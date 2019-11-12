@@ -1,0 +1,129 @@
+<aura:component controller="FintechCompaniesController" implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" >
+    
+    <aura:attribute name="data" type="Object"/>
+    <aura:attribute name="columns" type="List"/>
+    <aura:attribute name="errors" type="Object" default="[]"/>
+	
+	<aura:attribute name="viewStyleOptions" type="List" default="[{'label': 'Tiles', 'value': 'Tiles'},{'label': 'Grid', 'value': 'Grid'}]"/>
+    <aura:attribute name="viewStyle" type="String" default="Tiles"/>    
+    
+    <aura:attribute name="filter" type="String" default=""/>
+    
+    <aura:attribute name="pageNumber" type="Integer" default="1"/>
+    <aura:attribute name="pageSize" type="Integer" default="30"/>
+    <aura:attribute name="isLastPage" type="Boolean" default="false"/>
+    <aura:attribute name="dataSize" type="Integer" default="0"/> 
+    <aura:attribute name="totalNumberOfRows" type="Integer" default="100"/>
+    
+    
+    <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    <lightning:layout horizontalAlign="end">
+        
+        
+    </lightning:layout>
+    
+    <div class="slds-clearfix">
+        <div class="slds-float_right slds-m-right_x-large">
+            <ul class="slds-list_horizontal">
+                <li style="    margin: -5px 10px;">
+                    <lightning:radioGroup name="viewStyleFilter" 
+                                  label=""
+                                  options="{! v.viewStyleOptions }"
+                                  value="{! v.viewStyle }"
+                                  type="button"
+                                  />
+                </li>
+            </ul>
+        </div>
+	 </div>
+    
+    <aura:if isTrue="{!v.viewStyle=='Tiles'}">
+        <div class="slds-clearfix">
+
+            <div class="slds-m-around_small">
+                <div class="slds-float_right" style="display: inline-flex;">  
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+            			<lightning:button iconName="utility:close" class="front slds-input__icon slds-input__icon_right" onclick="{!c.clearFilter}"/>
+                    	<ui:inputText aura:id="searchInput" 
+                                  label="Search"
+                                  placeholder="Filter"
+                                  keyup="{!c.performSearch}" 
+                                  updateOn="keyup" 
+                                  value="{!v.filter}"/>
+                        </div>
+                    <lightning:button label="Prev" iconName="utility:chevronleft" iconPosition="left"
+                                      onclick="{!c.handlePrev}" disabled="{! v.pageNumber == 1}"/>
+                    <lightning:button label="Next" iconName="utility:chevronright" iconPosition="right"
+                                      disabled="{! v.isLastPage}" onclick="{!c.handleNext}"/>
+                    
+                </div>
+            </div>
+            
+            <div style="float:left; text-align: center;" class="slds-m-top_medium">
+                <aura:iteration items="{!v.data}" var="rec" >
+                    <div class="card">
+                        <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">{!rec.Name}</div>
+                        <div style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
+                            <div style="width:45%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+                                <img style="width:80px" src="{! '../services/images/photo/' + rec.Id}"/>
+                            </div>
+                            <div style="width:55%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
+                                
+                                <aura:if isTrue="{!rec.Phone!=null}">
+                                    <br/>
+                                    <p class="tileLabel">Phone</p>
+                                    <p class="tileValue">
+                                        <a href="{! 'tel:' +  rec.Phone}" title="{!rec.Phone}">{!rec.Phone}</a>
+                                    </p>
+                                </aura:if>
+                                <aura:if isTrue="{!rec.Website!=null}">
+                                    <br/>
+                                    <p class="tileLabel">Website</p>
+                                    <p class="tileValue">
+                                        <a href="{!rec.Website}" title="{!rec.Website}">{!rec.Website}</a>
+                                    </p>
+                                </aura:if>
+                                <br/>
+                                <p class="tileLabel">Owner</p>
+                                <p class="tileValue" style="font-size: 12px;" title="{!rec.Owner.Name}">
+                                    {!rec.Owner.Name}
+                                </p>
+                            </div> 
+                        </div> 
+                        <div style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
+                            <div style=" text-align: right; display:table-cell;vertical-align: middle;">
+                                <a href="{! '/alliance/s/detail/' + rec.Id}" style="color:white !important;"><span style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 280px;display: table-cell;">About {!rec.Name} </span>
+                                    <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}" style="height: 30px; margin: 0px 5px 0px 5px"/>
+                                    
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </aura:iteration>
+            </div>
+            <div class="slds-m-around_small slds-clearfix" style="clear:both;">
+                <div class="slds-float_right">  
+                    <lightning:button label="Prev" iconName="utility:chevronleft" iconPosition="left"
+                                      onclick="{!c.handlePrev}" disabled="{! v.pageNumber == 1}"/>
+                    <lightning:button label="Next" iconName="utility:chevronright" iconPosition="right"
+                                      disabled="{! v.isLastPage}" onclick="{!c.handleNext}"/>
+                    
+                </div>
+            </div>
+        </div>
+        <aura:set attribute="else">
+            <div class=" slds-m-top_medium">
+            	<lightning:listView 
+                                objectApiName="Account"
+                                listName="FinTech_Prospect"
+                                rows="25"
+                                showSearchBar="true"
+                                showActionBar="true"
+                                enableInlineEdit="false"
+                                showRowLevelActions="false"
+                                />
+            </div>
+        </aura:set>
+    </aura:if>
+    
+</aura:component>

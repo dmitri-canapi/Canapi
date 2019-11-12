@@ -1,0 +1,81 @@
+<aura:component controller="CustomMilestoneCreateController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" >
+    
+	<aura:attribute name="newTTR" type="milestone__c"
+     default="{ 'sobjectType': 'milestone__c',
+                     'Company__c': '','Planned_Start__c':null,'Milestone_Type__c':null,
+              'Actual_Start__c':null,'Name':'','Planned_Completion_Date__c':null,
+              'Milestone_Description__c':'','Target_Date__c':null,'Milestone_Status__c':null,'Stage__c':null,
+              'Status_Comments__c':''}"/>
+    <aura:attribute name="selectedOption" type="String"/>
+	<aura:attribute name="options" type="String[]"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <lightning:layout horizontalAlign="end">
+        <lightning:button label="New" variant="brand" onclick="{!c.openmodal}" class="newButt"/>
+        
+    </lightning:layout>
+    <lightning:listView aura:id="listViewAccounts"
+        objectApiName="milestone__c"
+        listName="Milestones"
+        rows="10"
+        showSearchBar="true"
+        showActionBar="false"
+        enableInlineEdit="true"
+        showRowLevelActions="false"
+	/>
+    
+    <div aura:id="Modalbox" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal" style="">
+        <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <h2 class="slds-text-heading--medium">New Milestone</h2>
+            </div>
+            <div class="slds-modal__content slds-p-around--medium slds-grid slds-wrap ">
+				<h3 style="font-size: 14px;width:100%"  class="slds-section-title--divider slds-section__title  test-id__section-header-container">Information</h3>
+                <lightning:recordEditForm aura:id="recordCreateForm" objectApiName="milestone__c" class="recForm">
+                    <lightning:messages />
+                    <lightning:layout multipleRows="true">
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Company__c" value="{!v.newTTR.Company__c}" name="Company" label="Company" />
+                    	</lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Planned_Start__c" value="{!v.newTTR.Planned_Start__c}" />
+                    	</lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Milestone_Type__c" value="{!v.newTTR.Milestone_Type__c}" />
+                    	</lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Actual_Start__c" value="{!v.newTTR.Actual_Start__c}" />
+                    	</lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <abbr lightning-groupedcombobox_groupedcombobox="" title="required" class="slds-required">*</abbr>
+                            <lightning:inputField fieldName="Name" value="{!v.newTTR.Name}" required="true" class="nameField"/>
+                    	</lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Planned_Completion_Date__c" value="{!v.newTTR.Planned_Completion_Date__c}"  />
+                    	</lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Milestone_Description__c" value="{!v.newTTR.Milestone_Description__c}" />
+                    	</lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Target_Date__c" value="{!v.newTTR.Target_Date__c}" />
+                    	</lightning:layoutItem>	
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Milestone_Status__c" value="{!v.newTTR.Milestone_Status__c}" />
+                    	</lightning:layoutItem>	
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="Stage__c" value="{!v.newTTR.Stage__c}" />
+                    	</lightning:layoutItem>	
+                        <lightning:layoutItem size="12">
+                            <lightning:inputField fieldName="Status_Comments__c" value="{!v.newTTR.Status_Comments__c}" />
+                    	</lightning:layoutItem>	
+                    </lightning:layout>
+                </lightning:recordEditForm>
+            </div>
+            <div class="slds-modal__footer">                
+                <lightning:button variant="neutral" label="Cancel" onclick="{!c.closeModal}"/>
+                <lightning:button variant="brand" label="Save" onclick="{!c.saveRecord}" />
+            </div>
+        </div>
+    </div>
+    <div aura:id="Modalbackdrop" class="slds-backdrop"></div>
+</aura:component>

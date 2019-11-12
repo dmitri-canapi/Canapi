@@ -1,0 +1,21 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="CommunityDeals">
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+	<aura:attribute name="Opportunities" type="Object[]"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    
+    <lightning:card title="Deals">
+        <p class="slds-p-horizontal_small">    
+            <lightning:layout >
+                <lightning:layoutItem >             
+                    <lightning:datatable data="{!v.Opportunities}"
+                        columns="{!v.mycolumns }"
+                        keyField="id"/>
+                </lightning:layoutItem>
+            </lightning:layout>
+        </p>
+    </lightning:card>
+
+        
+
+</aura:component>

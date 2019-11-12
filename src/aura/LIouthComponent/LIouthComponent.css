@@ -1,0 +1,90 @@
+.THIS .socialSettingsHeader{
+    line-height: 1.875rem;
+    display: inline-block;
+}
+
+.THIS .dynamic {
+	border: 1px solid #d4d4d4;
+    border-radius: .25rem;
+    width: 100%;
+    line-height: 1.875rem;
+    min-height: calc(2.125rem + 2px);
+    padding: 0 1rem 0 .75rem;
+}
+
+.THIS .search:before {
+    font-family: "forceIconFont";
+    content: "\e839";
+    color: #54698d;
+    speak: none;
+    font-size: x-large;
+}
+
+.THIS .search {
+    position: absolute;
+    margin-left: 5px;
+}
+
+.THIS .bodyContainer {
+    padding-right: 40px;
+}
+
+.THIS .input {
+    padding-left: 30px;
+    width: 100%;
+    border: 1px solid rgb(216, 221, 230);
+    border-radius: 4px;
+    line-height: 1.875rem;
+	min-height: calc(2.125rem + 2px);
+}
+
+.THIS .loginImage {
+    margin-top: 5px;
+}
+
+.THIS .searchBox {
+    position: relative;
+}
+
+.THIS .resultContainer {
+    position: absolute;
+    background-color: white;
+    padding: 15px;
+    border-radius: 4px;
+    border: #d8dde6 solid 1px;
+    z-index: 1;
+}
+
+.THIS .selectedContainer {
+    display: table;
+    background-color: white;
+    padding: 0 10px 5px;
+}
+
+.THIS .selectedItem {
+    background-color: white;
+    border-radius: 4px;
+    border: #d8dde6 solid 1px;
+    padding: 3px;
+    margin: 0 0 3px 3px;
+    position: relative;
+}
+
+.THIS .removeItemIconContainer {
+    cursor: pointer;
+    font-size: larger;
+    color: #005fb2;
+    font-weight: 600;
+    position: absolute;
+    background-color: white;
+    right: 5px;
+    bottom: 3px;
+}
+
+.THIS .selectedItemName {
+    font-size: larger;
+    color: #000071;
+    
+    position: relative;
+    padding-right: 15px;
+}

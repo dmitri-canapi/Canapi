@@ -1,0 +1,80 @@
+<aura:component controller="VC_MainCatalogController" implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName,forceCommunity:availableForAllPageTypes,flexipage:availableForRecordHome,force:lightningQuickAction,lightning:actionOverride,lightning:isUrlAddressable" access="global" >
+    <aura:attribute name="CatalogList" type="List" default="[]"/>
+	<aura:attribute name="IsCommunity" type="Boolean"/>
+    <aura:attribute name="tempAccId" type="String"/>
+	<aura:attribute name="isBank" type="Boolean"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:renderIf isTrue="{!or(v.isBank, v.IsCommunity)}">
+        <div class="slds-box">
+            <article class="slds-card">
+                <div class="slds-card__header slds-grid">
+                    <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                        <div class="slds-media__body">
+                            <h2 class="slds-card__header-title" style="width: 200px; display: inline-block;">
+                                <span class="slds-card__header-link slds-text-heading--small">Alliance Enrollment</span>
+                            </h2>
+                        </div>
+                    </header>
+                </div>
+                <div class="slds-card__body">
+                    
+                    
+                    <aura:iteration items="{!v.CatalogList}" var="obj" indexVar="key">
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                            <thead>
+                                <tr class="slds-text-title_caps">
+                                    <th scope="col">
+                                        <div class="slds-truncate">{!obj.key}</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate slds-text-align_right">Current Vendor/ Product &nbsp;</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!obj.value}" var="vlist">
+                                    <tr>
+                                        <td scope="row">
+                                            <div class="slds-truncate" title="{!vlist.Name__c}">
+                                                {!vlist.Name__c}
+                                            </div>
+                                        </td>
+                                        <td scope="row">
+                                            <div style="" class="">
+                                                <div class="slds-grid slds-gutters">	
+                                                    <div class="slds-col slds-size_2-of-12 slds-text-align_right">
+                                                        <div onclick="{!c.onClick}" data-menu-item-id="{!vlist.Vendor__c}" class="{!vlist.Vendor__c ? 'slds-show' : 'slds-hide'}">
+                                                            <div data-menu-item-id="{!vlist.Vendor__c}"  style="display:inline-block;padding-top: 8px;"><a data-menu-item-id="{!vlist.Vendor__c}" class="{!vlist.Vendor__c.length>0 ? 'slds-show' : 'slds-hide'}" href="javascript:void(0);">Details...</a></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="slds-col slds-size_10-of-12">
+                                                        <lightning:recordEditForm  objectApiName="Vendor_Catalog__c">
+                                                            <div class="slds-grid slds-gutters">
+                                                                <div class="slds-col slds-size_12-of-12" id="{!vlist.Id}" onchange="{!c.updateVendorDIVjs}">
+                                                                    <lightning:inputField onclick="{!c.onClick}" data-accId="{!vlist.Id}"  id="{!vlist.Id}" variant = "label-hidden" name="Fintech_Account__c" value="{!vlist.Vendor__c}"  class="{!vlist.Id}" label="Select Account:" fieldName="Fintech_Account__c"  onchange="{!c.updateVendorJs}" />
+                                                                </div>
+                                                            </div>
+                                                        </lightning:recordEditForm>
+                                                    </div>
+                                                </div>
+                                                    
+                                                   
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                                
+                            </tbody>
+                        </table>
+                    </aura:iteration>
+                    
+                    
+                    
+                </div>
+            </article>
+        </div>
+    </aura:renderIf>
+    
+</aura:component>

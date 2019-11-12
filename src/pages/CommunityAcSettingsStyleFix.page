@@ -1,0 +1,39 @@
+<apex:page showHeader="false" sidebar="false">
+<script>
+    function fixAccSettings () { 
+        var date = new Date();
+        console.log(date.getTime());         
+        setTimeout(function () {   
+            try {
+                window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.cHeaderPanel')[0].style.display='none';
+                window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .row')[0].style.display='none';
+                window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .uiTabBar')[0].style.display='none';
+                window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .emailNotificationsSection')[0].style.display='none';
+            }catch(e){
+                fixAccSettings();            
+            }                      
+        }, 200)
+    }
+    
+    function fixEmailSettings () { 
+        var date = new Date();
+        console.log(date.getTime());         
+        setTimeout(function () {   
+            try {
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.cHeaderPanel')[0].style.display='none';
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .row')[0].style.display='none';
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .uiTabBar')[0].style.display='none';
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .accountSection')[0].style.display='none';
+            	window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .locationSection')[0].style.display='none';
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .profileVisibilitySection')[0].style.display='none';
+            
+            }catch(e){
+                fixEmailSettings();            
+            }                      
+        }, 200)
+    }
+
+    fixAccSettings(); 
+    fixEmailSettings();
+</script>
+</apex:page>

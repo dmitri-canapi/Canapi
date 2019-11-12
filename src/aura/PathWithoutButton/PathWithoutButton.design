@@ -1,0 +1,3 @@
+<design:component label="Path Without Button">
+<design:attribute name="variant" label="Variant" datasource="linear,non-linear" default="linear" description="Which Path variant should be displayed?" />    
+</design:component>

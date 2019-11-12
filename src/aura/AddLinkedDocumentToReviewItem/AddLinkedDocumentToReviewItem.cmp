@@ -1,0 +1,113 @@
+<aura:component controller="Review_Items_Controller" >
+    <!--
+    <ltng:require  styles="{!$Resource.popStyle }"/>
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="tagSerchCondition" type="String" default=""/>
+    <aura:attribute name="tags" type="List" />
+    <aura:attribute name="tagsLoad" type="List" />
+    
+    <aura:attribute name="selectedTags" type="List" />
+    <aura:attribute name="documents" type="List" />
+    <aura:attribute name="documentToEdit" type="Object" />
+    <aura:attribute name="documentColums" type="List" />
+    <aura:attribute name="documentSerchCondition" type="String" default=""/>
+    <aura:attribute name="selectedDocumentRows" type="List" />
+    <aura:handler name="change" value="{!v.selectedTags}" action="{!c.refreshDocuments}"/>
+    <aura:handler name="change" value="{!v.documentSerchCondition}" action="{!c.refreshDocuments}"/>
+    <aura:handler event="c:SetTagToParrentComponent" action="{!c.SetFromChild}"/>
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+
+    <aura:attribute name="activeSections" type="String" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:layout >
+        <lightning:layoutItem size="3" padding="around-small">
+            <div >Tags</div>
+            <div> <lightning:input
+                                   aura:id="enter-search"
+                                   name="enter-search"
+                                   placeholder="Search this list"
+                                   type="search"
+                                   value="{!v.tagSerchCondition}"
+                                   onchange="{!c.doInit}"
+                                   /></div>
+              <ui:scrollerWrapper class="scrollerSize">
+            <lightning:accordion
+                                 allowMultipleSectionsOpen="true"
+                                 onsectiontoggle="{! c.handleSectionToggle }"
+                                 activeSectionName="{! v.activeSections }"
+                                 >
+                <aura:iteration items="{!v.tags}" var="tag">
+                    <lightning:accordionSection name="{!tag.Id}" label="{!tag.Name}">
+                        <aura:set attribute="actions">
+                            <lightning:buttonMenu aura:id="menu" value="{!tag.Name}" alternativeText="Show menu" menuAlignment="right" iconSize="x-small" onselect="{!c.addTag}">
+                                <lightning:menuItem value="Add" label="Add" />
+                                <lightning:menuItem value="Remove" label="Remove"  />
+                            </lightning:buttonMenu>
+                        </aura:set>
+                        <aura:set attribute="body">
+                            <aura:if isTrue="{!not(empty(tag.Tags__r))}">
+                                <c:ChildTagSection tags="{!tag.Tags__r}" tagsLoad="{!v.tagsLoad}" LoadData="{!tag.isOpen}" ></c:ChildTagSection>
+                                
+                                <aura:set attribute="else">
+                                    No child tags
+                                </aura:set>
+                            </aura:if>
+                            
+                        </aura:set>
+                    </lightning:accordionSection>
+                </aura:iteration>
+            </lightning:accordion>
+            </ui:scrollerWrapper>
+        </lightning:layoutItem>
+        <lightning:layoutItem size="9" padding="around-small">
+            Selected Tags:
+            <aura:iteration items="{!v.selectedTags}" var="tag">
+                	<lightning:pill label="{!tag}" onremove="{! c.removeTag }" name="{!tag}"/>
+                </aura:iteration>
+            <lightning:layout verticalAlign="center">
+                
+                
+                <lightning:layoutItem size="6" padding="around-small">
+                    <div >Selected Documents</div>
+                </lightning:layoutItem>
+                <lightning:layoutItem size="6" padding="around-small">
+                    <div> <lightning:input
+                                           aura:id="enter-search"
+                                           name="enter-search"
+                                           placeholder="Search by title"
+                                           type="search"
+                                           value="{!v.documentSerchCondition}"
+                                           /></div>
+                    
+                </lightning:layoutItem>
+            </lightning:layout>
+            <div style="height: 400px" id="dataTable">
+                
+
+                <lightning:datatable
+                                     aura:id="documentTable"
+                                     keyField="Id"
+                                     data="{! v.documents }"
+                                     columns="{! v.documentColums }"
+                                     onrowaction="{! c.changeTitle }"
+                                     onrowselection="{! c.setSelectedRow }"
+                                    />
+            </div>
+            
+        </lightning:layoutItem>
+    </lightning:layout>
+    <div class="slds-float-right">
+                    <lightning:button variant="neutral" 
+                                        label="Cancel"
+                                        title="Cancel"
+                                        onclick="{!c.hideRowDetails}"/>
+                    <lightning:button variant="brand" 
+                                        label="Link"
+                                        title="Save"
+                                      disabled="{!empty(v.selectedDocumentRows)}"
+                                        onclick="{!c.save}"/>
+                   
+                </div>
+    
+    -->
+</aura:component>

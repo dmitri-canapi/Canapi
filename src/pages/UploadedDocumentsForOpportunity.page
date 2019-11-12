@@ -1,0 +1,450 @@
+<apex:page controller="CustomDocumentController" showHeader="false" sidebar="false" standardStylesheets="true">
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
+    <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}"/> 
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.css')}"/>
+    
+    <style type="text/css" media="screen">
+        html, body{
+            margin:0px;
+            padding:0px;
+            height:100%;
+            overflow:hidden !important;
+        }   
+        .dhxwins_vp_auto {
+        	overflow:hidden !important;
+        }
+        div#layoutObj {
+            position: relative;
+        	margin-top: 15px;
+            margin-left: 0px;
+            width: 100%;
+        	height: 352px;
+        }
+        .notification, .notification:hover {
+            line-height: 0.7em;
+            text-decoration: none;
+            padding: 5px 20px 5px 5px;
+            position: relative;
+            display: inline-block;
+            border-radius: 2rem!important;
+            border: 1px solid rgb(221, 219, 218);
+            background: #6fb1da;
+        	color: white;
+        	font-size: 12px;
+        }
+        .badge{
+            position: absolute;
+            top: 4px; right: 5px; 
+            border-radius: 50%;
+        	text-decoration: none;
+        	color: white;
+        }
+		.badge:hover{
+           	color: red !important;
+        	text-decoration: none;
+        }
+    	.dhx_popup_arrow_right{
+        	display: none !important;
+        }
+        .uneven{
+        <!--background-color: #f3f3f3a1;-->
+        }
+        a {
+        	text-decoration: none;
+        }
+        a:hover {
+        	text-decoration: underline;
+        }
+        div.gridbox_material.gridbox table.obj tr td {
+    		border-bottom: 1px solid rgb(205, 202, 202);
+        }
+        .grid_hover  {
+        	background-color: #f9d3f136;
+        }
+        div.gridbox_material.gridbox table.obj tr td, .dhx_grid_adjust , .standartTreeRow{
+        	font-size: 13px;
+        }
+</style>
+<body>
+    <input type="text" id="stext" style="width: 286px;height: 28px; text-indent: 5px;" placeHolder="Search this list"/>
+    <input type="text" id="SearchDocuments" style="width: 300px;height: 28px; text-indent: 5px;float:right;margin-right: 70px;" placeHolder="Search by title" onkeyup="filterDocs(null)"/>
+    <br/>
+    <div id="layoutObj"></div>
+    <br/><br/><br/>
+    <script type="text/javascript">
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    var recordId = vars["recordId"];
+    
+    var myLayout = new dhtmlXLayoutObject({
+        parent: "layoutObj",
+        pattern: '2U'
+    });
+    myLayout.cells("a").hideHeader();
+    myLayout.cells("b").hideHeader();
+    myLayout.cells("a").setWidth(290);
+    myLayout.setAutoSize("b", "a;b");
+    //myLayout.cells("a").fixSize(true, false);
+    
+    Menu = new dhtmlXMenuObject();
+    Menu.renderAsContextMenu();
+    Menu.attachEvent("onClick",onButtonClick);
+    Menu.loadStruct('{items:[{id: "Rename", text: "Rename"},{id: "Delete", text: "Delete..."},{id: "Add", text: "Add Child Tag..."},{id: "drag", text: "Drag And Drop To Move"}]}');
+    Menu.addNewSeparator("Delete", "sep");
+    Menu.setItemDisabled("drag");
+    
+    //TagTree = new dhtmlXTreeObject("treeboxbox_tree","100%","100%",0); 
+    TagTree = myLayout.cells("a").attachTree();
+    TagTree.setImagePath("{!URLFOR($Resource.DHTMLX, '/skins/skyblue/imgs/dhxtree_skyblue/')}");
+    TagTree.enableDragAndDrop(true);
+    TagTree.enableContextMenu(Menu);
+    TagTree.enableItemEditor(true);
+    TagTree.setOnClickHandler(filterDocs);
+    
+    CustomDocumentController.getInactiveTagsRecords([], function(result, event) {
+        if (event.type == 'exception') {
+            alert(event.message);
+        } else {
+            data = result;
+            
+            var finalData = [];
+            var t =[];
+            t.push('All');
+            t.push(0);
+            t.push('All');
+            finalData.push(t);
+            
+            var parents = [];
+            for (var i=0;i<data.length;i++){
+                var temp = [];
+                temp.push(data[i].Id);
+                if (data[i].ParentTag__c!=null){
+                    temp.push(data[i].ParentTag__c); 
+                    parents.push(data[i].ParentTag__c);
+                }else{
+                    temp.push('All');
+                }
+                temp.push(data[i].Name);
+                finalData.push(temp);
+            }
+            
+            TagTree.parse(finalData, "jsarray");
+            TagTree.openAllItems('All');
+            for (var i=0;i<parents.length;i++){
+                TagTree.openAllItems(parents[i]);
+            }
+            TagTree.sortTree('0', 'ASC', true);
+        }
+    });
+    
+    TagTree.attachEvent("onDrop", function(sId, tId, id, sObject, tObject){
+        if(sId!='All'){
+            if(tId=='0'){
+                TagTree.moveItem(sId,'item_child','All');
+            }
+            CustomDocumentController.setTagParent(sId,tId, function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } 
+            });
+            TagTree.sortTree('All', 'ASC', true);
+        }
+    });
+    
+    TagTree.attachEvent("onEdit", function(state, id, tree, value){
+        if(id=='All'){
+            return false;
+        }
+        if (state==2){
+            console.log(id);
+            console.log(value);
+            if (value!=null && value!=''){
+                CustomDocumentController.renameTag(id,value, function(result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    }
+                });
+            } else {
+                return false;
+            }
+        }
+    return true;
+    });
+    
+    
+    var myPop;
+    var myForm;
+    
+    function filterDocs(id){
+        
+        if (!id){
+            id = TagTree.getSelectedItemId();
+        }
+        if (id){
+        	$("#TagFilter").html("Selected Tag: " + TagTree.getItemText(id));
+            TagTree.setItemColor(id,'black','red');
+        }
+
+        CustomDocumentController.GetAccountDocumentsFiltered (id,$("#SearchDocuments").val(),'DEFAULT-DEFAULT-DEFAULT',recordId,function(result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            } else {
+                var data = result;
+                data = ($('<div>').html(data).text());
+                myGrid.clearAll();
+                myGrid.parse(data,"json");  
+            }
+        }); 
+    };
+
+	TagTree.attachEvent("onBeforeContextMenu",function(itemId){
+        if (itemId=='All'){
+        	Menu.setItemDisabled('Rename');  
+            Menu.setItemDisabled('Delete');
+        } else {
+            Menu.setItemEnabled('Rename');  
+            Menu.setItemEnabled('Delete');
+        }
+        TagTree.selectItem(itemId,true,false);
+        return true;
+    });
+    
+    function onButtonClick(menuitemId,type){
+        var id = TagTree.contextID;
+        console.log(id);
+        
+        console.log(menuitemId);
+        if (menuitemId=='Delete'){
+            CustomDocumentController.removeTag(id, function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                   TagTree.deleteItem(id,true);
+                }
+            });
+            
+        } else if (menuitemId=='Add'){
+            if(id=='All'){
+                //TagTree.contextID=null;
+            	showPopup(null);
+            }else{
+           		showPopup(id); 
+            }
+        } else if (menuitemId=='AddParent'){
+            TagTree.contextID=null;
+            showPopup(null);     
+        } else if (menuitemId=='Rename'){
+            TagTree.editItem(id);
+        }
+    }
+    
+    function showPopup(inp) {
+        console.log('=====');
+        console.log(TagTree.contextID);
+        console.log(inp);
+			if (!myPop) {
+				myPop = new dhtmlXPopup({mode: "right"});
+				myForm = myPop.attachForm([
+					{type: "block", style: "margin: 10px 20px 10px 0px;", list: [
+						{type: "settings", position: "label-left", labelWidth: 130, inputWidth: 150},
+						{type: "input", name: "TagName", label: "New Tag name", value: ""}]},
+                    {type: "block", list: [
+                        {type: "button", name: "cancel", value: "Cancel", offsetTop: 10, offsetLeft: 65},
+                        {type: "newcolumn"},
+                        {type: "button", name: "saveNewtag", value: "Save", offsetTop: 10, offsetLeft: 10}
+                    ]}
+				]);
+                myForm.attachEvent("onEnter",function(){
+                    addNewTag();
+                });
+				myForm.attachEvent("onButtonClick", function(name){
+                    if (name=='saveNewtag'){
+                        addNewTag();
+                    } else {
+                        myPop.hide();
+                    }
+				});
+			}
+			if (myPop.isVisible()) {
+                myPop.hide();
+			} else {
+                myForm.setItemValue("TagName", "");
+				myPop.show(0,60,0,0);
+                myForm.setItemFocus("TagName");
+			}
+		}
+    
+    function addNewTag(){
+    	if (myForm.getItemValue("TagName") == "") {
+            dhtmlx.alert({
+                type:"alert-error",
+                text:"Please, enter tag name!",
+                title:"Error",
+                ok:"Ok",
+                callback: function(result){
+                    myPop.show(0,60,0,0);
+                }
+            });
+        } else {
+            
+            CustomDocumentController.addNewTag(TagTree.contextID,myForm.getItemValue("TagName"), function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    console.log('new rec id:');
+                    console.log(result);
+                    if (TagTree.contextID==null){
+                        TagTree.contextID=0;
+                    }
+                    TagTree.insertNewItem(TagTree.contextID,result,myForm.getItemValue("TagName"),0,0,0,0,"");
+                    //TagTree.deleteItem(id,true);
+                }
+            });
+            myPop.hide();
+            
+            return;
+        }
+    }
+
+    function eXcell_tags(cell){ //the eXcell name is defined here
+        
+        if (cell){                // the default pattern, just copy it
+            this.cell = cell;
+            this.grid = this.cell.parentNode.grid;
+        }
+        this.edit = function(){}  //read-only cell doesn't have edit method
+        // the cell is read-only, so it's always in the disabled state
+        this.isDisabled = function(){ return true; }
+        this.setValue=function(val){
+            var CellObj = this;
+            CustomDocumentController.getDocsTagsRecords (val,function(result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    //console.log(result);
+                    var resultArray = result;
+                    var options2 = [];
+                    if (resultArray!=null){
+                        var res = resultArray;
+                        //console.log(res);
+                        for (var i=0;i<res.length;i++){
+                            var tName = res[i].Tag__r.Name;
+                            if (res[i].Tag__r.ParentTag__c!=null){
+                                tName = res[i].Tag__r.ParentTag__r.Name + ':' + tName;
+                                
+                                if (res[i].Tag__r.ParentTag__r.ParentTag__c!=null){
+                                    tName = res[i].Tag__r.ParentTag__r.ParentTag__r.Name + ':' + tName;
+                                }
+                            }
+                            
+                            options2.push({ value: res[i].Id, label: tName}); 
+                        }
+                    }
+                    
+                    var tagsBadges ='';
+                    for (var i=0;i<options2.length;i++){
+                        tagsBadges += "<span id='"+ options2[i].value +"' class='notification' style=''><span>"+ options2[i].label +"</span><a class='badge' onclick='removeTagAssociation(\""+options2[i].value+"\")'>x</a></span>";
+                    }
+                    CellObj.setCValue(tagsBadges,val);     
+                    
+                }
+            }); 
+        }
+    }
+    eXcell_tags.prototype = new eXcell;// nests all other methods from the base class
+    
+    myGrid = myLayout.cells("b").attachGrid();
+    myGrid.setHeader("TYPE,DOCUMENT,PORTAL,DATE,OWNER,SENSIVITY,TAGS,upl by full text");
+    myGrid.setInitWidths("38,*,65,65,53,70,*,0");
+    myGrid.setColAlign("left,left,left,left,left,left,left,left");
+    myGrid.setColTypes("img,link,ch,rotxt,rotxt,rotxt,tags,rotxt");
+    myGrid.setColSorting("str,str,str,str,str,str,str,str");
+    myGrid.enableDragAndDrop(true);
+    myGrid.enableMultiline(true);
+    myGrid.enableAlterCss("even","uneven");
+    myGrid.enableRowsHover(true,'grid_hover');
+    myGrid.setColumnHidden(7,true);
+    myGrid.setImagePath("{!URLFOR($Resource.DHTMLX,  '/codebase/imgs/')}");
+    myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
+    
+    //start grid
+    myGrid.init();
+    
+    myGrid.attachEvent("onEditCell", function(stage,rId,cInd,nValue,oValue){ return false;});
+                                                                          
+    myGrid.attachEvent("onMouseOver", function (id, ind) { 
+        if (ind==4)
+        this.cells(id,ind).setAttribute("title",myGrid.cells(id,7).getValue()); 
+     return true });
+    
+    myGrid.attachEvent("onBeforeDrag", function(id){ return false; });
+    myGrid.attachEvent("onDrag", function(sId,tId,sObj,tObj,sInd,tInd){ 
+        if(sObj==TagTree && sId!='All'){ 
+            console.log(tId);
+            CustomDocumentController.addTagForDocument (tId,sId,function(result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            } else {
+                tObj.cells(tId,6).setValue(tId);//updating tags on ui
+            }
+        }); 
+        } return false 
+    });
+    
+    
+    
+    CustomDocumentController.GetAccountDocumentsFiltered (null,null,'DEFAULT-DEFAULT-DEFAULT',recordId,function(result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            } else {
+                var data = result;
+                data = ($('<div>').html(data).text());
+
+                myGrid.parse(data,"json");  
+            }
+        });
+        
+        
+    	
+    function removeTagAssociation(tagAssocId){
+        
+        CustomDocumentController.removeDocHelperTagAssoc (tagAssocId,function(result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            } else {
+                $( "#" + tagAssocId ).remove();
+            }
+        });
+    }
+    
+    function openModal(o,type,isCommunity){
+        var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
+        parent.postMessage('showFilePreview' + '-del-'+ o , url);
+    }
+    
+    $("#stext").on('keyup', function (e) {
+        if (e.keyCode == 13) {
+            TagTree.findItem(document.getElementById('stext').value);
+        }
+    });
+    
+    if (window.attachEvent)
+        window.attachEvent("onresize",resizeLayout);
+    else
+        window.addEventListener("resize",resizeLayout, false);
+
+    var t;
+    
+    function resizeLayout(){
+        window.clearTimeout(t);
+        t = window.setTimeout(function(){
+            myLayout.setSizes(false);
+        },200);
+    }
+
+    </script>
+    
+</body>
+</apex:page>

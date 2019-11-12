@@ -1,0 +1,633 @@
+<apex:page showheader="false" sidebar="false" standardStylesheets="false" controller="CommunityChatterSubscriptionsController">
+<html> 
+<head> 
+  <!-- Always force latest IE rendering engine or request Chrome Frame -->
+  <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chatter Feed Manager</title>
+  <apex:stylesheet value="{!URLFOR($Resource.ChatterResources, '/html/bootstrap/css/bootstrap.css')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.ChatterResources, '/html/stylesheets/styles.css')}"/>
+  <apex:stylesheet value="{!URLFOR($Resource.CP2_Resources, 'flipload/flipload.min.css')}"/>
+    
+    <style>
+        html {
+            overflow-x: hidden;
+        }
+        body .channel {
+            background-color: #F2F2F4;
+            box-shadow: none;
+            margin-bottom: 0px;
+        }
+        body .channel h4 {
+            color: black;
+            font-weight: 700;
+            font-size: inherit;
+            letter-spacing: 0.5pt;
+        }
+        .channels{
+            background-color: #f2f2f4;
+        }
+        body .channel .channel-topics {
+                overflow-x: hidden;
+        }
+        .row-shadow {
+            background: none;
+        }
+        body .channel .channel-topics .scroll-left {
+            left: -10px;
+            z-index: 999;
+            background: white;
+        }
+        body .channel .channel-topics .scroll-right {
+            right: -15px;
+            z-index: 999;
+            background: white;
+        }
+        .container {
+            padding:0px;
+            padding-top: 10px;
+            margin: 0px;
+            background-color: #f2f2f4;
+        }
+        .topic-cover {
+            border:none;
+            border-radius: inherit;
+            height: 108px;
+            margin: 0px;
+            width: inherit;
+        }
+        body .channel .channel-topics ul li a.topic-block {
+            padding: 0px;
+        }
+        body .channel .channel-topics ul li a.topic-block h6 {
+            border-top: none;
+            color: #1A182D;
+            font-size: .75rem;
+        }
+        
+        body .channel .channel-topics ul li {
+            background-color: white;
+            border-radius: 1px;
+            height: 215px;
+            margin: 6px;
+            width: 170px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        .topic-cover img {
+            height: initial;
+            margin-top: -16px;
+        }
+        .usrimgDiv {
+            height: 108px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: top;
+        }
+        .popover h3.popover-title .topic-cover { border: #f0f0f0 5px solid; border-radius: initial; height: 70px; width: 70px; }
+        .popover h3.popover-title .topic-cover img { width: 65px; margin-top: 0px;}
+        .glyphicon {
+            -webkit-text-stroke: 3px white;
+        }
+        .portfolioImg {
+            height: initial;
+            margin-top: 23px !important;
+            border-radius: 50%;
+            width: 80px !important;
+        }
+        .topic-block {
+            text-align: center;
+        }
+        .popover h3.popover-title {
+    		background: #F2F2F4;
+        	color: black;
+        }
+        .popover h3.popover-title h4 {
+        	font-size: 1.6rem;
+        }
+        .popover h3.popover-title h4 {
+    		line-height: 1.8rem !important;
+        }
+        .row a {
+        	color: inherit;
+        }
+        .popover .popover-content {
+   			padding: 5px 5px 15px;
+        	background-color: #1A182D;
+        	text-align: right;
+        }
+        .popover-content .glyphicon-chevron-right {
+        	border: 2px solid;
+            border-radius: 50%;
+            padding: 8px;
+            font-size: 26px;
+        	-webkit-text-stroke: 5px #1A182D;
+        	top: 5px;
+        }
+        .popup-description {
+        	background-color: white;
+            text-align: center;
+            height: 50px;
+            line-height: 50px;
+            margin-top: 10px;
+        }
+        .row {
+        	margin-left: 0px;
+        	margin-right: 0px;
+        }
+        .popover h3.popover-title {
+        	padding: 18px 0px 0px 0px;
+        }
+        .popover {
+        	width: 310px !important;
+        }
+    </style>
+</head>
+<body>
+  <div class="container">
+      <div class="row">
+          <div class="" style="margin: 0px 55px 0px 55px;border-bottom: 1px solid black;">
+              <image src="{!URLFOR($Resource.CommunityChatterSubscriptions, 'Networking.png')}" style="width: 45px;    margin: 5px;"/>
+              <h4 style="float: none;display: inline; float: none;  line-height: 3.2em;  vertical-align: bottom; font-weight: 700;">Subscriptions</h4>
+          </div> 
+      </div>
+    <div class="channels">
+
+      <!-- Channel Row -->
+      <section class="channel" id="GroupsSection">
+        <div class="row-shadow left"></div>
+        <div class="row">
+          <div class="">
+            <h4>Groups</h4>
+          </div>
+        </div>
+        <div class="channel-topics">
+          <a href="#" class="scroll-right"><span class="glyphicon glyphicon-chevron-right"></span></a> 
+            <a href="#" class="scroll-left"><span class="glyphicon glyphicon-chevron-left"></span></a>
+          <ul>
+            <div id ="Groups"></div>
+          </ul>
+        </div>
+        <div class="row-shadow right"></div>
+      </section> 
+      <!-- /Channel Row -->
+
+          <!-- Channel Row -->
+      <section class="channel" id="PeopleSection">
+        <div class="row-shadow left"></div>
+        <div class="row">
+          <div class="">
+            <h4>Canapi Partners</h4>
+          </div>
+        </div>
+        <div class="channel-topics">
+          <a href="#" class="scroll-right"><span class="glyphicon glyphicon-chevron-right"></span></a> <a href="#" class="scroll-left"><span class="glyphicon glyphicon-chevron-left"></span></a>
+           <ul>
+            <div id="People"></div>
+           </ul>
+          </div>
+          <div class="row-shadow right"></div>
+        </section>
+        <!-- /Channel Row -->
+        
+             <!-- Channel Row -->
+      <section class="channel" id="PortfolioSection">
+        <div class="row-shadow left"></div>
+        <div class="row">
+          <div class="">
+            <h4>Portfolio Companies</h4>
+          </div>
+        </div>
+        <div class="channel-topics">
+          <a href="#" class="scroll-right"><span class="glyphicon glyphicon-chevron-right"></span></a> <a href="#" class="scroll-left"><span class="glyphicon glyphicon-chevron-left"></span></a>
+           <ul>
+            <div id="Portfolio"></div>
+           </ul>
+          </div>
+          <div class="row-shadow right"></div>
+        </section>
+        <!-- /Channel Row -->
+        
+        </div>
+      </div>
+      <apex:includeScript value="{!URLFOR($Resource.ChatterResources, 'html/javascripts/jquery-2.1.1.min.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.ChatterResources, 'html/bootstrap/js/bootstrap.min.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.ChatterResources, 'html/javascripts/scripts.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.CP2_Resources, 'flipload/flipload.min.js')}"/>
+      <apex:includeScript value="{!URLFOR($Resource.CP2_Resources, 'js/underscore-min.js')}"/>
+      </body>
+      </html>
+      <script> 
+      //This is groups from constructor
+      var Groups = {!Groups};
+      var UserGroups = {!UserGroups};
+      var UserTopics = {!UserTopics};
+      var UserObjectives = {!UserObjectives};
+      var People = {!People};
+      var UserPeople = {!UserPeople};
+      var Portfolios = {!Portfolios}
+      var Categories = {!Categories};
+      var TheObj = {!Groups};
+      
+      //Order these objects by post count
+      Groups = _.sortBy(Groups,'PostCount').reverse();
+
+      function GetGroupsFromController(Data){ 
+        $.each(Data, function(i,val){
+            var currentDt = new Date(val.CreatedDate);
+            var mm = currentDt.getMonth() + 1;
+            var dd = currentDt.getDate();
+            var yyyy = currentDt.getFullYear();
+            var date = mm + '/' + dd + '/' + yyyy;
+            let fixStyle ='';
+            if(val.GroupPhoto.includes('/profilephoto/0F9/F')){
+                val.GroupPhoto = "{!URLFOR($Resource.CommunityChatterSubscriptions, 'iicontr.png')}";
+                fixStyle = "background-size: 110px;background-color: #1A182D; background-position: 30px 10px;";
+            }
+            var $html = $('<li class="popover-item">' +
+            '<a href="javascript:void(0);" style="text-align:center;" class="topic-block" id="'+ val.Id +'"> ' +
+            '<div class="topic-cover"><span class="inner-circle"></span>' + 
+            '<div class="usrimgDiv" style="background-image: url(' + val.GroupPhoto + '); ' + fixStyle + '"></div>'+
+            '</div>'+
+            '<h6 style="margin-top: 18px;height:19px">'+ val.Name +'</h6>' +
+            '<h6 href="javascript:void(0);" id="subLink-' + val.Id +'" style="text-decoration: underline; font-size: 13px; margin-top: 19px; display: block;color: #3e7aa2;">Subscribe</h6>'+
+            '</a>' +
+            '<div class="head hide">' +
+              	'<div class="row clearfix">' +
+                	'<div class="col-xs-12" style="text-align: center;">'+
+                  		'<div class="topic-cover-old" style="width:100%"><img style="display: block; margin-left: auto; margin-right: auto; height: 85px;" src="' + val.GroupPhoto + '"/></div>'+
+                		'<h4>'+ val.Name +'</h4>'+
+                          '<div style="color: #929292">' +
+                          	'<a href="#"><strong id="followers-'+ val.Id+'">'+ val.MemberCount +'</strong></a> Follows | ' +
+                          	'<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
+                          '</div>' +
+                          '<div style="color: #929292;margin-top:5px;">' +
+                         	'Owner: ' + val.OwnerName + 
+                          '</div>' +
+                   		'</div>'+
+  
+                        '<div class="col-xs-12 popup-description">'+
+                          '<p class="topic-meta">'+ (val.Description  ? val.Description : 'Description coming soon...') +'</p>'+
+                        '</div>'+
+                	'</div>'+
+                
+              	'</div>'+
+            '</div> '+
+            '<div class="content hide">'+
+               '<div><a style="color: white" href="../'+ val.Id  +'" target="_blank" class=""><span style="padding-right: 8px;">Visit Feed</span><span class="glyphicon glyphicon-chevron-right"></span></a></div>' +
+            '</div>'+
+            '</li>');
+
+            $('#Groups').append($html);
+            popOver($html);
+        });//End each
+
+        //Now we loop through all user gruops and set following and checkmark div.
+        $.each(UserGroups, function(i,val){
+            $('#'+val.CollaborationGroupId).addClass("following").append('<div class="checkmark"></div>');
+            $('#subLink-'+val.CollaborationGroupId).text('Unsubscribe');
+        });
+    }//End function
+
+
+    function GetPeopleFromController(Data){ 
+        $.each(Data, function(i,val){
+      var dept = val.Department;
+      if (dept) {
+        dept = dept.replace(" ", "-");
+        dept = dept.replace(" ", "-");
+      } else {
+        dept = val.Department;
+      }
+            let title = '';
+            let subscrLink  = '';
+            console.log(val);
+            if (val.Title!=''){
+                title = '<h6 style="color: gray;text-decoration: none !important;font-size: 0.7rem;text-transform: uppercase;">'+ val.Title +'</h6>';
+            }
+            subscrLink  = '<h6 href="javascript:void(0);" id="subLink-' + val.Id +'" style="text-decoration: underline; font-size: 13px; margin-top: 7px; display: block;color: #3e7aa2;">Subscribe</h6>';
+            let fixStyle ='';
+            if(val.UserPhoto.includes('/profilephoto/005/F')){
+                val.UserPhoto = "{!URLFOR($Resource.CommunityChatterSubscriptions, 'person.png')}";
+                fixStyle = "background-size: 110px;background-color: #1A182D; background-position: 30px 10px;";
+            }
+            var $html = $('<li class="popover-item">' +
+            '<a href="javascript:void(0);" class="topic-block '+ dept +'" id="'+ val.Id + '"> ' +
+            '<div class="topic-cover"><span class="inner-circle"></span>' +
+            '<div class="usrimgDiv" style="background-image: url(' + val.UserPhoto + '); ' + fixStyle + '"></div>'+
+            '</div>'+
+            '<h6 style="margin-top: 12px;text-transform: uppercase;">'+ val.Name +'</h6>' + 
+            title +
+            subscrLink + 
+            '</a>' +
+            
+            '<div class="head hide">' +
+              '<div class="row clearfix">' +
+                '<div class="col-xs-12" style="text-align: center;">'+
+                  '<div class="topic-cover-old" style="width:100%"><img style="display: block; margin-left: auto; margin-right: auto; height: 85px;" src="' + val.UserPhoto + '"/></div>'+
+                		'<h4>'+ val.Name +'</h4>'+
+                          '<div style="color: #929292">' +
+                          	'<a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers +'</strong></a> Follows | ' +
+                          	'<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
+                          '</div>' +
+                   '</div>'+
+  
+                        '<div class="col-xs-12 popup-description">'+
+                          '<p class="topic-meta">'+ val.Title +'</p>'+
+                        '</div>'+
+      
+              '</div>'+
+            '</div> '+
+            '<div class="content hide">'+
+              '<div><a style="color: white" href="../'+ val.Id  +'" target="_blank" class=""><span style="padding-right: 8px;">Visit Feed</span><span class="glyphicon glyphicon-chevron-right"></span></a></div>' +
+            '</div>'+
+            '</li>');
+
+            $('#People').append($html);
+            popOver($html);
+        });//End each
+
+        //Now we loop through all user gruops and set following and checkmark div. -->> moved down to portfolios
+        /*$.each(UserPeople, function(i,val){
+            $('#'+val.ParentId).addClass("following").append('<div class="checkmark"></div>');
+        });*/
+
+    }//End get topics function
+    
+    
+    function GetPortfoliosFromController(Data){ 
+        $.each(Data, function(i,val){
+           
+            let fixStyle ='';
+            console.log(val.UserPhoto);
+            if(val.UserPhoto.includes('/profilephoto/001/F')){
+                val.UserPhoto = "{!URLFOR($Resource.CommunityChatterSubscriptions, 'person.png')}";
+                fixStyle = "background-size: 110px;background-color: #1A182D; background-position: 30px 10px;";
+            }
+            var $html = $('<li class="popover-item">' +
+            '<a href="javascript:void(0);" class="topic-block" id="'+ val.Id + '"> ' +
+            '<div class="topic-cover" style="text-align: center;"><span class="inner-circle"></span>' +
+            '<img class="portfolioImg" src="' + val.UserPhoto + '"/>' +
+            '</div>'+
+            '<h6 style="margin-top: 27px;text-transform: uppercase;height:19px">'+ val.Name +'</h6>' +
+            '<h6 href="javascript:void(0);" id="subLink-' + val.Id +'" style="text-decoration: underline; font-size: 13px; margin-top: 13px; display: block;color: #3e7aa2;">Subscribe</h6>'+
+            '</a>' +
+            '<div class="head hide">' +
+              '<div class="row clearfix" style="padding-bottom: 18px;">' +
+                '<div class="col-xs-12" style="text-align: center;">'+
+                  '<div class="topic-cover-old" style="width:100%"><img style="display: block; margin-left: auto; margin-right: auto; height: 85px;" src="' + val.UserPhoto + '"/></div>'+
+                       '<h4>'+ val.Name +'</h4>'+
+                          '<div style="color: #929292">' +
+                         	'<a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers +'</strong></a> Follows | ' +
+                          	'<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
+                          '</div>' +
+                          '<div style="color: #929292;margin-top:5px;">' +
+                         	'Owner: ' + val.OwnerName + 
+                          '</div>' +
+                  '</div>'+
+              '</div>'+
+            '</div> '+
+            '<div class="content hide">'+
+               '<div><a style="color: white" href="../'+ val.Id  +'" target="_blank" class=""><span style="padding-right: 8px;">Visit Feed</span><span class="glyphicon glyphicon-chevron-right"></span></a></div>' +
+            '</div>'+
+            '</li>');
+
+            $('#Portfolio').append($html);
+            popOver($html);
+        });//End each
+
+        //Now we loop through all user gruops and set following and checkmark div.
+        $.each(UserPeople, function(i,val){
+            $('#'+val.ParentId).addClass("following").append('<div class="checkmark"></div>');
+            $('#subLink-'+val.ParentId).text('Unsubscribe');
+        });
+
+    }//End get portfolios function
+    
+
+    $(document).ready(function() {
+        
+        //Controller method to get all groups
+        GetGroupsFromController(Groups);
+
+        //Get peeps
+        GetPeopleFromController(People);
+        
+        //Get portfolios
+        GetPortfoliosFromController(Portfolios);
+        
+        $('[name="options"]').change(function () {
+            var FilterChosen = $('[name="options"]:checked').val();
+        
+            //Now based on the FilterChosen we hide show
+            if (FilterChosen == 'following') {
+                $('.following').parent().fadeIn(500);
+                $('.topic-block').not('.following').parent().fadeOut(500);
+            } else if (FilterChosen == 'not following') {
+                $('.topic-block').not('.following').parent().fadeIn(500);
+                $('.following').parent().fadeOut(500);
+            } else {
+                $('.topic-block').parent().fadeIn(500);
+            }
+
+        });
+
+        $('.search').keyup(function () {
+            var f = $.proxy(filterObjects, null, this);
+            delay(f, 200);
+        });
+
+        var filterObjects = function(el){
+            var searchVal = $(el).val().toLowerCase();
+            var currentDiv = $(el).attr('data-entity');
+            if (currentDiv == 'Groups'){
+                TheObj = Groups;
+            } else {
+                TheObj = People;
+            }
+            var newDocs = _.filter(TheObj, function(doc){
+                var isNameMatch = doc.Name.toLowerCase().search(searchVal) > -1;
+                return isNameMatch;
+            });//End new docs
+            
+            $('#' + currentDiv).empty();
+            if (currentDiv == 'Groups'){
+                GetGroupsFromController(newDocs);
+            } else {
+                GetPeopleFromController(newDocs);
+            }
+            
+        };//End filter docs method=
+
+        $('.PeopleFilterOption').click(function () {
+            var DepartmentChosen = $(this).text();
+      $('#PeopleFilter').text(DepartmentChosen);
+      if (DepartmentChosen) {
+        var DepartmentChosen = DepartmentChosen.replace(" ", "-");
+      } else {
+        var DepartmentChosen = val.Department;
+      }
+
+      //Handle abbreviations
+      if (DepartmentChosen == 'BAG') {
+        DepartmentChosen = 'Business-Advisory-Group';
+      } else if (DepartmentChosen == 'FEC') {
+        DepartmentChosen = 'Family-Entertainment-Centers';
+      }
+
+            //Now remove all based on class except for chosen dept.
+            if (DepartmentChosen != 'All') {
+                $('#PeopleSection').find('.topic-block').not('.'+ DepartmentChosen).parent().fadeOut(500);
+                $('#PeopleSection').find('.' +DepartmentChosen).parent().fadeIn(500);
+            } else {
+                $('#PeopleSection').find('.topic-block').parent().fadeIn(500);
+            }           
+        });
+
+        $('.ObjectiveFilterOption').click(function () {
+            var DepartmentChosen = $(this).text();
+            $('#ObjectiveFilter').text(DepartmentChosen);
+
+      //Replace spaces
+      if (DepartmentChosen) {
+        var DepartmentChosen = DepartmentChosen.replace(" ", "-");
+      } else {
+        var DepartmentChosen = val.Department;
+      }
+
+      //Handle abbreviations
+      if (DepartmentChosen == 'BAG') {
+        DepartmentChosen = 'Business-Advisory-Group';
+      } else if (DepartmentChosen == 'FEC') {
+        DepartmentChosen = 'Family-Entertainment-Centers';
+      }
+
+        });
+
+        
+
+        //Sets width of topics UL to content
+        var width = 0;
+        $(".channel-topics ul li").each(function() {
+          width += $(this).outerWidth( true );
+        });
+        $(".channel-topics ul").css('width', width + 0);
+
+        // Adds or removes following class and checkmark div
+        $(document).on('click','.topic-block',function() {
+            //console.log('foll/unf');
+            //Make the call to subscribe here
+            var $this = $(this);
+            var divId = $this.attr('id');
+            //box = document.getElementById(divId), flip = new Flipload(box);
+            //flip.load();
+            //Ajax call to subscribe or unsbuscribe and apply correct class
+            if($this.hasClass('following')){
+                $this.removeClass('following');
+                $this.find('.checkmark').remove();
+                //Decrement followers
+                var followers = $('#followers-'+ divId).text();
+                followers = parseInt(followers,10);
+                followers = followers - 1;
+                $('#followers-'+ divId).html(followers);
+                if ($('#'+ divId).is(':hover')){
+                    $('#'+divId).popover('show');
+                }
+                //Flip done
+                //flip.done();
+                $('#subLink-'+divId).text('Subscribe');
+                CommunityChatterSubscriptionsController.Unsubscribe(divId,function(data){ 
+                    
+                });
+           } else {
+               $this.addClass("following");
+                $this.append('<div class="checkmark"></div>');
+
+                //Increment followers
+                var followers = $('#followers-'+ divId).text();
+                followers = parseInt(followers,10);
+                followers = followers + 1;
+                $('#followers-'+ divId).html(followers);
+                if($('#'+ divId).is(':hover')) {
+                    $('#'+divId).popover('show');
+                } 
+                $('#subLink-'+divId).text('Unsubscribe');
+                //Flip over
+                //flip.done();
+                CommunityChatterSubscriptionsController.Subscribe(divId,function(data){
+                    
+                });
+            }   
+        });//End onclick function
+
+          // Kill anchor binding
+          $('a.topic-block').bind("click", function (e) {
+                e.preventDefault();
+            });
+
+          $('a.scroll-left').bind("click", function (e) {
+                e.preventDefault();
+            });
+
+          $('a.scroll-right').bind("click", function (e) {
+                e.preventDefault();
+            });
+
+        // Scroll buttons
+        $('.scroll-left').click(function () {
+            var leftPos = $(this).closest ('div.channel-topics').scrollLeft();
+            $(this).closest ("div.channel-topics").animate({
+                scrollLeft: leftPos - 600
+            }, 0);
+        });
+
+        $('.scroll-right').click(function () {
+            var leftPos = $(this).closest ('div.channel-topics').scrollLeft();
+            $(this).closest ("div.channel-topics").animate({
+                scrollLeft: leftPos + 600
+            }, 0);
+        });
+    });
+
+    var popOver = function($el){
+        $el.find('.topic-block').popover({
+            trigger: "hover",
+            delay: { "show": 1000, "hide": 40 },
+            html : true,
+            title: function() {
+              return $(this).parent().find('.head').html();
+            },
+            content: function() {
+              return $(this).parent().find('.content').html();
+            },
+            container: 'body',
+            placement: 'auto'
+          });
+    };
+
+    //add a delay so that the search function doesn't execute on each keyup
+    var delay = (function() {
+        var timer = 0;
+        return function(callback, ms) {
+            clearTimeout (timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
+    (function($) {
+    var oldHide = $.fn.popover.Constructor.prototype.hide;
+
+    $.fn.popover.Constructor.prototype.hide = function() {
+        if (this.options.trigger === "hover" && this.tip().is(":hover")) {
+            var that = this;
+            // try again after what would have been the delay
+            setTimeout(function() {
+                return that.hide.call(that, arguments);
+            }, that.options.delay.hide);
+            return;
+        }
+        oldHide.call(this, arguments);
+    };
+})(jQuery);
+    
+    </script>
+</apex:page>

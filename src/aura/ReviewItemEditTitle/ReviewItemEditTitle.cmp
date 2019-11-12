@@ -1,0 +1,15 @@
+<aura:component >
+	<aura:attribute name="documentToEdit" type="Object" />
+    <aura:attribute name="value" type="String" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    <div>
+                <lightning:textarea name="input1" label="Link Notes" value="{!v.value}" onchange="{!c.textAreaChange}" />
+            </div>
+    <div class="slds-float--right">
+                    <lightning:button variant="neutral" 
+                                        label="Save"
+                                        title="Save"
+                                        onclick="{!c.hideRowDetails}"/>
+    </div>
+</aura:component>

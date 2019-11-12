@@ -1,0 +1,24 @@
+.THIS .slds-input {
+    padding-right: 0px !important;
+}
+.THIS .addFieldsLabel
+{
+    margin: 5px;
+    width: 110px;
+}
+.THIS .minWidth{
+    width: 161px;
+}
+.THIS .maxWidth{
+    width: 285px;
+}
+.THIS .addRound {
+    background: rgba(128, 128, 128, 0.24) !important;
+    z-index: 1 !important;
+}
+.THIS .slds-popover__body{
+	min-width: 170px;
+}
+.THIS .changedValue {
+    background-color: #ffffc4 !important;
+}

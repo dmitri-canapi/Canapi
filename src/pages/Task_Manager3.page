@@ -1,0 +1,424 @@
+<apex:page showHeader="false"
+    sidebar="false"
+    applyBodyTag="false"
+    docType="html-5.0"
+    standardStylesheets="false"
+    controller="Task_Manager3">
+    <head>
+        <!--
+            Document created to manage tasks.
+            @version Task Manager 1.2.3
+            @author Matthew Craig <matt.craig@liveoakbank.com>
+            @date 11 Dec 2014
+            ----------------------------------------
+            22 Dec 2014: version 1.2.2 update (MPC)
+                Added Features Sort By
+                Added Follow-up Tasks
+                Added Feature Refresh
+                Modified Filters
+            14 Sept 2015: Updated
+                Added style changes to allow for long text display of subject LOB-10336
+        -->
+        <meta charset="utf-8"/>
+        <!-- Always force latest IE rendering engine or request Chrome Frame -->
+        <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <!-- Use title if it's in the page YAML frontmatter -->
+        <title>Live Oak Bank Task Manager</title>
+        <link rel="stylesheet" href="{!URLFOR($Resource.Task_Manager3, 'bootstrap/css/bootstrap.min.css')}" />
+        <link rel="stylesheet" href="{!URLFOR($Resource.Task_Manager3, 'css/font-awesome/css/font-awesome.min.css')}" />
+        <link rel="stylesheet" href="{!URLFOR($Resource.Task_Manager3, 'css/jquery-ui/jquery-ui.min.css')}" />
+        <link rel="stylesheet" href="{!URLFOR($Resource.Task_Manager3, 'css/styles.css')}" type="text/css" />
+        <style>
+            .ui-autocomplete {
+                max-height: 200px;
+                overflow-y: auto;
+                /* prevent horizontal scrollbar */
+                overflow-x: hidden;
+            }
+            .primaryContact {
+                font-weight: bold !important;
+            }
+            .primaryContact:after {
+                content: " (Primary Contact)";
+            }
+            #addStatus, #addPriority {
+                width: 90%;
+            }
+            .bs .toolbar .top-search {
+                width: 110px;
+            }
+            .bs .task .date-box {
+                font-size: .75rem;
+            }
+            .busy {
+                cursor: wait;
+            }
+            .bs pre {
+                padding: 0;
+                background-color: #fff;
+                border: none;
+                font-family: 'Open Sans', sans-serif !important;
+            }
+            .followup-content {
+                display: none;
+            }
+            .followup-advanced {
+                display: none;
+            }
+            .truncate {
+                width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        </style>
+    </head>
+    <body data-bind="css: { busy: refreshingInProgress() } " style="background-color: #fff">
+        <div style="display:none;" id="eventManager"></div>
+        <div class="bs">
+            <div class="container">
+                <section class="row toolbar">
+                    <div class="col-xs-1">
+                        <button type="button" class="btn btn-primary btn-sm create-task" data-bind="click: addTask"></button>
+                    </div>
+                    <div class="col-xs-11">
+                        <div class="input-group top-search" style="width: 130px;">
+                            <input type="text" class="form-control" id="searchField" data-bind="textInput: searchFilter" placeholder="Search"/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button"><i class="fa fa-search"></i></button>
+                            </span>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" aria-haspopup="true" data-toggle="dropdown" style="padding: 6px 6px;">
+                                <span data-bind="html: statusFilter"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-expanded="false" role="menu" data-bind="foreach: statusFilters ">
+                                <li><a href="#" data-bind="html: $data, click: function($data) {$parent.changeStatusFilter($data); $parent.processFilters($data); }" onclick="return false;"></a></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" aria-haspopup="true" data-toggle="dropdown" style="padding: 6px 6px;">
+                                <span data-bind="html: typeFilter"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-expanded="false" role="menu" data-bind="foreach: typeFilters ">
+                                <li><a href="#" data-bind="html: $data, click: function($data) { $parent.changeTypeFilter($data); $parent.processFilters($data); }" onclick="return false;"></a></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default dropdown-toggle" aria-haspopup="true" data-toggle="dropdown" style="padding: 6px 6px;">
+                                <span data-bind="html: timeFilter"></span>
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-expanded="false" role="menu" data-bind="foreach: timeFilters ">
+                                <li><a href="#" data-bind="html: $data, click: function($data) { $parent.changeTimeFilter($data); $parent.processFilters($data); }" onclick="return false;"></a></li>
+                            </ul>
+                        </div>
+                        <div class="btn-group task-view" data-toggle="buttons">
+                            <label class="btn btn-primary btn-single-line" data-bind="click: function() { changeLayout(true); }, css: { active: singleLineTaskLayout}">
+                                <input type="radio" name="options" id="option2" autocomplete="off" value="true" data-bind="checked: singleLineTaskLayout"/>
+                                <i class="fa fa-minus"></i>
+                            </label>
+                            <label class="btn btn-primary btn-multi-line" data-bind="click: function () { changeLayout(false); }, css: {active: !singleLineTaskLayout()}">
+                                <input type="radio" name="options" id="option3" autocomplete="off" value="false" data-bind="checked: !singleLineTaskLayout()"/>
+                                <i class="fa fa-minus"></i><i class="fa fa-minus minus-bottom"></i>
+                            </label>
+                        </div>
+                        <div class="btn-group task-view priority" data-toggle="buttons">
+                            <label class="btn btn-primary btn-single-line" data-bind="click: function() { changeSortType(true) }, css: { active: sortByDate }">
+                                <input autocomplete="off" data-bind="checked: sortByDate" id="option2" name="options" type="radio" value="true"/>
+                                <i class="fa fa-calendar-o"></i>
+                            </label>
+                            <label class="btn btn-primary btn-multi-line" data-bind="click: function () { changeSortType(false); }, css: {active: !sortByDate()}">
+                                <input autocomplete="off" data-bind="checked: !sortByDate()" id="option3" name="options" type="radio" value="false"/>
+                                <i class="fa fa-exclamation-triangle"></i>
+                            </label>
+                        </div>
+                        <div class="btn-group task-view" data-toggle="buttons">
+                            <button type="button" class="btn btn-default refresh" data-bind="click: refreshTasks, css: { active: refreshingInProgress() }"><i class="fa fa-refresh"></i></button>
+                        </div>
+                    </div>
+                </section>
+                <section class="row">
+                    <div class="col-xs-12 tasks" data-bind="css: { 'single-line' : singleLineTaskLayout, 'multi-line': !singleLineTaskLayout() }">
+                        <ul data-bind="template: { name: 'taskTemplate', foreach: myTaskList }" id="taskUL">
+                        <!-- *** TASKS *** -->
+                        </ul>
+                        <div class="alert alert-warning" style="font-size: 14px;display:none;" id="warningMessage">
+                          Top 250 tasks displayed. Please use Reports to view all tasks.
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <script type="text/html" id="taskTemplate">
+            <li class="task" data-bind="visible: (!editMode() && visible()), css: priorityClass, attr: { id: 'task-' + id() }">
+                <div class="date-box" data-bind="text: displayDateShort, css: dateClass"></div>
+                <div class="statusBox" data-bind="css: statusBoxClass, event: { click: toggleStatus }">&nbsp;</div>
+                <div class="row">
+                    <div class="col-xs-12 task-info">
+                        <h2 class="truncate" data-bind="html: (subject() + ' ') , click: toggleEdit"></h2>
+                        <div class="row task-details">
+                            <div class="col-xs-12">
+                                <ul>
+                                    <li>
+                                        <a data-bind="attr: { href : '/' + ownerDetails().id() }" target="_new">
+                                            <img data-bind="attr: { src : ownerDetails().smallPhotoUrl }" class="avatar" />
+                                            <span data-bind="text: ownerDetails().name"></span>
+                                        </a>
+                                    </li>
+                                    <li data-bind="visible: whoId">
+                                        <a data-bind="attr: { href: '/' + whoId()}" target="_new">
+                                            <span class="fa-stack fa-lg">
+                                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                                <i class="fa fa-user fa-stack-1x"></i>
+                                            </span>
+                                            <span data-bind="text: whoType"></span> -
+                                            <span data-bind="text: whoName"></span>
+                                            <span data-bind="visible: whoCount() > 1, text: whoCountDisplay"></span>
+                                        </a>
+                                    </li>
+                                    <li data-bind="visible: whatId">
+                                        <a  data-bind="attr: { href: '/' + whatId()};" target="_new">
+                                            <span class="fa-stack fa-lg">
+                                                <i class="fa fa-circle-thin fa-stack-2x"></i>
+                                                <i class="fa fa-link fa-stack-1x"></i>
+                                            </span>
+                                            <span data-bind="text: what().objectType"></span> - <span data-bind="text: what().name"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="clear:both;"></div>
+            </li>
+            <li class="task edit create editTaskDialog" data-bind="visible: (editMode() && visible()), css: priorityClass, attr: { id: 'edit-' + id()}">
+                <div class="btn-close">
+                    <i class="fa fa-caret-square-o-up" data-bind="click: closeEdit"></i>
+                </div>
+                <!--<a data-bind="attr: { name: 'edit-' + id()}"></a>-->
+                <form role="form">
+                    <fieldset>
+                        <div class="row">
+                            <div class="col-xs-12 task-info" style="padding-top: 0">
+                                <div class="statusBox" data-bind="css: statusBoxClass, click: toggleStatus">&nbsp;</div>
+                                <h2 data-bind="html: (subject() + ' '), click: toggleEdit"></h2>
+                                <label class="small-label">Subject <span class="required">*</span> (255 Character Limit)</label>
+                                <input type="text" class="form-control subject" placeholder="Enter Subject Title" maxlength="255"
+                                    data-bind="value: subject, hasFocus: subjectHasFocus, selected: true, css: {'input-error': subject.hasError}, attr: { placeholder: subject.validationMessage, tabindex: ($index() * 20 + 1) }, event: { focus: scrollTo }" onBlur="if (!this.value) { this.focus(); }"/>
+                                <div class="task-details">
+                                    <div class="col-xs-4" style="padding-left:0; margin-left:0;">
+                                        <span class="small-label">Due Date:</span>
+                                        <div class="date-right">
+                                            <input type="text" class="form-control" name="due" placeholder="Choose Date"
+                                            data-bind="datepicker: {}, value: displayDate, event: { focus: scrollTo }, attr: { tabindex: ($index() * 20 + 2) }" />
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <span class="small-label">Status:</span>
+                                        <div class="btn-group" style="width: 90%;">
+                                            <button type="button" class="btn btn-default dropdown-toggle" aria-haspopup="true" data-toggle="dropdown" style="width: 100%;" data-bind="attr: { tabindex: ($index() * 20 + 3) }">
+                                            <span data-bind="text: status"></span> <span class="caret"></span></button>
+                                            <ul class="dropdown-menu" aria-expanded="false" role="menu" data-bind="foreach: $root.allowedStatuses() ">
+                                                <li><a href="#" data-bind="text: $data, click: $parent.changeStatus.bind($parent)" onclick="return false;"></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <span class="small-label">Priority:</span>
+                                        <div class="btn-group" style="width: 90%;">
+                                            <button type="button" class="btn btn-default dropdown-toggle" aria-haspopup="true" data-toggle="dropdown" style="width: 100%;" data-bind="attr: { tabindex: ($index() * 20 + 4) }">
+                                                <span data-bind="text: priority"></span> <span class="caret"></span></button>
+                                            <ul class="dropdown-menu" aria-expanded="false" role="menu" data-bind="foreach: $root.allowedPriorities() ">
+                                                <li><a href="#" data-bind="text: $data, click: $parent.changePriority.bind($parent)" onclick="return false;"></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 task-info">
+                                    <div class="related-to">
+                                        <span class="small-label">Related to:</span>
+                                        <div class="input-inline-group" style="width: 100%;">
+                                            <div class="btn-group" style="width: 35%;">
+                                                <button type="button" class="btn btn-default dropdown-toggle" aria-haspopup="true" data-toggle="dropdown" style="width: 100%;" data-bind="disable: disableRelatedTo, attr: { tabindex: ($index() * 20 + 5) }, event: { focus: scrollTo }">
+                                                    <span data-bind="text: relatedToDisplayType"></span> <span class="caret"></span></button>
+                                                <ul class="dropdown-menu" aria-expanded="false" role="menu" data-bind="foreach: $root.relatedToTypes() ">
+                                                    <li><a href="#" data-bind="text: $data, click: $parent.changeRelatedToType.bind($parent)" onclick="return false;">None</a></li>
+                                                </ul>
+                                            </div>
+                                            <div class="input-group search" style="width: 60%;">
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    data-bind="
+                                                        value: what().name,
+                                                        autocomplete: {
+                                                            source: function (input, callback) { getRelatedTo(what().objectType(), input, callback) },
+                                                            minLength: $root.autoCompleteMinLength,
+                                                            select: selectRelatedTo,
+                                                            change: changeRelatedTo
+                                                        },
+                                                        attr: { tabindex: ($index() * 20 + 6) }"
+                                                    placeholder="Search"
+                                                    style="width: 100%;"
+                                                    />
+                                           <i class="fa fa-search search-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 task-info">
+                                <div class="row contact">
+                                    <span class="small-label">Point(s) of contact:</span>
+                                    <div class="input-inline-group" style="width: 100%;">
+                                        <div class="btn-group" style="width: 35%;">
+                                            <input type="hidden" data-bind="value: whoType" />
+                                            <button
+                                                type="button"
+                                                class="btn btn-default dropdown-toggle"
+                                                aria-haspopup="true"
+                                                data-toggle="dropdown"
+                                                data-bind="disable: !allowedToUpdateWhoType(),attr: { tabindex: ($index() * 20 + 7) }"
+                                                style="width: 100%;"
+                                                >
+                                                <span data-bind="text: pointOfContactDisplayType"></span>
+                                                <span class="caret"></span></button>
+                                            <ul class="dropdown-menu" aria-expanded="false" role="menu"  data-bind="foreach: $root.whoTypes()">
+                                                <li><a href="#" data-bind="text: $data, click: $parent.changeContactType.bind($parent)" onclick="return false;"></a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="input-group search" style="width:60%;">
+                                            <!-- Who is a Lead -->
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="Search"
+                                                style="width: 100%;"
+                                                data-bind="
+                                                    value: whoName,
+                                                    visible: whoType() != 'Contact',
+                                                    autocomplete: {
+                                                        source: function (input, callback) { getContact(whoType(), input, callback) },
+                                                        minLength: $root.autoCompleteMinLength,
+                                                        select: selectContact,
+                                                        change: changeContact
+                                                    },
+                                                    attr: { tabindex: ($index() * 20 + 8) }"
+                                                />
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="Search"
+                                                style="width: 100%;"
+                                                data-bind="
+                                                    value: whoContact,
+                                                    visible: whoType() == 'Contact',
+                                                    autocomplete: {
+                                                        source: function (input, callback) { getContact(whoType(), input, callback) },
+                                                        minLength: $root.autoCompleteMinLength,
+                                                        select: selectContact,
+                                                        change: changeContact
+                                                    },
+                                                    attr: { tabindex: ($index() * 20 + 9) },
+                                                    attr: { id : 'contact-' + id()}"
+                                                />
+                                        <i class="fa fa-search search-icon"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-12" style="padding-left: 0;" data-bind="visible: ((whoType() == 'Contact') && (whoCount() > 0))">
+                                <div class="row contact">
+                                    <span data-bind="foreach: who">
+                                        <div class="btn-group" role="group" aria-label="Contact" style="float:left; margin-right: 15px; margin-bottom: 15px; width: auto;">
+                                            <button type="button" class="btn btn-default editedContact" data-bind="text: $data.name, css { primaryContact: $parent.whoId() == $data.id() }, attr: { tabindex: ($index() * 20 + 10) }" ></button>
+                                            <button type="button" class="btn btn-default removeEditedContact" data-bind="click: $parent.removeContact.bind($parent)">
+                                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                            </button>
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 task-info assigned-to">
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                        <span class="small-label">Assigned to: <span class="required">*</span></span>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <span class="small-label">OWNER:</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-8 input-inline-group" style="padding-left: 0;">
+                                        <div class="btn-group" style="width:45%;">
+                                            <button type="button" class="btn btn-default dropdown-toggle" aria-haspopup="true" data-toggle="dropdown" style="width: 100%;" data-bind="attr: { tabindex: ($index() * 20 + 11) }, ">
+                                                <span data-bind="text: ownerDetails().objectType"></span> <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" aria-expanded="false" role="menu" data-bind="foreach: $root.allowedAssignedToTypes()">
+                                                <li><a href="#" onclick="return false;" data-bind="text: $data, click: $parent.changeAssignedToType.bind($parent)"></a></li>
+                                            </ul>
+                                        </div>
+                                        <div class="input-group search" style="width: 45%;">
+                                            <input
+                                                type="text"
+                                                class="form-control"
+                                                placeholder="Search"
+                                                data-bind="
+                                                    value: ownerDetails().name,
+                                                    hasFocus: ownerHasFocus,
+                                                    css: {'input-error': ownerName.hasError},
+                                                    attr: { placeholder: ownerName.validationMessage },
+                                                    autocomplete: {
+                                                        source: function (input, callback) { getAssignedTo(ownerDetails().objectType(), input, callback) },
+                                                        minLength: $root.autoCompleteMinLength,
+                                                        select: selectAssignedTo,
+                                                        change: changeAssignedTo
+                                                    },
+                                                    attr: { tabindex: ($index() * 20 + 12) },
+                                                    event: { focus: scrollTo }"
+                                                style="width: 100%;"
+                                                onBlur="if (!this.value) { this.focus(); }"
+                                                />
+                                            <i class="fa fa-search search-icon"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <div class="avatar">
+                                            <img data-bind="visible: ownerDetails().smallPhotoUrl, attr: { src: ownerDetails().smallPhotoUrl }" />
+                                        </div>
+                                        <p><a data-bind="attr: {href: '/' + ownerDetails().id() }, text: ownerDetails().name" target="_new"></a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="expanded-content">
+                            <div class="row notes">
+                                <div class="col-xs-12">
+                                    <span class="small-label">Notes:</span>
+                                    <textarea data-bind="value: description, attr: { tabindex: ($index() * 20 + 13) }" class="form-control" rows="7"></textarea>
+                                    <div class="admin-tools">
+                                        <ul class="clearfix">
+                                            <li><a href="#" data-bind="click: closeEdit, attr: { tabindex: ($index() * 20 + 14) }" onclick="return false;" class="btn-delete editCancel"><i class="fa fa-save"></i> Save &amp; Close Edit</a></li>
+                                            <li><a href="#" style="border-left: #bcbcbc 1px solid;" data-bind="click: $parent.clickDelete.bind($parent), attr: { tabindex: ($index() * 20 + 15) }" onclick="return false;" class="btn-delete editCancel"><i class="fa fa-trash"></i> <span data-bind="text: deleteText">Delete</span></a></li>
+                                            <li><a href="#" onclick="return false;" data-bind="click: function (data, event) { $parent.createFollowupTask($index(), data, event); }, attr: { tabindex: ($index() * 20 + 16) }"><i class="fa fa-tasks"></i> Create followup</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </li>
+        </script>
+        <!--  End Templates -->
+        <!-- BEGIN SCRIPTS -->
+        <script src="{!URLFOR($Resource.Task_Manager3, 'lib/requirejs/require.js')}"></script>
+        <c:Task_Manager3 />
+    </body>
+</apex:page>

@@ -1,0 +1,21 @@
+.THIS .tileValue, .THIS .tileLabel, .THIS a {
+    color: rgb(153, 153, 153) !important;
+}
+.THIS .tileLabel {
+    font-weight:bold;
+}
+.THIS .card {
+    display:inline-block; 
+    width:340px; 
+    border: 1px solid rgb(153, 153, 153); 
+    margin: 0px 15px 40px 15px;
+    box-shadow: 0 0 7px rgba(0,0,0,0.5);
+}
+.THIS .card:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.THIS br {
+    display: block;
+    content: "";
+    height: 7px;
+}

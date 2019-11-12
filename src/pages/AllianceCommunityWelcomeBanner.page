@@ -1,0 +1,29 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false">
+    <style>
+        body {
+            overflow: hidden;
+        }
+        .WelcomeBanner{
+            height: 108px;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-image: url("{!$Resource.AllianceCommunityAssets + '/WB.jpg'}");
+            background-position: right -18px;
+            text-transform: uppercase;
+            color: white;
+            font-weight: 700;
+            font-family: sans-serif;
+            text-align: center;
+            font-size: 28px;
+            width: 100%;
+            letter-spacing: 0.9pt;
+            line-height: 85px;
+        }
+        
+
+        }
+    </style>
+    <div class="WelcomeBanner">
+        Welcome to canapi connect
+    </div>
+</apex:page>

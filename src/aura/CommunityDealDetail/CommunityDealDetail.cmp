@@ -1,0 +1,331 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" controller="CommunityDeals">
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	
+    <aura:attribute name="OppMap" type="Map"/>
+    <aura:attribute name="DealId" type="String"/>
+    
+	<aura:attribute name="fields" type="String[]" default="['Name']" />
+    
+    
+    <div class="slds-card" style="padding: 20px;">
+        <div class="slds-grid slds-grid--align-spread slds-grid--vertical-align-center slds-m-bottom--small">
+            <span class="slds-truncate slds-text-heading_small">Deal {!v.OppMap.Name}</span>
+        </div>
+        <div>     
+            <div>
+                <div>
+                    <!--<h3 class="slds-text-heading_small slds-m-bottom_medium">OPTIONAL HEADER</h3>--> 
+                    <div class="slds-grid slds-wrap slds-grid_pull-padded">
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 10px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Deal Name</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.Name}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 10px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Deal Owner</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.OwnerId}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Account Name</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.AccountName}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Close Date</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.CloseDate}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Type</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.Type}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Stage</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.StageName}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Primary Campaign Source</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.CampaignName}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Probability</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.Probability +'%'}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Loss Reason</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.Loss_Reason__c}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Amount</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputCurrency value="{!v.OppMap.Amount}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Pass Reason</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.Pass_Reason__c}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Total Raise</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputCurrency value="{!v.OppMap.Total_Raise__c}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Lead Investor</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.Lead_Investor__c}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px"> </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_2-of-2" style="padding: 0px 0px 5px 10px">
+                        	<h3 class="slds-text-heading_small slds-m-bottom_medium" style="margin: 20px 0px 10px 5px">Additional Information</h3>
+                        </div>
+                              
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Next Step</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.NextStep}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Lead Source</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.LeadSource}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_2-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Description</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.Description}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_2-of-2" style="padding: 0px 0px 5px 10px">
+                        	<h3 class="slds-text-heading_small slds-m-bottom_medium" style="margin: 20px 0px 10px 5px">System Information</h3>
+                        </div>
+                        
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Created By</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.CreatedBy}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        <div class="slds-p-horizontal_small slds-size_1-of-2" style="padding: 0px 0px 5px 10px">    
+                            <div class="slds-form-element slds-form-element_edit slds-grow slds-hint-parent override--slds-form-element " >    
+                                <div>
+                                    <span class="test-id__field-label-container">
+                                        <span class="test-id__field-label slds-form-element__label">Lastmodified By</span>
+                                    </span>
+                                </div>
+                                <div class="slds-form-element__control slds-grid itemBody">
+                                    <span class="test-id__field-value slds-form-element__static slds-grow slds-truncate">
+                                        <span>
+                                            <ui:outputText value="{!v.OppMap.LastmodifiedBy}"/>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div> 
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+            </div>            
+        </div>
+    </div>
+
+</aura:component>

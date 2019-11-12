@@ -1,0 +1,16 @@
+<aura:component controller="CustomDocumentController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes" access="global" >
+	<aura:attribute name="recordId" type="String" />
+    <aura:attribute name="IsCommunity" type="Boolean"/>
+    <ltng:require  styles="{!$Resource.popStyle }"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <lightning:overlayLibrary aura:id="overlayLib"/>
+    
+    <aura:if isTrue="{!v.IsCommunity}">
+        <iframe aura:id="vfFrame" style="border: none;min-height:100%;min-width:800px;width: 100%;" src="{!'/fintech/apex/ReviewItemLinkDocument' + '?id=' + v.recordId}"/>
+        <aura:set attribute="else">
+            <iframe aura:id="vfFrame" style="border: none;min-height:100%;min-width:800px;width: 100%;" src="{!'/apex/ReviewItemLinkDocument' + '?id=' + v.recordId}"/>
+        </aura:set>
+    </aura:if>
+    
+    
+</aura:component>
