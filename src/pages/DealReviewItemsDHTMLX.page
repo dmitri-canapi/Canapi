@@ -1,0 +1,119 @@
+<apex:page controller="DealReviewItemsDHTMLXController">
+  <apex:includeScript value="{!URLFOR($Resource.jquery)}" />
+  <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}" />
+  <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/material/dhtmlx.css')}" />
+  <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/terrace/dhtmlx.css')}" />
+  <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/web/dhtmlx.css')}" />
+  <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/skyblue/dhtmlx.css')}" />
+
+  <body>
+    <div id="wrapper">
+      <!--div id="toolbarObj" style="height:35px"></div-->
+      <div id="layoutObj" style="height:30px"></div>
+      <div id="gridDiv"></div>
+    </div>
+
+    <script type="text/javascript">
+      var vars = {};
+      var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+        vars[key] = value;
+      });
+      var recordId = vars["recordId"];
+      var componentHeightInt = Number(vars["componentHeight"]) - 46;
+
+      var Tabbar;
+      var reviewItems = [];
+      const tabLabels = new Set();
+      console.log(recordId);
+      //document.getElementById("layoutObj").style.height = componentHeightInt + "px";
+      document.getElementById("gridDiv").style.height = componentHeightInt + "px";
+      getRI();
+
+      function getRI() {
+        DealReviewItemsDHTMLXController.getReviewItems(recordId, function (result, event) {
+          if (event.type == 'exception') {
+            alert(event.message);
+          } else {
+            var data = result;
+            console.log(data);
+
+            for (let item of data) {
+              if (item.Item_Category__c) {
+                tabLabels.add(item.Item_Category__c);
+              } else {
+                tabLabels.add('other');
+                item.Item_Category__c = 'other';
+              }
+
+            }
+
+            reviewItems = data;
+
+            buildPage();
+          }
+        });
+      }
+
+      function buildPage() {
+        Tabbar = new dhtmlXTabBar("layoutObj");
+        Tabbar.setArrowsMode("auto");
+        for (let item of tabLabels) {
+          Tabbar.addTab(item, item);
+        }
+        Tabbar.attachEvent("onSelect", function (tabId, lastId) {
+
+          rebuildGrid(tabId);
+          return true;
+        });
+
+
+        if (tabLabels.size > 0) {
+          console.log('here');
+          Tabbar.tabs(tabLabels.values().next().value).setActive();
+        }
+      }
+
+      function rebuildGrid(tabId) {
+        myGrid = new dhtmlXGridObject('gridDiv');
+        myGrid.setHeader("Review Item Name, Review Item Status, Assets Needed, Details");
+        myGrid.setInitWidths("*,120,*,70");
+        myGrid.setColAlign("left,left,left,left");
+        myGrid.setColTypes("edtxt,edtxt,edtxt,ed");
+        myGrid.setColSorting("str,str,str,str");
+        myGrid.init();
+
+        var inputData = { rows: [] };
+
+        for (let item of reviewItems) {
+          if (item.Item_Category__c == tabId) {
+            console.log(item);
+            var gridItem =
+            {
+              id: item.Id,
+              data: [
+                item.Review_Item_Name__c,
+                item.Review_Item_Status__c,
+                item.Assets_Needed__c,
+                item.Id
+              ]
+            }
+            inputData.rows.push(gridItem);
+          };
+
+        }
+        myGrid.parse(inputData, "json");
+
+
+      }
+
+    </script>
+  </body>
+
+  <style>
+    body {
+      overflow: hidden;
+    }
+  </style>
+
+
+</apex:page>

@@ -55,6 +55,11 @@
             </div>
         </article>
             </div>
+        <aura:set attribute="else">
+            <div class="slds-align_absolute-center" style="height:10rem">
+            	Not Available
+            </div>
+        </aura:set>
     </aura:if>
     
     

@@ -7,10 +7,14 @@ global class FinancialsFeatureDHTMLXController {
         public List <Report_Period__c> rounds {get;set;}
         public String data {get;set;}
         public List <String> rows {get;set;}
-        CapTableDataDhtmlx (List <Report_Period__c> rounds, String data, List  <String> rows){
+        public Boolean isCommunity {get;set;}
+        public Boolean allowEditByCommUser {get;set;}
+        CapTableDataDhtmlx (List <Report_Period__c> rounds, String data, List  <String> rows, Boolean isCommunity, Boolean allowEditByCommUser){
             this.rounds = rounds;
             this.data = data;
             this.rows = rows;
+            this.isCommunity = isCommunity;
+            this.allowEditByCommUser = allowEditByCommUser;
         }
         
     }
@@ -19,24 +23,7 @@ global class FinancialsFeatureDHTMLXController {
     global static void deleteReportPeriod (String ReportPeriodId){
         delete [select Id from Report_Period__c where id =:ReportPeriodId]; 
     }
-    
-    @RemoteAction
-    global static map<String, String> getBoardGradeOption (String objectApi_name, String field_name){
-        system.debug('$$$$$$$$$$$$$$$$$');
-        Map <String,String> piclisValues = new Map<String, String>();
-        Schema.SObjectType targetType = Schema.getGlobalDescribe().get(objectApi_name);
-        Sobject Object_name = targetType.newSObject();
-  		Schema.sObjectType sobject_type = Object_name.getSObjectType(); //grab the sobject that was passed
-    	Schema.DescribeSObjectResult sobject_describe = sobject_type.getDescribe(); //describe the sobject
-    	Map<String, Schema.SObjectField> field_map = sobject_describe.fields.getMap(); //get a map of fields for the passed sobject
-    	List<Schema.PicklistEntry> pick_list_values = field_map.get(Field_name).getDescribe().getPickListValues(); //grab the list of picklist values for the passed field on the sobject
-        for (Schema.PicklistEntry a : pick_list_values) { //for all values in the picklist list
-          piclisValues.put(a.getValue(), a.getLabel());
-       }
-        system.debug(piclisValues);
-        return piclisValues;
-    }
-    
+     
     @RemoteAction
     global static void createReportPeriod(String body, String accountId){
         Report_Period__c repPeriod  = (Report_Period__c)JSON.deserialize(body, Report_Period__c.class);
@@ -72,8 +59,7 @@ global class FinancialsFeatureDHTMLXController {
     
     @RemoteAction
     global static void AllowEditingUpdate (String accountId, Boolean AllowEditing) {
-        account a =  [select Id,Allow_edits_by_community_users__c from Account where id = :accountId];
-        a.Allow_edits_by_community_users__c = AllowEditing;
+        account a =  new Account (Id = accountId, Allow_edits_by_community_users__c = AllowEditing);
         update a;
     }
     
@@ -97,7 +83,7 @@ global class FinancialsFeatureDHTMLXController {
             Formula__c
             FROM Chart_of_Accounts__c
             WHERE Account__c = :accountId
-            ORDER by Name ASC, Id ASC
+            ORDER by Category__c, Name ASC, Id ASC
         ];
         
         List<Financials__c> financials =[
@@ -119,7 +105,7 @@ global class FinancialsFeatureDHTMLXController {
 
         boolean isCommunity = Site.getSiteId()!=null;
 
-        if(charts.isEmpty()){
+        /*if(charts.isEmpty()){
             List<String> requiredCharts = new List<String> {'Booking ACV', 'Total Rev', 'COGS'};
             for(String name :requiredCharts){
                 Chart_of_Accounts__c newChart = new Chart_of_Accounts__c();
@@ -129,7 +115,7 @@ global class FinancialsFeatureDHTMLXController {
                 charts.add(newChart);
             }
             insert charts;
-        }
+        }*/
         List <String> rows = new  List <String> ();
         for (Chart_of_Accounts__c chr: charts){
             generator.writeStartObject(); 
@@ -169,7 +155,10 @@ global class FinancialsFeatureDHTMLXController {
         }
         generator.writeEndArray(); //Write the end marker of a JSON object ']'
         generator.writeEndObject(); 
-        CapTableDataDhtmlx retData = new CapTableDataDhtmlx(periods,generator.getAsString(),rows);
+        
+        account a =  [select Id,Allow_edits_by_community_users__c from Account where id = :accountId];
+        
+        CapTableDataDhtmlx retData = new CapTableDataDhtmlx(periods,generator.getAsString(),rows, isCommunity, a.Allow_edits_by_community_users__c);
         return retData;
     }
    
@@ -178,8 +167,6 @@ global class FinancialsFeatureDHTMLXController {
     global static void deleteChartOfAccounts (String chId){
         delete [select id from Chart_of_Accounts__c WHERE id =:chId];
     }
-    
-    
     
     public class CapTableControllerException extends Exception {}
 }

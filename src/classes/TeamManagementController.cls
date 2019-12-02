@@ -1,31 +1,53 @@
-global  without sharing class TeamManagementController {
+public  without sharing class TeamManagementController {
     @AuraEnabled
-    global static List<User> getUsers(){
-        if (TeamManagementController.getCommunityAccId() != null){
+    public static UsersData getUsers(){
+        List <User> users = new List <User>();
+        List <contact> contacts = new List <contact>();
+        //if (TeamManagementController.getCommunityAccId() != null){
             String accId = TeamManagementController.getCommunityAccId();
-            return [Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl from User where Account_Id__c =: accId and IsActive = true]; 
-        }
-        return [Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl from User where Account_Id__c != null and CreatedById = : UserInfo.getUserId() and IsActive = true]; 
+            users = [Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl from User where Account_Id__c =: accId and IsActive = true]; 
+            contacts = [Select id, Name, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c from Contact where Account.Id =: accId and id not in (select  ContactID from User) order by name asc limit 100];
+        /*} else {
+            ID canapiAccId = [select id from Account where name = 'Canapi' limit 1].Id;
+            users = [Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl from User where Account_Id__c =: canapiAccId and IsActive = true]; 
+            contacts = [Select id, Name, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c from Contact where Account.Id =: canapiAccId and id not in (select  ContactID from User) order by name asc limit 100];
+        }*/
+                
+        return new UsersData(users, contacts);
     }
     
-     global static string getCommunityAccId(){
-		return [select id,Account_Id__c from user where id=:UserInfo.getUserId()].Account_Id__c;
+     public static string getCommunityAccId(){
+         String accId = [select id,Account_Id__c from user where id=:UserInfo.getUserId()].Account_Id__c;
+         if (accId == null)
+          accId = [select id from Account where name = 'Canapi' limit 1].Id;
+		return accId;
      }
     
     private Static String createContact(User u, String accountId){
 
         Contact cont = new Contact();
+        try{
+            cont = [select id, AccountId from contact where (id =: u.ContactId or (FirstName =: u.FirstName and LastName =: u.LastName) ) limit 1];
+        } catch (exception e){
+
+        }
         cont.FirstName = u.FirstName;
         cont.LastName = u.LastName;
         cont.Email = u.Email;
         cont.Phone = u.Phone;
         cont.MobilePhone = u.MobilePhone;
-        cont.AccountId = accountId;
+        cont.Title = u.Title;
+        cont.AccountId = cont.Id == null ?  accountId : cont.AccountId;
         
         Database.DMLOptions dml = new Database.DMLOptions(); 
         dml.DuplicateRuleHeader.AllowSave = true; 
-        Database.SaveResult sr = Database.insert(cont, dml);
-        return sr.id;
+        if (cont.Id == null){
+            Database.SaveResult sr = Database.insert(cont, dml);
+            return sr.id;
+        } else {
+            update cont;
+            return cont.Id;
+        }
         
     }
     
@@ -36,6 +58,10 @@ global  without sharing class TeamManagementController {
              UserRec=UserRec.replace('[','').replaceAll(']','');
              u = (User)JSON.deserialize(UserRec, User.class);
              
+             List <User> dupUsers = [select id from User where LastName =: u.LastName and FirstName =: u.FirstName and ContactId != null];
+             if (dupUsers.size() > 0){
+                 throw new MyException ('Contact ' + u.FirstName + ' ' + u.LastName + ' is already a Portal User. Please contact support if they\'re having trouble logging in');
+             } else {
              Id ContactId = createContact(u,TeamManagementController.getCommunityAccId());
              if(Site.getSiteId()!=null){
              	u.ContactId = ContactId;
@@ -54,16 +80,29 @@ global  without sharing class TeamManagementController {
              dlo.EmailHeader.triggerUserEmail= true;
              u.setOptions(dlo);
              insert u;
+             }
            
          } catch(exception e){ 
-              if(e.getDmlType(0) == StatusCode.DUPLICATE_USERNAME || e.getDmlType(0) == StatusCode.DUPLICATE_COMM_NICKNAME){
+             throw new AuraHandledException(e.getMessage());
+              /*if(e.getDmlType(0) == StatusCode.DUPLICATE_USERNAME || e.getDmlType(0) == StatusCode.DUPLICATE_COMM_NICKNAME){
                     
                     throw new AuraHandledException('A User With This Email Address Already Exists');
               }else if(e.getDmlType(0) == StatusCode.INVALID_EMAIL_ADDRESS){
                     throw new AuraHandledException('"'+u.Email+'" is not a valid email address');
               }else{
-                  throw new AuraHandledException(e.getMessage());
-              }
+                  //throw new AuraHandledException(e.getMessage());
+              }*/
          }
      }
+
+    public class UsersData {
+    @AuraEnabled public List <User> users { get; set;}
+    @AuraEnabled public List <Contact> contacts { get; set;}
+        public UsersData (List <User> users, List <Contact> contacts){
+            this.users = users;
+            this.contacts = contacts;
+        }
+    }   
+
+    public class MyException extends Exception {}
 }

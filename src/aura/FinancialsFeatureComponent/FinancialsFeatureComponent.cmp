@@ -2,13 +2,10 @@
 	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
     <aura:attribute name="recordId" type="Id"/>
     
-    <aura:attribute name="isCommunityUser" type="Boolean"/>
-    
     <aura:attribute name="skin" type="String" default="skyblue"/>
     <aura:attribute name="communityName" type="String"/>
     <aura:attribute name="componentHeight" type="String" default="400"/>
     
-    <aura:attribute name="BaseUrl" type="String" />
 
         <div class="slds-box">
         <article class="slds-card">
@@ -23,7 +20,13 @@
             </div>
             <div class="slds-card__body">
                 <div aura:id="detailTabsDiv" class="hidden ">
-                            <iframe id="vfFrame" aura:id="vfFrame" style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}" src="{!'/apex/FinancialsFeatureDHTMLXPage?recordId=' + v.recordId + '&amp;isCommunity=false&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight + '&amp;isAllowEditing=true' }"/>
+                    
+                	<aura:if isTrue="{!v.communityName != null}">
+                        <iframe id="vfFrame" aura:id="vfFrame" style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}" src="{! '/' + v.communityName + '/apex/FinancialsFeatureDHTMLXPage?recordId=' + v.recordId + '&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight}"/>
+                        <aura:set attribute="else">
+                            <iframe id="vfFrame" aura:id="vfFrame" style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}" src="{!'/apex/FinancialsFeatureDHTMLXPage?recordId=' + v.recordId + '&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight}"/>
+                        </aura:set>
+                    </aura:if>
                 </div>
             </div>
         </article>

@@ -4,7 +4,7 @@ global without sharing class FintechCompaniesController {
         Integer psize = Integer.valueOf(pageSize);
         Integer pnumber = Integer.valueOf(pageNumber)-1;
         
-        String q ='Select Id, Name,Type, Phone, Website, BillingState, Owner.Name from Account ';
+        String q ='Select Id, Name,Type, Phone, Website, BillingState, Owner.Name, External_Logo__c,External_Logo2__c,External_Logo3__c from Account ';
         q += ' where RecordType.Name = \'Fintech\' and Name like \'%' + filter + '%\'';
         integer offset = psize*pnumber;
         q+= ' order by name asc LIMIT : psize OFFSET :offset';

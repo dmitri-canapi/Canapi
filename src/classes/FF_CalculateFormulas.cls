@@ -37,7 +37,7 @@ public class FF_CalculateFormulas {
                         	resultRT = new RT_Expression(Condition).eval();
                         } catch (exception e){}
 
-                        //fin.Value__c = resultRT;
+                        fin.Value__c = resultRT;
                         financialsForUpdate.add(fin);
                     } else {
                         Financials__c fin = new Financials__c();
@@ -63,7 +63,7 @@ public class FF_CalculateFormulas {
                         	resultRT = new RT_Expression(Condition).eval();
                         } catch (exception e){}
 
-                        //fin.Value__c = resultRT;
+                        fin.Value__c = resultRT;
                         financialsForUpdate.add(fin);
                     }
                     

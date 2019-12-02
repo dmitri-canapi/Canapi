@@ -24,4 +24,17 @@ trigger AddCommunityUserToPublicGroup on User (after insert, after update) {
     
     } catch(exception e){}
     
+    if (Trigger.IsInsert){
+        List <id> userIds = new List <id>();
+        ID canapiConnectProfileId = [select id,name from Profile where name ='Community: Alliance Portal' limit 1].Id;
+        for(User u:Trigger.new) {
+            if (u.ProfileId == canapiConnectProfileId){
+                userIds.add(u.Id);
+            }
+        }
+        AddCommunityUserToPublicGroupHandler.subscribe(userIds);
+        
+        
+    }
+    
 }

@@ -10,7 +10,10 @@
             	component.set("v.isLastPage", true);
             }
         });
+
         $A.enqueueAction(totalCnt);
+        
+        
     },
     fetchData: function (cmp,event,helper) {
         var action = cmp.get("c.getAccounts");
@@ -39,6 +42,8 @@
             }
             // error handling when state is "INCOMPLETE" or "ERROR"
         });
-        $A.enqueueAction(action);
+        $A.getCallback(function() {
+            $A.enqueueAction(action);
+        })();
     }
 })
