@@ -1,0 +1,216 @@
+<aura:component controller="TeamManagementController"
+    implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global">
+    <lightning:overlayLibrary aura:id="overlayLib" />
+
+    <aura:attribute name="data" type="Object" />
+    <aura:attribute name="usersData" type="Object" />
+    <aura:attribute name="contactsData" type="Object" />
+    <aura:attribute name="newUser" type="User" default="{ 'sobjectType': 'User',
+              'Title': '','FirstName':'','LastName':'',
+              'Email':'','Phone':'','MobilePhone':'',
+              'Department':'','Manager__c':null, 'ContactId':null}" />
+
+    <aura:attribute name="columns" type="List" />
+    <aura:attribute name="errors" type="Object" default="[]" />
+
+    <aura:attribute name="viewStyleOptions" type="List"
+        default="[{'label': 'Tiles', 'value': 'Tiles'},{'label': 'Grid', 'value': 'Grid'}]" />
+    <aura:attribute name="viewStyle" type="String" default="Tiles" />
+
+
+    <aura:handler name="init" value="{! this }" action="{! c.init }" />
+    <lightning:layout horizontalAlign="end">
+
+
+    </lightning:layout>
+
+    <div class="slds-clearfix">
+        <div class="slds-float_right slds-m-right_x-large">
+            <ul class="slds-list_horizontal">
+                <li style="    margin: -5px 10px;">
+                    <lightning:radioGroup name="viewStyleFilter" label="" options="{! v.viewStyleOptions }"
+                        value="{! v.viewStyle }" type="button" onchange="{!c.storeViewStyle}" />
+                </li>
+                <li>
+                    <lightning:button label="Invite New Contact" variant="brand" onclick="{!c.openmodal}"
+                        class="newButt" />
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <aura:if isTrue="{!v.viewStyle=='Tiles'}">
+        <div class="slds-clearfix">
+            <div style="float:left; text-align: center;" class="slds-m-top_medium">
+                <aura:iteration items="{!v.usersData}" var="rec">
+                    <div class="card">
+                        <img class="pencil-icon" src="{!$Resource.AllianceCommunityAssets + '/Icons/pencil.png'}"
+                            data-rowId="{!rec.Id}" onclick="{!c.handleRowAction}" />
+                        <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">{!rec.Name}</div>
+                        <div
+                            style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
+                            <div
+                                style="width:45%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+                                <img style="width:80px" src="{!rec.FullPhotoUrl }" />
+                                <br /><br />
+                                <p class="tileValue" style="height: 2.3em;">
+                                    <div class="pu-info">
+                                        &#10003; Portal User
+                                    </div>
+                                    <div class="pu-reset">
+                                        <lightning:icon size="xx-small" iconName="utility:unlock"
+                                            alternativeText="Reset" />
+                                        <a href="javascript:void(0);" onclick="{!c.resetPassjs}" data-rowId="{!rec.Id}"
+                                            style="margin:3px 0px 0px 4px; vertical-align: middle;">Reset
+                                            password</a>
+                                    </div>
+                                </p>
+                            </div>
+                            <div
+                                style="width:55%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
+                                <aura:if isTrue="{!rec.Title!=null}">
+                                    <br />
+                                    <p class="tileLabel">Title</p>
+                                    <p class="tileValue" style="font-size: 12px;" title="{!rec.Title}">
+                                        {!rec.Title}
+                                    </p>
+                                </aura:if>
+                                <aura:if isTrue="{!rec.Phone!=null}">
+                                    <br />
+                                    <p class="tileLabel">Phone</p>
+                                    <p class="tileValue">
+                                        <a href="{! 'tel:' +  rec.Phone}" title="{!rec.Phone}">{!rec.Phone}</a>
+                                    </p>
+                                </aura:if>
+                                <aura:if isTrue="{!rec.Email!=null}">
+                                    <br />
+                                    <p class="tileLabel">Email</p>
+                                    <p class="tileValue">
+                                        <a href="{! 'mailto:' +  rec.Email}" title="{!rec.Email}">{!rec.Email}</a>
+                                    </p>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <div
+                            style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
+                            <div style=" text-align: right; display:table-cell;vertical-align: middle;">
+                                <a href="{! '../s/detail/' + rec.Id}" style="color:white !important;">About
+                                    {!rec.Name}
+                                    <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}"
+                                        style="height: 30px; margin: 0px 5px 0px 5px" />
+
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </aura:iteration>
+
+                <!-- contacts -->
+
+                <aura:iteration items="{!v.contactsData}" var="rec">
+                    <div class="card">
+
+                        <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">{!rec.Name}</div>
+                        <div
+                            style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
+                            <div
+                                style="width:45%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+                                <aura:if isTrue="{!rec.Account.External_Logo__c!=null}">
+                                    <img style="width:80px"
+                                        src="{! 'data:image/png;base64,' + rec.Account.External_Logo__c + rec.Account.External_Logo2__c + rec.Account.External_Logo3__c}" />
+                                    <aura:set attribute="else">
+                                        <img style="width:80px" src="{! '../services/images/photo/' + rec.Id}" />
+                                    </aura:set>
+                                </aura:if>
+                                <br /><br />
+                                <lightning:button label="Invite To Portal" name="{!rec.Id}" variant="brand"
+                                    onclick="{!c.openmodal}" class="newButt" />
+                            </div>
+                            <div
+                                style="width:55%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
+                                <aura:if isTrue="{!rec.Title!=null}">
+                                    <br />
+                                    <p class="tileLabel">Title</p>
+                                    <p class="tileValue" style="font-size: 12px;" title="{!rec.Title}">
+                                        {!rec.Title}
+                                    </p>
+                                </aura:if>
+                                <aura:if isTrue="{!rec.Phone!=null}">
+                                    <br />
+                                    <p class="tileLabel">Phone</p>
+                                    <p class="tileValue">
+                                        <a href="{! 'tel:' +  rec.Phone}" title="{!rec.Phone}">{!rec.Phone}</a>
+                                    </p>
+                                </aura:if>
+                                <aura:if isTrue="{!rec.Email!=null}">
+                                    <br />
+                                    <p class="tileLabel">Email</p>
+                                    <p class="tileValue">
+                                        <a href="{! 'mailto:' +  rec.Email}" title="{!rec.Email}">{!rec.Email}</a>
+                                    </p>
+                                </aura:if>
+                            </div>
+                        </div>
+                        <div
+                            style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
+                            <div style=" text-align: right; display:table-cell;vertical-align: middle;">
+                                <a href="{! '../s/detail/' + rec.Id}" style="color:white !important;">About
+                                    {!rec.Name}
+                                    <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}"
+                                        style="height: 30px; margin: 0px 5px 0px 5px" />
+
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </aura:iteration>
+            </div>
+        </div>
+        <aura:set attribute="else">
+            <div class=" slds-m-top_medium">
+                <lightning:datatable aura:id="dtTable" hideCheckboxColumn="true" columns="{! v.columns }"
+                    data="{! v.data }" keyField="Id" errors="{! v.errors }" onrowaction="{! c.handleRowAction }" />
+            </div>
+        </aura:set>
+    </aura:if>
+
+
+
+    <div aura:id="Modalbox" role="dialog" tabindex="-1" aria-labelledby="header43" class="slds-modal">
+        <div class="slds-modal__container">
+            <div class="slds-modal__header">
+                <h2 class="slds-text-heading--medium">Invite to Portal</h2>
+            </div>
+            <div class="slds-modal__content slds-p-around--medium slds-grid slds-wrap ">
+                <h3 style="font-size: 14px;width:100%"
+                    class="slds-section-title--divider slds-section__title  test-id__section-header-container">
+                    Information</h3>
+                <lightning:recordEditForm aura:id="recordCreateForm" objectApiName="User" class="recForm">
+                    <lightning:messages />
+                    <lightning:layout multipleRows="true">
+                        <lightning:inputField fieldName="Title" value="{!v.newUser.Title}" />
+
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="FirstName" value="{!v.newUser.FirstName}" />
+                        </lightning:layoutItem>
+                        <lightning:layoutItem size="6">
+                            <lightning:inputField fieldName="LastName" value="{!v.newUser.LastName}" />
+                        </lightning:layoutItem>
+                    </lightning:layout>
+
+
+                    <lightning:inputField fieldName="Email" value="{!v.newUser.Email}" />
+                    <lightning:inputField fieldName="Phone" value="{!v.newUser.Phone}" />
+                    <lightning:inputField fieldName="MobilePhone" value="{!v.newUser.MobilePhone}" />
+                    <lightning:inputField fieldName="Department" value="{!v.newUser.Department}" />
+                    <lightning:inputField fieldName="Manager__c" value="{!v.newUser.Manager__c}" />
+                </lightning:recordEditForm>
+            </div>
+            <div class="slds-modal__footer">
+                <lightning:button variant="neutral" label="Cancel" onclick="{!c.closeModal}" />
+                <lightning:button variant="brand" label="Save" onclick="{!c.createUser}" />
+            </div>
+        </div>
+    </div>
+    <div aura:id="Modalbackdrop" class="slds-backdrop"></div>
+</aura:component>
