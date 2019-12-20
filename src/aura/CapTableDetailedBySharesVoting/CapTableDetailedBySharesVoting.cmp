@@ -1,0 +1,18 @@
+<aura:component controller="CapTableController">
+
+    <ltng:require styles="{!$Resource.datatables_js_css + '/datatables.min.css'}"/>
+    <ltng:require scripts="{!$Resource.datatables_js_css + '/datatables.min.js'}"
+        afterScriptsLoaded="{!c.init}"/>
+    <!-- https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.18/af-2.3.2/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/cr-1.5.0/fc-3.2.5/fh-3.1.4/kt-2.5.0/datatables.min.js -->
+    <!-- https://cdn.datatables.net/v/dt/jq-3.3.1/dt-1.10.18/af-2.3.2/b-1.5.4/b-colvis-1.5.4/b-html5-1.5.4/b-print-1.5.4/cr-1.5.0/fc-3.2.5/fh-3.1.4/kt-2.5.0/datatables.min.css -->
+
+    <!-- attributes -->
+    <aura:attribute name="rawCapTableData" type="Object"/>
+    <aura:attribute name="recordId" type="Id"/>
+    
+    <div id="dtableBySharesVotingDiv">
+        <table id="dtableBySharesVoting" class="nowrap display" style="width:100%"/>
+    </div>
+    <div id="{!globalId + 'seriesModal'}" aura:id="seriesModal" class="slds-popover slds-hide" style="position: absolute; top: 60px; left: 235px; z-index: 2; width: 350px"/>
+
+</aura:component>

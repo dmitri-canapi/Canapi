@@ -1,5 +1,5 @@
 @isTest public class AllianceContactsControllerTest {
     static testMethod void testMethod1() {
-        AllianceContactsController.getContacts();
+        AllianceContactsController.getContacts('test','Name');
     }
 }

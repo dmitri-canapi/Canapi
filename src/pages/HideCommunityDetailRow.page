@@ -1,0 +1,23 @@
+<apex:page showHeader="false" sidebar="false">
+<script>
+    
+    function myLoop () { 
+    var date = new Date();
+    //console.log(date.getTime());         
+       setTimeout(function () {   
+          try {
+              var l = window.parent.document.querySelectorAll('.slds-page-header__detail-row');
+               l[0].style.display = "none";
+              /*var l2 = window.parent.document.querySelectorAll('.cCenterPanel');
+               l2[0].setAttribute("style", "max-width:none;");*/
+               var l3 = window.parent.document.querySelectorAll('.slds-page-header_record-home');
+               l3[0].setAttribute("style", "height: auto !important;");
+         }catch(e){
+             myLoop();            
+          }                      
+       }, 200)
+    }
+
+    myLoop(); 
+</script>
+</apex:page>

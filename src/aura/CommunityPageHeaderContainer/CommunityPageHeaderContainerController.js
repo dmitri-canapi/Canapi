@@ -1,7 +1,7 @@
 ({
 	doInit : function(component, event, helper) {
         
-        if (component.get("v.recordId")!='' && component.get("v.recordId")!=null && component.get("v.recordId").substring(0,3)!='01Z'){
+        if (component.get("v.recordId")!='' && component.get("v.recordId")!=null && (component.get("v.recordId").substring(0,3)!='01Z' && component.get("v.recordId").substring(0,3)!='00O')){
             var objToImageMap = new Map([['Account','18-Canapi-Icons-05.svg'],['Contact','18-Canapi-Icons-14.svg'],['Board_Meeting__c','18-Canapi-Icons-24.svg'],
                               ['Opportunity','18-Canapi-Icons-30.svg'],['Assessment__c','18-Canapi-Icons-37.svg'],['Financial_Report__c','18-Canapi-Icons-39.svg'],
                               ['Round__c','18-Canapi-Icons-41.svg'], ['Activity','18-Canapi-Icons-09.svg']]);
@@ -47,7 +47,7 @@
             });
             $A.enqueueAction(action);
 
-        } else if (component.get("v.recordId")!='' && component.get("v.recordId")!=null && component.get("v.recordId").substring(0,3)=='01Z'){
+        } else if (component.get("v.recordId")!='' && component.get("v.recordId")!=null && (component.get("v.recordId").substring(0,3)=='01Z' || component.get("v.recordId").substring(0,3)=='00O')){
             component.set("v.recordId",null);
         }
         

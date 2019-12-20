@@ -19,26 +19,27 @@
     color: black;
     /*border-right: 1px solid #474656;*/
 }
-.THIS .ul, .THIS li {
-    /*width: 250px;*/
-}
 
 .THIS .activeItem {
     background-color: #3280CB;
 }
 .THIS .slds-navigation-list-vertical__action, .THIS .slds-navigation-list--vertical__action {
-    padding: 0.5rem 0.4rem !important;
+    /*padding: 0.5rem 0.3rem !important;*/
+    padding: .5rem 1.5rem .5rem .3rem !important;
+    white-space: nowrap;
 }
 .THIS .icon {
     width: 40px;
+    margin-right: 4px;
 }
 .THIS .childIcon {
     width: 35px;
     margin-left: 15px;
 }
 .THIS .itemLabel {
-    display: inline;
-    padding: 0px 15px 0px 5px;
+    /*display: inline;
+    padding: 0px 15px 0px 5px;*/
+    display: contents;
 }
 .THIS .child-menu-ul{
     display:none;
@@ -63,6 +64,9 @@
 }
 .THIS .menuExpanded .main-menu  .slds-popover{
     left: 196px !important; 
+}
+.THIS .menuExpanded {
+    width: 196px;
 }
 .THIS .child-menu-info{
     background-color: #474656;

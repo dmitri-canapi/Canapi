@@ -24,7 +24,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             strlist.add(UserOrGroupIds.get(g.Id));
             String link='';
             link = 'javascript:removeAccess("' + g.Id + '","' + currentDocId + '")';
-            strlist.add( 'X'  + '^' + link );
+            strlist.add( 'X'  + '^' + link + '^_self');
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
@@ -38,7 +38,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             strlist.add(UserOrGroupIds.get(u.Id));
             String link='';
             link = 'javascript:removeAccess("' + u.Id + '","' + currentDocId + '")';
-            strlist.add( 'X'  + '^' + link );
+            strlist.add( 'X'  + '^' + link + '^_self');
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
@@ -127,7 +127,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             strlist.add(ds.AccessLevel);
             String link='';
             link = 'javascript:removeBulkAccess("' + ds.Id + '")';
-            strlist.add( 'X'  + '^' + link );
+            strlist.add( 'X'  + '^' + link + '^_self');
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
@@ -163,7 +163,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             strlist.add(UserOrGroupIds.get(g.Id).Access__c);
             String link='';
             link = 'javascript:removeDSAccess("' + UserOrGroupIds.get(g.Id).Id + '")';
-            strlist.add( 'X'  + '^' + link );
+            strlist.add( 'X'  + '^' + link + '^_self' );
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
@@ -177,7 +177,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             strlist.add(UserOrGroupIds.get(u.Id).Access__c);
             String link='';
             link = 'javascript:removeDSAccess("' + UserOrGroupIds.get(u.Id).Id + '")';
-            strlist.add( 'X'  + '^' + link );
+            strlist.add( 'X'  + '^' + link + '^_self');
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
@@ -185,6 +185,29 @@ public without sharing class CustomDocumentControllerWoutSharing {
         generator.writeEndArray(); //Write the end marker of a JSON object ']'
         generator.writeEndObject();
         
+        return generator.getAsString();
+    }
+
+    public static String getFavoriteGroups(){
+        Favorite_Group__mdt favGroupsids = [select id,List_of_Id_s__c from Favorite_Group__mdt limit 1];
+        JSONGenerator generator = JSON.createGenerator(true);
+        generator.writeStartArray();
+        for (Group g: [select id, Name, DeveloperName from Group where id in: favGroupsids.List_of_Id_s__c.split(',')]){
+            generator.writeStartObject();
+            generator.writeStringField('id', 'ShareWithGroup' + g.Id);
+            if (g.Name == '' || g.Name == null){
+                generator.writeStringField('text', g.DeveloperName);
+            } else {
+                generator.writeStringField('text', g.Name);
+            }
+            generator.writeEndObject();
+        }
+        generator.writeStartObject();
+        generator.writeStringField('id', 'RestrictAccess');
+        generator.writeStringField('text', 'Edit Sharing...');
+        generator.writeEndObject();
+
+        generator.writeEndArray();
         return generator.getAsString();
     }
     
@@ -206,6 +229,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             }
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
+
         generator.writeEndArray(); //Write the end marker of a JSON object ']'
         generator.writeEndObject();
         
@@ -257,6 +281,32 @@ public without sharing class CustomDocumentControllerWoutSharing {
         ds.UserOrGroup__c = userOrGroupId;
         ds.Access__c = AccessType;
         upsert ds;
+    }
+
+    public static void shareForFavGroups(String userOrGroupId,String docIds){
+        userOrGroupId = userOrGroupId.replace('ShareWithGroup','');
+        
+        list <Document__Share> dsList = new list <Document__Share>();
+
+        for (String doc : docIds.split(',')){
+            Document__Share ds = new Document__Share();
+            ds.ParentId = doc;
+            ds.UserOrGroupId = userOrGroupId;
+            ds.AccessLevel = 'Read';
+            dsList.add(ds);
+        }
+
+        
+        insert dsList;
+        
+        List <ContentDocumentLink> cdlList = new List <ContentDocumentLink> ();
+        cdlList=  [SELECT ContentDocumentId,LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId =:docIds.split(',')];
+        for(ContentDocumentLink l:cdlList) {
+            l.Visibility='AllUsers';
+        } 
+        if (cdlList.size()>0){
+            update cdlList;
+        }
     }
     
     public static void addBulkPermission (String userOrGroupId,String accId, String DocumentParentObjectId, String AccessType){

@@ -61,5 +61,4 @@ trigger ContentDocumentTrigger on ContentDocument (before delete, before update)
             }
         }
     }
-
 }

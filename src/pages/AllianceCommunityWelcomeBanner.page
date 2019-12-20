@@ -2,6 +2,7 @@
     <style>
         body {
             overflow: hidden;
+            margin: 0px !important;
         }
         .WelcomeBanner{
             height: 108px;

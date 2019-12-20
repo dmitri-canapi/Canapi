@@ -795,6 +795,11 @@ global with sharing class CustomDocumentController {
         }
         return uniqueDocs.size();
     }
+
+    @RemoteAction
+    global static void shareForFavGroups(String userOrGroupId,String docIds){
+        CustomDocumentControllerWoutSharing.shareForFavGroups(userOrGroupId, docIds);
+    }
     
     @RemoteAction
     global static void addPermission (String userOrGroupId,String currentDocId,String accessType){
@@ -835,6 +840,12 @@ global with sharing class CustomDocumentController {
     global static String getGroups(){
         return CustomDocumentControllerWoutSharing.getGroups();
     }
+
+    @RemoteAction
+    global static String getFavoriteGroups(){
+        return CustomDocumentControllerWoutSharing.getFavoriteGroups();
+    }
+
     @RemoteAction
     global static void removeDSAccess (String dsID){
        delete [select id from Default_Sharing__c where id=:dsID];

@@ -1,5 +1,5 @@
 ({
-    createObj: function(label, pic, link, child, id) {
+    createObj: function (label, pic, link, child, id) {
         var PageURL = decodeURIComponent(window.location);
         var obj = new Object();
         obj.label = label;
@@ -9,7 +9,7 @@
         if (child) {
             obj.menus = child;
         }
-        if (id != null){
+        if (id != null) {
             obj.Id = id;
         }
         return obj;

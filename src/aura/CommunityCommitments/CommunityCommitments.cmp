@@ -4,19 +4,19 @@
 	<aura:attribute name="Commitments" type="Commitment__c[]"/>
     <aura:attribute name="mycolumns" type="List"/>
     <div style="min-height:400px !important;">
-        <lightning:card title="Commitments">
-            <p class="slds-p-horizontal_small">    
-                <lightning:layout >
-                    <lightning:layoutItem >             
-                        <lightning:datatable data="{!v.Commitments}"
-                                             columns="{!v.mycolumns }"
-                                             keyField="id"/>
-                        
-                    </lightning:layoutItem>
-                </lightning:layout>
-            </p>
-        </lightning:card>
-    </div>
+    <lightning:card title="Commitments" >
+        <p class="slds-p-horizontal_small">    
+            <lightning:layout >
+                <lightning:layoutItem >             
+                    <lightning:datatable data="{!v.Commitments}"
+                        columns="{!v.mycolumns }"
+                        keyField="id"/>
+                    
+                </lightning:layoutItem>
+            </lightning:layout>
+        </p>
+    </lightning:card>
+</div>
         
 
 </aura:component>

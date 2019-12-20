@@ -98,47 +98,47 @@
             text-align: center;
         }
         .popover h3.popover-title {
-    		background: #F2F2F4;
-        	color: black;
+            background: #F2F2F4;
+            color: black;
         }
         .popover h3.popover-title h4 {
-        	font-size: 1.6rem;
+            font-size: 1.6rem;
         }
         .popover h3.popover-title h4 {
-    		line-height: 1.8rem !important;
+            line-height: 1.8rem !important;
         }
         .row a {
-        	color: inherit;
+            color: inherit;
         }
         .popover .popover-content {
-   			padding: 5px 5px 15px;
-        	background-color: #1A182D;
-        	text-align: right;
+            padding: 5px 5px 15px;
+            background-color: #1A182D;
+            text-align: right;
         }
         .popover-content .glyphicon-chevron-right {
-        	border: 2px solid;
+            border: 2px solid;
             border-radius: 50%;
             padding: 8px;
             font-size: 26px;
-        	-webkit-text-stroke: 5px #1A182D;
-        	top: 5px;
+            -webkit-text-stroke: 5px #1A182D;
+            top: 5px;
         }
         .popup-description {
-        	background-color: white;
+            background-color: white;
             text-align: center;
             height: 50px;
             line-height: 50px;
             margin-top: 10px;
         }
         .row {
-        	margin-left: 0px;
-        	margin-right: 0px;
+            margin-left: 0px;
+            margin-right: 0px;
         }
         .popover h3.popover-title {
-        	padding: 18px 0px 0px 0px;
+            padding: 18px 0px 0px 0px;
         }
         .popover {
-        	width: 310px !important;
+            width: 310px !important;
         }
     </style>
 </head>
@@ -229,7 +229,7 @@
       var TheObj = {!Groups};
       
       //Order these objects by post count
-      Groups = _.sortBy(Groups,'PostCount').reverse();
+      //Groups = _.sortBy(Groups,'PostCount').reverse();
 
       function GetGroupsFromController(Data){ 
         $.each(Data, function(i,val){
@@ -252,25 +252,25 @@
             '<h6 href="javascript:void(0);" id="subLink-' + val.Id +'" style="text-decoration: underline; font-size: 13px; margin-top: 19px; display: block;color: #3e7aa2;">Subscribe</h6>'+
             '</a>' +
             '<div class="head hide">' +
-              	'<div class="row clearfix">' +
-                	'<div class="col-xs-12" style="text-align: center;">'+
-                  		'<div class="topic-cover-old" style="width:100%"><img style="display: block; margin-left: auto; margin-right: auto; height: 85px;" src="' + val.GroupPhoto + '"/></div>'+
-                		'<h4>'+ val.Name +'</h4>'+
+                '<div class="row clearfix">' +
+                    '<div class="col-xs-12" style="text-align: center;">'+
+                        '<div class="topic-cover-old" style="width:100%"><img style="display: block; margin-left: auto; margin-right: auto; height: 85px;" src="' + val.GroupPhoto + '"/></div>'+
+                        '<h4>'+ val.Name +'</h4>'+
                           '<div style="color: #929292">' +
-                          	'<a href="#"><strong id="followers-'+ val.Id+'">'+ val.MemberCount +'</strong></a> Follows | ' +
-                          	'<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
+                            '<a href="#"><strong id="followers-'+ val.Id+'">'+ val.MemberCount +'</strong></a> Follows | ' +
+                            '<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
                           '</div>' +
                           '<div style="color: #929292;margin-top:5px;">' +
-                         	'Owner: ' + val.OwnerName + 
+                            'Owner: ' + val.OwnerName + 
                           '</div>' +
-                   		'</div>'+
+                        '</div>'+
   
                         '<div class="col-xs-12 popup-description">'+
                           '<p class="topic-meta">'+ (val.Description  ? val.Description : 'Description coming soon...') +'</p>'+
                         '</div>'+
-                	'</div>'+
+                    '</div>'+
                 
-              	'</div>'+
+                '</div>'+
             '</div> '+
             '<div class="content hide">'+
                '<div><a style="color: white" href="../'+ val.Id  +'" target="_blank" class=""><span style="padding-right: 8px;">Visit Feed</span><span class="glyphicon glyphicon-chevron-right"></span></a></div>' +
@@ -324,10 +324,10 @@
               '<div class="row clearfix">' +
                 '<div class="col-xs-12" style="text-align: center;">'+
                   '<div class="topic-cover-old" style="width:100%"><img style="display: block; margin-left: auto; margin-right: auto; height: 85px;" src="' + val.UserPhoto + '"/></div>'+
-                		'<h4>'+ val.Name +'</h4>'+
+                        '<h4>'+ val.Name +'</h4>'+
                           '<div style="color: #929292">' +
-                          	'<a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers +'</strong></a> Follows | ' +
-                          	'<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
+                            '<a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers +'</strong></a> Follows | ' +
+                            '<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
                           '</div>' +
                    '</div>'+
   
@@ -377,11 +377,11 @@
                   '<div class="topic-cover-old" style="width:100%"><img style="display: block; margin-left: auto; margin-right: auto; height: 85px;" src="' + val.UserPhoto + '"/></div>'+
                        '<h4>'+ val.Name +'</h4>'+
                           '<div style="color: #929292">' +
-                         	'<a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers +'</strong></a> Follows | ' +
-                          	'<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
+                            '<a href="#"><strong id="followers-'+ val.Id+'">'+ val.Followers +'</strong></a> Follows | ' +
+                            '<a href="#"><strong>' + val.PostCount + '</strong></a> Posts' +
                           '</div>' +
                           '<div style="color: #929292;margin-top:5px;">' +
-                         	'Owner: ' + val.OwnerName + 
+                            'Owner: ' + val.OwnerName + 
                           '</div>' +
                   '</div>'+
               '</div>'+

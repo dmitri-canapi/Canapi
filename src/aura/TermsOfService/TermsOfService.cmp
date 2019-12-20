@@ -1,0 +1,40 @@
+<aura:component controller="TermsOfService"
+    implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+    access="global">
+    <aura:attribute name="terms" type="String" default="" />
+    <aura:attribute name="termsAccepted" type="boolean" default="true" />
+    <aura:attribute name="agree" type="boolean" default="false" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:if isTrue="{!!v.termsAccepted}">
+
+        <div role="dialog" tabindex="-1" aria-labelledby="header43" aura:id="Modalbox"
+            class="slds-modal slds-modal_large slds-fade-in-open">
+            <div class="slds-modal__container" style="width: 50%;line-height: 2rem;">
+                <div class="slds-modal__header" style="font-size: 18px; font-weight:bold;">
+                    <p>Terms of Service</p>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <aura:unescapedHtml value="{!v.terms}" />
+
+                </div>
+                <div class="slds-modal__footer">
+                    <div class="slds-grid slds-gutters">
+                        <div class="slds-col slds-size_6-of-12" style="display: flex;">
+                            <lightning:input label="I Agree Terms and Coditions" type="checkbox" checked="{!v.agree}" />
+                        </div>
+                        <div class="slds-col slds-size_6-of-12">
+                            <lightning:button label="Submit" onclick="{!c.acceptTermsJS}" disabled="{!!v.agree}" />
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+
+
+</aura:component>

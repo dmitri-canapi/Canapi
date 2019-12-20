@@ -1,0 +1,53 @@
+<apex:component controller="ReportsToEmailController" access="global">
+    <apex:attribute name="ReportId" description="Report ID" type="Id" assignTo="{!rptId}" />
+    <apex:attribute name="ReportsCount" description="Reports Count" type="Integer" assignTo="{!rptsCount}" />
+
+
+    <apex:outputPanel >
+        <div style="font-size:18px; font-weight: bold;">
+            <a href="https://canapi.force.com/alliance/s/report/{!rptId}">{!ReportName}</a>
+        </div>
+        <table style="width: 100%;font-size: 13px !important;">
+            <thead>
+                <apex:repeat value="{!ReportResult.fullrep.reportMetadata.detailColumns}" var="colName">
+
+                    <!-- reportMetadata is a class where it contains metadata of a report.
+                        DetailColumns is a method of ReportMetadata class, it returns the API names (Columns Names) 
+                            for the fields that contain detailed data-->
+
+                    <th style="font-size: 13px !important;">
+                        <apex:outputText value="{!ReportResult.fullrep.reportExtendedMetadata.detailColumnInfo[colName].label}" />
+                    </th>
+
+                    <!-- reportExtendedMetadata is class where it contains Report extended metadata and
+                            it provides data type and label information.
+                        detailColumnInfo is a method of reportExtendedMetadata class, it returns map of columns names 
+                            and its label to Display as Header -->
+
+                </apex:repeat>
+            </thead>
+            <tbody>
+                <apex:variable value="0" var="num" />
+
+
+                <apex:repeat value="{!ReportResult.repDetails}" var="row">
+                    <!-- Here we will get entire data of each row and T refers to the Row -->
+                    <tr>
+                        <apex:repeat value="{!row.dataCells}" var="cell">
+                            <!-- Here we will get data of each cell and displayed -->
+                            <td style="font-size: 13px !important;">
+                                <apex:outputText value="{!cell.label}" />
+                            </td>
+                        </apex:repeat>
+                    </tr>
+                </apex:repeat>
+
+            </tbody>
+        </table>
+        <apex:outputPanel rendered="{!wasTrimmed}">
+            <br/>
+            <br/>
+            <a href="https://canapi.force.com/alliance/s/report/{!rptId}">[Report output truncated. Please follow the link to see full report]</a>
+        </apex:outputPanel>
+    </apex:outputPanel>
+</apex:component>

@@ -1,0 +1,94 @@
+<aura:component controller="ReportSubscriptions"
+    implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+    access="global">
+    <aura:attribute name="Reports" type="List" default="[]" />
+    <aura:attribute name="tempSubsValue" type="String" default="" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+
+    <div class="slds-box">
+        <article class="slds-card">
+            <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div class="slds-media__body">
+                        <h2 class="slds-card__header-title" style="width: 200px; display: inline-block;">
+                            <span class="slds-card__header-link slds-text-heading--small">Reports</span>
+                        </h2>
+                    </div>
+                </header>
+            </div>
+            <div class="slds-card__body">
+
+
+
+                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                    <thead>
+                        <tr class="slds-text-title_caps">
+                            <th scope="col">
+                                <div class="slds-truncate">Report Name</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Folder
+                                </div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Description
+                                </div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate">Subscribed
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <aura:iteration items="{!v.Reports}" var="vlist">
+                            <tr>
+                                <td scope="row" title="{!vlist.rep.Name}">
+                                    <div class="slds-truncate">
+                                        <a href="{! 'report/' + vlist.rep.Id}">{!vlist.rep.Name}</a>
+                                    </div>
+                                </td>
+                                <td scope="row" title="{!vlist.rep.Owner.Name}">
+                                    <div class="slds-truncate">
+                                        {!vlist.rep.Owner.Name}
+                                    </div>
+                                </td>
+                                <td scope="row" title="{!vlist.rep.Description}">
+                                    <div class="slds-truncate">
+                                        {!vlist.rep.Description}
+                                    </div>
+                                </td>
+                                <td scope="row" style="width:140px">
+                                    <div>
+                                        <div class="slds-grid slds-gutters">
+                                            <lightning:recordEditForm objectApiName="ReportSubscription__c">
+                                                <div class="slds-grid slds-gutters">
+                                                    <div class="slds-col slds-size_12-of-12" id="{!vlist.rep.Id}"
+                                                        onchange="{!c.updateSubscriptionDivJS}">
+                                                        <lightning:inputField data-accId="{!vlist.rep.Id}"
+                                                            id="{!vlist.rep.Id}" variant="label-hidden"
+                                                            name="Subscribed__c" value="{!vlist.Subscription}"
+                                                            class="{!vlist.rep.Id}" label="" fieldName="Subscribed__c"
+                                                            onchange="{!c.updateSubscriptionJS}" />
+                                                    </div>
+                                                </div>
+                                            </lightning:recordEditForm>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </aura:iteration>
+
+                    </tbody>
+                </table>
+
+
+
+
+            </div>
+        </article>
+    </div>
+
+</aura:component>

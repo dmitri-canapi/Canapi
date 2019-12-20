@@ -25,3 +25,24 @@
     content: "";
     height: 7px;
 }
+.THIS .form-element__label {
+      display : none;
+      visibility : hidden;
+}
+.THIS .uiInputText {
+    margin-right: 10px;
+}
+.THIS .front.slds-button:focus, .THIS .front.slds-button_neutral:active {
+    box-shadow: none;
+    background-color:transparent;
+}
+.THIS .slds-button.front {
+    padding-right: 5px;
+    padding-left: 12px;
+}
+.THIS .slds-form-element__legend{
+    margin-top: -3px;
+}
+.THIS .slds-input-has-icon{
+    margin-left: 15px;
+}

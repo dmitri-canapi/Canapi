@@ -17,7 +17,7 @@
     <lightning:listView aura:id="listViewAccounts"
         objectApiName="milestone__c"
         listName="Milestones"
-        rows="10"
+        rows="25"
         showSearchBar="true"
         showActionBar="false"
         enableInlineEdit="true"

@@ -76,7 +76,7 @@
     loadData : function(component, event, helper) {
         try{
         var action = component.get("c.getCatalogMap");
-           
+             console.log(component.get("v.recordId"))
         action.setParams({ recId : component.get("v.recordId")});
         action.setCallback(this, function(response) {
             var CatalogList = [];

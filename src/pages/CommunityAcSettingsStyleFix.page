@@ -2,31 +2,39 @@
 <script>
     function fixAccSettings () { 
         var date = new Date();
-        console.log(date.getTime());         
+        //console.log(date.getTime());         
         setTimeout(function () {   
             try {
                 window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.cHeaderPanel')[0].style.display='none';
                 window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .row')[0].style.display='none';
                 window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .uiTabBar')[0].style.display='none';
                 window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .emailNotificationsSection')[0].style.display='none';
+                //window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.cCommunityVerticalNav')[0].style.display='none';
+                window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.cCenterPanel')[0].setAttribute("style","margin: 0px !important;");
+                window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.siteforceContentArea')[0].setAttribute("style","margin-left: 0px !important;");
+                window.parent.document.querySelectorAll('.adSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .row')[1].style.display='none';
             }catch(e){
                 fixAccSettings();            
             }                      
-        }, 200)
+        }, 100)
     }
     
     function fixEmailSettings () { 
         var date = new Date();
-        console.log(date.getTime());         
+        //console.log(date.getTime());         
         setTimeout(function () {   
             try {
                 window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.cHeaderPanel')[0].style.display='none';
                 window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .row')[0].style.display='none';
                 window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .uiTabBar')[0].style.display='none';
                 window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .accountSection')[0].style.display='none';
-            	window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .locationSection')[0].style.display='none';
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .locationSection')[0].style.display='none';
                 window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .profileVisibilitySection')[0].style.display='none';
-            
+                //window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.cCommunityVerticalNav')[0].style.display='none';
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.cCenterPanel')[0].setAttribute("style","margin: 0px !important;");
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.setAttribute("style","overflow: hidden;");
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.siteforceContentArea')[0].setAttribute("style","margin-left: 0px !important;");
+                window.parent.document.querySelectorAll('.emailSettings')[0].contentWindow.document.body.querySelectorAll('.forceCommunityUserSettings .row')[1].style.display='none';
             }catch(e){
                 fixEmailSettings();            
             }                      

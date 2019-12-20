@@ -13,7 +13,7 @@
                     <header class="slds-media slds-media_center slds-has-flexi-truncate">
                         <div class="slds-media__body">
                             <h2 class="slds-card__header-title" style="width: 200px; display: inline-block;">
-                                <span class="slds-card__header-link slds-text-heading--small">Alliance Enrollment</span>
+                                <span class="slds-card__header-link slds-text-heading--small">Vendor Mapping</span>
                             </h2>
                         </div>
                     </header>

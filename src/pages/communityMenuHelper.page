@@ -1,0 +1,26 @@
+<apex:page showHeader="false" sidebar="false">
+<script>
+    function myLoop () { 
+        
+       setTimeout(function () {   
+         
+              var l = window.parent.document.querySelectorAll('.menuExpanded');
+              var panel = window.parent.document.querySelectorAll('.siteforceContentArea');
+              if(l.length != 0) {
+                  panel [0].style.marginLeft = "145px";
+                  myLoop(); 
+             } else {
+                 panel [0].style.marginLeft = "0px";
+                 myLoop(); 
+             }           
+                                
+       }, 100)
+    }
+
+    if (window.innerWidth / parseFloat( getComputedStyle( document.querySelector('body'))['font-size']) > 47.9375){ 
+        if (!window.parent.location.href.includes('https://canapi.force.com/alliance/s/settings/')){
+        myLoop(); 
+        }
+    }
+</script>
+</apex:page>

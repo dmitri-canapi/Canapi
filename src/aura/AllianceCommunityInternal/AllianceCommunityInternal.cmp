@@ -1,0 +1,3 @@
+<aura:component implements="force:appHostable" >
+    <iframe name ="frame" id="frame" src="https://canapi.force.com/alliance/s/feedandgroups/" width="100%" height="100%"/>
+</aura:component>

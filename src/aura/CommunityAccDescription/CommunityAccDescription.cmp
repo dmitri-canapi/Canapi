@@ -1,0 +1,7 @@
+<aura:component controller="CustomDocumentController" implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName,forceCommunity:availableForAllPageTypes" access="global" >
+	<aura:attribute name="recordId" type="String" />
+    <aura:attribute name="accDescr" type="String" default="null"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:if isTrue="{!v.accDescr!='null'}"><div style="background: rgb(243,242,242); padding: 20px; font-size: 15px;">{!v.accDescr}</div></aura:if>
+</aura:component>

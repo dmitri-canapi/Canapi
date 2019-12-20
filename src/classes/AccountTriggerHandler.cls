@@ -43,4 +43,68 @@ public class AccountTriggerHandler {
             }
         }
     }
+    
+    @future (callout = true)
+    public static void updateLogo(Id accId, String website){
+        account record = new account(id=accId);
+        String endpoint;
+        HttpRequest req = new HttpRequest();
+                HttpResponse res = new HttpResponse();
+                Http http = new Http();
+                endpoint = 'https://api.ritekit.com/v1/images/logo?client_id=6e255a97c9de4025d5f3c3d5465d006b6ad7a37ea9c7&domain='; 
+                
+                endpoint +=  website;
+                req.setEndpoint(endpoint);
+                req.setMethod('GET');
+                
+                if (!Test.isRunningTest()) {      
+                    res = http.send(req);
+                    if (res.getStatusCode() == 200){
+                        blob image = res.getBodyAsBlob();
+                        String resString = EncodingUtil.base64Encode(image);
+                        
+                        if (resString.length() <= 131072){
+                            record.External_Logo__c = resString;
+                        } else {
+                            record.External_Logo__c = resString.subString(0,131072);
+                            
+                            if (resString.length() <= 262144){
+                                record.External_Logo2__c = resString.subString(131072,resString.length());
+                            } else {
+                                record.External_Logo2__c = resString.subString(131072,262144);
+                                record.External_Logo3__c = resString.subString(262144,resString.length());
+                            }
+                        }
+                        
+                    }
+                }  else {
+                    integer j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+            } 
+            update record;
+    }
 }

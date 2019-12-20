@@ -35,7 +35,7 @@ global without sharing class CommunityChatterSubscriptionsController {
 		CollaborationGroup[] groups = [ 
 			SELECT Id,CreatedDate,Name,FullPhotoURL,Description,MemberCount,Owner.Name,(SELECT Id from Feeds)
 			FROM CollaborationGroup 
-			WHERE NetworkId =: Network.getNetworkId()
+			WHERE NetworkId =: Network.getNetworkId() and CollaborationType = 'Public' and IsArchived = false order by Name asc
 		];
 
 		//Loop through all users

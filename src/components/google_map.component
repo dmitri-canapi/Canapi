@@ -41,7 +41,7 @@ $(document).ready(function() {
         // Account/001m000000bu3ODAAY/view
         var tooltip = "Name: <a href='../lightning/r/Account/" + item.Id + "/view'> "+ item.Name + "</a><br>";
                     tooltip += "Funding: " + item.Funding_Status__c + "<br>";
-                    tooltip += "investment: " + item.Total_Investment__c + "<br>";
+                    tooltip += "investment: " + item.Total_Dollars_Across_Rounds__c + "<br>";
         
         console.log(tooltip);
 

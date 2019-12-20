@@ -1,50 +1,68 @@
-<aura:component implements="forceCommunity:availableForAllPageTypes" access="global" extends="forceCommunity:navigationMenuBase">
-	<aura:attribute name="menus" type="Object[]" />
-    <aura:attribute name="showMenu" type="boolean"  default="false"/>
+<aura:component implements="forceCommunity:availableForAllPageTypes" access="global"
+    extends="forceCommunity:navigationMenuBase" controller="communityVerticalNavCtrl">
+    <aura:attribute name="menus" type="Object[]" />
+    <aura:attribute name="showMenu" type="boolean" default="false" />
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    
-    <div class="slds-grid slds-grid--vertical slds-navigation-list--vertical customNav" >
-       <ul  aura:id="customNav">
-           
-           <li onclick="{!c.switchMenuState}">
-               <a href="javascript:void(0);" class="slds-navigation-list--vertical__action slds-text-link--reset">
-                   <img src="{!$Resource.AllianceCommunityAssets + '/Menu/menu.svg'}" class="icon"></img>
-               </a>
-           </li>
-           <aura:iteration items="{!v.menus}" var="menu" indexVar="index">
-                <li class="{!menu.active ? 'activeItem main-menu' : 'main-menu'}" onclick="{!c.onClick}">
-                    <aura:renderIf isTrue="{!menu.menus!=null}">
-                        <section style="width: max-content;" aria-describedby="dialog-body-id-98" aria-label="Dialog Title" class="slds-popover slds-nubbin_left child-menu-ul" role="dialog">
-                            <div class="slds-popover__body" id="dialog-body-id-98">
-                                <ul class="">
-                                    <aura:iteration items="{!menu.menus}" var="childMenu">
-                                        <li class="{!childMenu.active ? 'activeItem' : 'nonActiveItem'}">
-                                            <a href="" data-menu-item-id="{!childMenu.Id}" data-menu-item-link="{!childMenu.link}" class="slds-navigation-list--vertical__action slds-text-link--reset">
-                                                <span data-menu-item-id="{!childMenu.Id}" data-menu-item-link="{!childMenu.link}" class="itemLabel">{!childMenu.label}</span>
-                                            </a> 
-                                        </li> 
-                                    </aura:iteration>
-                                </ul>
-                            </div>
-                        </section>
-                        
-                        <aura:set attribute="else">
-                            <section style="width: max-content;" aria-describedby="dialog-body-id-98" aria-label="Dialog Title" class="slds-popover child-menu-ul child-menu-info" role="dialog">
+
+    <aura:attribute name="renderMenu" type="boolean" default="true" />
+    <aura:renderIf isTrue="{!v.renderMenu == true}">
+
+        <div class="slds-grid slds-grid--vertical slds-navigation-list--vertical customNav">
+            <ul aura:id="customNav">
+
+                <li onclick="{!c.switchMenuState}">
+                    <a href="javascript:void(0);" class="slds-navigation-list--vertical__action slds-text-link--reset">
+                        <img src="{!$Resource.AllianceCommunityAssets + '/Menu/menu.svg'}" class="icon"></img>
+                    </a>
+                </li>
+                <aura:iteration items="{!v.menus}" var="menu" indexVar="index">
+                    <li class="{!menu.active ? 'activeItem main-menu' : 'main-menu'}" onclick="{!c.onClick}">
+                        <aura:renderIf isTrue="{!menu.menus!=null}">
+                            <section style="width: max-content;" aria-describedby="dialog-body-id-98"
+                                aria-label="Dialog Title" class="slds-popover slds-nubbin_left child-menu-ul"
+                                role="dialog">
                                 <div class="slds-popover__body" id="dialog-body-id-98">
-                                    {!menu.label}
+                                    <ul class="">
+                                        <aura:iteration items="{!menu.menus}" var="childMenu">
+                                            <li class="{!childMenu.active ? 'activeItem' : 'nonActiveItem'}">
+                                                <a href="" data-menu-item-id="{!childMenu.Id}"
+                                                    data-menu-item-link="{!childMenu.link}"
+                                                    class="slds-navigation-list--vertical__action slds-text-link--reset">
+                                                    <span data-menu-item-id="{!childMenu.Id}"
+                                                        data-menu-item-link="{!childMenu.link}"
+                                                        class="itemLabel">{!childMenu.label}</span>
+                                                </a>
+                                            </li>
+                                        </aura:iteration>
+                                    </ul>
                                 </div>
                             </section>
-                        </aura:set>
-                        
-                    </aura:renderIf>
-                    <a href="" data-menu-item-id="{!menu.Id}" class="slds-navigation-list--vertical__action slds-text-link--reset">
-                        <img data-menu-item-id="{!menu.Id}" src="{!$Resource.AllianceCommunityAssets + '/Menu/' + menu.pic}" class="icon"></img>
-                        <span data-menu-item-id="{!menu.Id}" aura:id="itemLabel" class="itemLabel slds-hide">{!menu.label}</span>
-                    </a>
-                        
-               </li>
-           </aura:iteration>
-           
-       </ul>
-   </div>
+
+                            <aura:set attribute="else">
+                                <section style="width: max-content;" aria-describedby="dialog-body-id-98"
+                                    aria-label="Dialog Title" class="slds-popover child-menu-ul child-menu-info"
+                                    role="dialog">
+                                    <div class="slds-popover__body" id="dialog-body-id-98">
+                                        {!menu.label}
+                                    </div>
+                                </section>
+                            </aura:set>
+
+                        </aura:renderIf>
+                        <a href="" data-menu-item-id="{!menu.Id}" data-menu-item-link="{!menu.link}"
+                            class="slds-navigation-list--vertical__action slds-text-link--reset"
+                            style="padding: .5rem .3rem !important">
+                            <img data-menu-item-id="{!menu.Id}" data-menu-item-link="{!menu.link}"
+                                src="{!$Resource.AllianceCommunityAssets + '/Menu/' + menu.pic}" class="icon"></img>
+                            <span data-menu-item-id="{!menu.Id}" data-menu-item-link="{!menu.link}" aura:id="itemLabel"
+                                class="itemLabel slds-hide">{!menu.label}</span>
+                        </a>
+
+                    </li>
+                </aura:iteration>
+
+            </ul>
+        </div>
+    </aura:renderIf>
+
 </aura:component>

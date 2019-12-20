@@ -317,6 +317,9 @@ public class CustomDocumentControllerTest {
         system.debug(CustomDocumentController.getGroups());
         system.debug(CustomDocumentController.getUsers());
         /*system.debug(CustomDocumentController.getCommunityPageHeaderInitValues2(c.Id));*/
+        
+        CustomDocumentController.getFavoriteGroups();
+        CustomDocumentController.shareForFavGroups('ShareWithGroup' + gp.Id,doc.Id);
         Test.stopTest();
         
     }

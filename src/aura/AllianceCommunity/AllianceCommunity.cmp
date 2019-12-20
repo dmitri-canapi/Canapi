@@ -1,0 +1,12 @@
+<aura:component implements="force:appHostable" >
+     <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!--
+    <iframe name ="frame" id="frame" src="https://canapi.force.com/alliance/s/feedandgroups/" width="100%" height="100%" onload="{! c.redirect }"/>
+    <div class="slds-align_absolute-center" style="    color: white; margin-bottom: 20px;">
+        <div class="slds-text-heading_large">Click Continue to open Chatter feeds in Alliance community.</div>
+       </div>
+    <div class="slds-align_absolute-center">
+        <a target="_blank" class="slds-button slds-button_brand" href="https://canapi.my.salesforce.com//servlet/networks/session/create?url=%2Falliance%2Fs%2Ffeedandgroups%2F&amp;site=0DM6A000000Mztr&amp;refURL=http%3A%2F%2Fcanapi.force.com%2Falliance%2Flogin&amp;inst=6A">Continue</a>
+	</div>
+-->
+</aura:component>

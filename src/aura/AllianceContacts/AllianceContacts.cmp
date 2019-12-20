@@ -3,20 +3,27 @@
     <aura:attribute name="data" type="Object"/>
     <aura:attribute name="columns" type="List"/>
     <aura:attribute name="errors" type="Object" default="[]"/>
-	
+	<aura:attribute name="timer" type="Integer"/>
+    
 	<aura:attribute name="viewStyleOptions" type="List" default="[{'label': 'Tiles', 'value': 'Tiles'},{'label': 'Grid', 'value': 'Grid'}]"/>
-    <aura:attribute name="viewStyle" type="String" default="Tiles"/>    
+    <aura:attribute name="viewStyle" type="String" default="Tiles"/>  
+    
+     <aura:attribute name="filter" type="String" default=""/>
+    <aura:attribute name="orderOptions" type="List" default="[{'label': 'By Name', 'value': 'Name'},{'label': 'By Bank', 'value': 'Account.Name'},{'label': 'By Role', 'value': 'Title'}]"/>
+    <aura:attribute name="order" type="String" default="Name"/>  
+    
 
     <aura:handler name="init" value="{! this }" action="{! c.init }"/>
+    
     <lightning:layout horizontalAlign="end">
         
         
     </lightning:layout>
     
     <div class="slds-clearfix">
-        <div class="slds-float_right slds-m-right_x-large">
+        <div class="slds-float_right slds-m-right_x-large" style=" margin-top: 25px;">
             <ul class="slds-list_horizontal">
-                <li style="    margin: -5px 10px;">
+                <li style="margin: -5px 10px;">
                     <lightning:radioGroup name="viewStyleFilter" 
                                   label=""
                                   options="{! v.viewStyleOptions }"
@@ -29,7 +36,29 @@
 	 </div>
     
     <aura:if isTrue="{!v.viewStyle=='Tiles'}">
-        <div class="slds-clearfix">
+        <div class="slds-clearfix" >
+            <div class="slds-m-around_small">
+                <div class="slds-float_left" style="display: inline-flex;margin-top: -42px;">
+                    <lightning:radioGroup name="orderOptions" 
+                                  label=""
+                                  options="{! v.orderOptions }"
+                                  value="{! v.order }"
+                                  type="button"
+                                  onchange ="{!c.init}" 
+                                  />
+                    <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right">
+                        <lightning:button iconName="utility:close" class="front slds-input__icon slds-input__icon_right" onclick="{!c.clearFilter}"/>
+                        <ui:inputText aura:id="searchInput" 
+                                      label="Search"
+                                      placeholder="Filter"
+                                      keyup="{!c.performSearch}" 
+                                      updateOn="keyup" 
+                                      value="{!v.filter}"
+                                      />
+                    </div>
+                </div>   
+            </div>
+            
             <div style="float:left; text-align: center;" class="slds-m-top_medium">
                 <aura:iteration items="{!v.data}" var="rec" >
                     <div class="card">
@@ -39,7 +68,13 @@
                         </div>
                         <div style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;">
                             <div style="width:45%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
-                                <img style="width:80px" src="{! '../services/images/photo/' + rec.Id}"/>
+                                <!-- img style="width:80px" src="{! '../services/images/photo/' + rec.Id}"/-->
+                                <aura:if isTrue="{!rec.Account.External_Logo__c!=null}">
+                                    <img style="width:80px" src="{! 'data:image/png;base64,' + rec.Account.External_Logo__c + rec.Account.External_Logo2__c + rec.Account.External_Logo3__c}"/>
+                                    <aura:set attribute="else">
+                                        <img style="width:80px" src="{! '../services/images/photo/' + rec.Id}"/>
+                                    </aura:set>
+                                </aura:if>
                             </div>
                             <div style="width:55%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
                                 

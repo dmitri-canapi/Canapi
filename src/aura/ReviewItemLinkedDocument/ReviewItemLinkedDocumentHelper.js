@@ -17,8 +17,9 @@
                 for(let doc of resp){
                     var document = {Title:doc.Name__c, Tag:"", Notes:""};
                     for(let jud of doc.Junctions_Document_ReviewItem__r){
-                        if(jud.Notes__c!=undefined)
-                       document.Notes += jud.Notes__c;
+                        if(jud.Notes__c!=undefined){
+                            document.Notes +=  jud.Notes__c.replace(/<[^>]*>?/gm, '');
+                        }
                         document.JunctionsId = jud.Id;
                     }
                     if(doc.TagDocumentAssociations__r)

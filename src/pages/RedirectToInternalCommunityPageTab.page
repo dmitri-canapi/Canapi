@@ -1,0 +1,3 @@
+<apex:page >
+  <script>window.parent.location.href = "https://canapi.lightning.force.com/lightning/n/Internal_Alliance_community";</script>
+</apex:page>

@@ -19,9 +19,9 @@
         var createRecordEvent = $A.get("e.force:createRecord");
 	    createRecordEvent.setParams({
 	        "entityApiName": "review_item__c",
-	        "defaultFieldValues":{
-	            "Assessment__c" : component.get("v.recordId")
-	        }
+            "defaultFieldValues":{
+                "Assessment__c" : component.get("v.recordId")
+            }
 	    });
 	    createRecordEvent.fire();
     }
