@@ -1,0 +1,18 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes">
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="communityName" type="String" />
+    <aura:attribute name="componentHeight" type="String" default="400" />
+    <aura:attribute name="skin" type="String" default="skyblue"/>
+
+    <aura:if isTrue="{!v.communityName != null}">
+        <iframe id="vfFrame" aura:id="vfFrame"
+            style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
+            src="{! '/' +v.communityName + '/apex/AccountReviewItemsDHTMLXPage?recordId=' + v.recordId + '&amp;communityName=' + '&amp;skin=' + v.skin + v.communityName + '&amp;componentHeight=' + v.componentHeight}" />
+        <aura:set attribute="else">
+            <iframe id="vfFrame" aura:id="vfFrame"
+                style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
+                src="{!'/apex/AccountReviewItemsDHTMLXPage?recordId=' + v.recordId + '&amp;communityName=' + v.communityName + '&amp;skin=' + v.skin + '&amp;componentHeight=' + v.componentHeight}" />
+        </aura:set>
+    </aura:if>
+
+</aura:component>

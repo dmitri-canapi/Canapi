@@ -1,0 +1,224 @@
+<apex:page controller="AccountReviewItemsDHTMLXController">
+    <apex:includeScript value="{!URLFOR($Resource.jquery)}" />
+    <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/material/dhtmlx.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/terrace/dhtmlx.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/web/dhtmlx.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/skyblue/dhtmlx.css')}" />
+
+    <body>
+        <div id="layoutObj"></div>
+
+        <div id="RIDetailForm">
+            <div id="riInfo" style="height:54px;">
+                <div id="riTitle">
+
+                </div>
+                <div id="riDesc">
+
+                </div>
+            </div>
+            <div style="float:left; width:100%; height:100% overflow:auto">
+                <div style="display:inline-block; width:49%;" id="ed1">
+
+                </div>
+                <div style="display:inline-block; width:50%;" id="ed2">
+
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+            vars[key] = value;
+        });
+        var recordId = vars["recordId"];
+        var componentHeightInt = Number(vars["componentHeight"]) - 36;
+        document.getElementById("layoutObj").style.height = componentHeightInt + "px";
+        var dhtmlxSkin = vars["skin"];
+
+        var lSkin = "dhx_" + dhtmlxSkin;
+
+
+        if (dhtmlxSkin == 'material') {
+            lSkin = dhtmlxSkin;
+            var sheet = document.createElement('style')
+            sheet.innerHTML = ".dhxgrid_sort_desc, .dhxgrid_sort_asc {width:0px;} .selectedTreeRow {background-color: transparent;}";
+            document.body.appendChild(sheet);
+        }
+
+
+        var myLayout = new dhtmlXLayoutObject({
+            parent: "layoutObj",
+            pattern: '3L',
+            skin: lSkin
+        });
+
+
+        myLayout.cells("a").setWidth(230);
+        myLayout.cells("a").setText("Due Diligence Checklists");
+        myLayout.cells("b").hideHeader();
+        myLayout.cells("c").hideHeader();
+        myLayout.cells("c").attachObject("RIDetailForm");
+        //myLayout.cells("b").setText("Review Items");
+        //myLayout.setAutoSize("a;b;c", "a;b;c");
+
+        /* tree configuring */
+
+        ObjectsTree = myLayout.cells("a").attachTree();
+        ObjectsTree.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxtree_' + dhtmlxSkin + '/');
+        //ObjectsTree.enableContextMenu(HirrMenu);
+        ObjectsTree.setOnClickHandler(filterRI);
+
+        function filterRI(id) {
+            if (id && id.includes('--cat--')) {
+                myLayout.cells("b").progressOn();
+                console.log(id);
+                var DDid = id.split("--cat--")[0];
+                var category = id.split("--cat--")[1];
+
+                AccountReviewItemsDHTMLXController.GetRIFiltered(DDid, category, function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        var data = result;
+                        data = ($('<div>').html(data).text());
+                        myGrid.clearAll();
+                        myGrid.parse(data, "json");
+                    }
+                });
+
+                myLayout.cells("b").progressOff();
+            }
+
+
+        }
+        function setObjectsTree() {
+            AccountReviewItemsDHTMLXController.GetAccountsRelatedLists(recordId, function (result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    var AccName = result.length > 0 ? result[0].Account__r.Name + ' (Account)' : 'No available DD Checklists';
+                    var firstRI = '';
+
+                    var finalData = [];
+                    var t = [];
+                    t.push(recordId);
+                    t.push(0);
+                    t.push(AccName);
+                    finalData.push(t);
+                    var parents = []
+
+                    for (let c of result) {
+                        t = [];
+                        t.push(c.Id);
+                        t.push(recordId);
+                        t.push(c.Name);
+                        finalData.push(t);
+                        parents.push(t);
+                        const cats = new Set();
+
+                        if (c.Review_Items__r) {
+                            for (let ri of c.Review_Items__r) {
+                                if (ri.Item_Category__c) {
+                                    cats.add(ri.Item_Category__c);
+                                } else {
+                                    cats.add('other');
+                                }
+                            }
+                        }
+                        if (cats.size > 0) {
+                            for (let cat of cats) {
+                                t = [];
+                                t.push(c.Id + '--cat--' + cat);
+                                t.push(c.Id);
+                                t.push(cat);
+                                finalData.push(t);
+                                if (firstRI == '') {
+                                    firstRI = t[0];
+                                }
+                            }
+                        }
+                    }
+
+
+
+                    //try { ObjectsTree.deleteChildItems(0) } catch (e) { };
+                    ObjectsTree.parse(finalData, "jsarray");
+                    ObjectsTree.openAllItems(recordId);
+
+                    for (var i = 0; i < parents.length; i++) {
+                        ObjectsTree.openAllItems(parents[i]);
+                    }
+
+                    if (firstRI != '') {
+                        ObjectsTree.selectItem(firstRI, true, false);
+                    }
+
+                }
+            });
+        }
+        setObjectsTree();
+
+        /* tree configuring end */
+
+        /* grid configuring */
+
+        var myGrid = myLayout.cells("b").attachGrid();
+
+        myGrid.setHeader("Review Item Name, Review Item Status, Assets Needed, Details");
+        myGrid.setInitWidths("*,120,*,70");
+        myGrid.setColAlign("left,left,left,left");
+        myGrid.setColTypes("edtxt,edtxt,edtxt,ed");
+        myGrid.setColSorting("str,str,str,str");
+        myGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxgrid_' + dhtmlxSkin + '/');
+        myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
+        myGrid.init();
+
+        myGrid.attachEvent("onRowSelect", function (id, ind) {
+            AccountReviewItemsDHTMLXController.getRIData(id, function (result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    var data = result;
+                    console.log(data);
+
+                    $("#riTitle").html(data.Review_Item_Name__c);
+                    if (data.Item_Description__c) {
+                        var t = ($('<div>').html(data.Item_Description__c).text());
+                        $("#riDesc").html(t);
+                    }
+
+                    $("#ed1").height(componentHeightInt / 2 - 60);
+                    $("#ed2").height(componentHeightInt / 2 - 60);
+                    var commEditor = new dhtmlXEditor("ed1");
+                    var descEditor = new dhtmlXEditor("ed2");
+
+                    if (data.Item_Comments__c) {
+                        var t = ($('<div>').html(data.Item_Comments__c).text());
+                        commEditor.setContent(t);
+                    }
+                    if (data.Grade_Description__c) {
+                        var t = ($('<div>').html(data.Grade_Description__c).text());
+                        descEditor.setContent(t);
+                    }
+                }
+            });
+        });
+
+    /* grid configuring end*/
+
+
+    </script>
+
+
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+
+
+</apex:page>

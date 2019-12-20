@@ -127,7 +127,7 @@
         	margin-left:0px !important;
         }
     </style>
-    <body>
+    <body id="body">
         <div id="wrapper">
             <div id="toolbarObj" style="height:35px"></div>
             <div id="layoutObj">
@@ -170,53 +170,7 @@
         
         var ParentUrl = (window.location != window.parent.location) ? document.referrer : document.location.href;
         parent.postMessage('setBaseUrl' + '-del-'+ document.location.href , ParentUrl);
-        
-        dhtmlXForm.prototype.items.input5 = {
-            
-            render: function(item, data) {
-                
-                item._type = "input5";
-                item._enabled = true;
-                
-                this.doAddLabel(item, data);
-                real_type = "text";
-                if(typeof data['override_type'] !== 'undefined'){
-                    real_type = data['override_type'];
-                }
-                this.doAddInput(item, data, "INPUT", real_type, true, true, "dhxlist_txt_textarea");
-                this.doAttachEvents(item);
-                
-                item._value = data.value;//(data.value||"");
-                item.childNodes[1].childNodes[0].value = item._value;
-                
-                this.setAttribute(item, data, 'placeholder');
-                this.setAttribute(item, data, 'min');//mobile only
-                this.setAttribute(item, data, 'max');//mobile only
-                this.setAttribute(item, data, 'step');//mobile only
-                
-                this.setNoValueAttribute(item, data, 'autofocus');
-                this.setNoValueAttribute(item, data, 'required');
-                
-                return this;
-                
-            },
-            
-            setAttribute: function(item, data, attr) {
-                if(typeof data[attr] !== 'undefined')
-                    item.childNodes[1].childNodes[0].setAttribute(attr, data[attr]); 
-            }, 
-            
-            setNoValueAttribute: function(item, data, attr) {
-                if(typeof data[attr] !== 'undefined')
-                    item.childNodes[1].childNodes[0].setAttributeNode(document.createAttribute(attr)); 
-            }
-        };
-        
-        (function(){
-            for (var a in {doAddLabel:1,doAddInput:1,doAttachEvents:1,destruct:1,doUnloadNestedLists:1,setText:1,getText:1,setValue:1,getValue:1,updateValue:1,enable:1,disable:1,setWidth:1,setReadonly:1,isReadonly:1,setFocus:1,getInput:1})
-                dhtmlXForm.prototype.items.input5[a] = dhtmlXForm.prototype.items.input[a];
-        })();
-        
+
         Date.prototype.monthNames = [
             "January", "February", "March",
             "April", "May", "June",
@@ -229,13 +183,7 @@
         Date.prototype.getShortMonthName = function () {
             return this.getMonthName().substr(0, 3);
         };
-        
-        window.addEventListener("message", function(event) {
-            if (event.data.includes('RefreshGrid')) {
-                refreshGrid();
-            }
-        }, false);
-        
+
         var vars = {};
         var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
             vars[key] = value;
@@ -243,9 +191,9 @@
         var recordId = vars["recordId"];
         var dhtmlxSkin = vars["skin"];
         var communityName = vars["communityName"];
-        var isCommunity = JSON.parse(vars["isCommunity"]);
+        var isCommunity;
         var componentHeight = vars["componentHeight"];
-        var isAllowEditing = JSON.parse(vars["isAllowEditing"]);
+        var isAllowEditing;
         
         var jsRounds;
         var advancedEditWin;
@@ -276,48 +224,39 @@
         Toolbar.attachEvent("onClick", function(id){
             console.log(id);
             if (id=="new_board_meeting"){
-                FinancialsFeatureDHTMLXController.getBoardGradeOption('Board_Meeting__c', 'Grade__c',function(result, event) {
-                    if (event.type == 'exception') {
-                        console.log(event.message);
-                        alert(event.message);
-                    } else{
-                        console.log(result);
-                        var dhxWins = new dhtmlXWindows();
-                        dhxWins.attachViewportTo("wrapper");
-                        advancedEditWin = dhxWins.createWindow("w1", 0, 0, 400, 150);
-                        advancedEditWin.setText("New Report Period"); 
-                        advancedEditWin.center();
-                        advancedEditWin.setModal(true);
-                        advancedEditWin.button("park").hide();
-                        advancedEditWin.button("minmax").hide();
-                        var advancedEditWinLayout = advancedEditWin.attachLayout("1C");
-                        advancedEditWinLayout.setSkin(lSkin);
-                        advancedEditWinLayout.cells("a").hideHeader();
-                        var options = [{value:'', text:'--none--'}];
-                        for(let key of Object.keys(result)){
-                            options.push({value:key, text:result[key]});
-                        }
+                
+                var dhxWins = new dhtmlXWindows();
+                dhxWins.attachViewportTo("body");
+                advancedEditWin = dhxWins.createWindow("w1", 0, 0, 400, 150);
+                advancedEditWin.setText("New Report Period"); 
+                advancedEditWin.center();
+                advancedEditWin.setModal(true);
+                advancedEditWin.button("park").hide();
+                advancedEditWin.button("minmax").hide();
+                var advancedEditWinLayout = advancedEditWin.attachLayout("1C");
+                advancedEditWinLayout.setSkin(lSkin);
+                advancedEditWinLayout.cells("a").hideHeader();
+                
+                
+                var formContent = [{type:"block", list:[{type:"calendar",label:"Date", name:'date',skin:"dhx_skyblue", dateFormat:"%Y-%m-%d", width:240, offsetLeft:40, offsetTop:20}]},
+                                   {type:"block", list:[{type:"button", name:"save", value:"Save",offsetTop:10,width:80, offsetLeft:90},{type:"newcolumn"}, {type:"button", name:"cancel", value:"Cancel",offsetTop:10,width:80, offsetLeft:20}]}
+                                  ];
+                
+                var advancedEditWinForm = advancedEditWinLayout.cells("a").attachForm(formContent);
+                
+                
+                advancedEditWinForm.attachEvent("onButtonClick", function(name){
+                    if (advancedEditWinForm.validate()&&name=='save'){
+                        let current_datetime = new Date(advancedEditWinForm.getItemValue('date'));
+                        let formatted_date = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
+                        var request = {Date__c:formatted_date};
+                        saveBoard(request, advancedEditWin);
                         
-                        var formContent = [{type:"block", list:[{type:"calendar",label:"Date", name:'date',skin:"dhx_skyblue", dateFormat:"%Y-%m-%d", width:240, offsetLeft:40, offsetTop:20}]},
-                                           {type:"block", list:[{type:"button", name:"save", value:"Save",offsetTop:10,width:80, offsetLeft:90},{type:"newcolumn"}, {type:"button", name:"cancel", value:"Cancel",offsetTop:10,width:80, offsetLeft:20}]}
-                                          ];
-                        
-                        var advancedEditWinForm = advancedEditWinLayout.cells("a").attachForm(formContent);
-                        
-                        
-                        advancedEditWinForm.attachEvent("onButtonClick", function(name){
-                            if (advancedEditWinForm.validate()&&name=='save'){
-                                let current_datetime = new Date(advancedEditWinForm.getItemValue('date'));
-                                let formatted_date = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
-                                var request = {Date__c:formatted_date};
-                                saveBoard(request, advancedEditWin);
-                                
-                            } else if(name=='cancel'){
-                                advancedEditWin.close();
-                            }   
-                        });
-                    }
+                    } else if(name=='cancel'){
+                        advancedEditWin.close();
+                    }   
                 });
+                 
                 
             }else if (id=='new_metric'){
                 openAccountWindow(null);
@@ -350,6 +289,13 @@
                 }
                 
                 csv+='\n' ;
+                for (var i=0; i<CapSharesGrid.getColumnsNum(); i++){
+                    csv +=  i == 1 ? ',' : ',' +CapSharesGrid.getFooterLabel(i,0).replaceAll(',','').replaceAll('$','').replaceAll('Â','');
+                }
+                csv+='\n' ;
+                for (var i=0; i<CapSharesGrid.getColumnsNum(); i++){
+                    csv +=  i == 1 ? ',' : ',' +CapSharesGrid.getFooterLabel(i,1).replaceAll(',','').replaceAll('$','').replaceAll('Â','');
+                }
                 
                 var hiddenElement = document.createElement('a');
                 hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
@@ -369,18 +315,12 @@
         }
         
         Toolbar.addButton("Export", 10, "Export", "excel.ico");
-        if (!isCommunity){
-            Toolbar.addButtonTwoState("AllowEdits", 11, "Editable on the Portal","pencil.png");
-        }
-        
         Toolbar.setSkin(lSkin);
-        if (isAllowEditing && !isCommunity){
-            Toolbar.setItemState("AllowEdits", true, false);
-        }
+        
         
         Toolbar.attachEvent("onStateChange", function(id, state){
             
-            refreshGrid();
+            //refreshGrid();
             
             if (id=='AllowEdits'){
                 FinancialsFeatureDHTMLXController.AllowEditingUpdate (recordId,state,function(result, event) {
@@ -452,9 +392,18 @@
         }
         
         function saveMetric (data, advancedEditWin,accId){
-            console.log(data.getItemValue('Name'));
+            var formula = data.getItemValue('Formula');
+            if (formula != null && formula != ''){
+                if ((formula.match(/{/g)||[]).length != (formula.match(/}/g)||[]).length) {
+                    dhtmlx.message({ 
+                        type:"alert-error", 
+                        text:"Please, correct your formula."
+                    });
+                    return;
+                }
+            }
             
-            FinancialsFeatureDHTMLXController.createChartOfAccounts (data.getItemValue('Name'), data.getItemValue('Category'), data.getItemValue('Formula'), accId, recordId ,function(result, event) {
+            FinancialsFeatureDHTMLXController.createChartOfAccounts (data.getItemValue('Name'), data.getItemValue('Category'), formula, accId, recordId ,function(result, event) {
                 if (event.type == 'exception') {
                     alert(event.message);
                 } else {
@@ -464,9 +413,7 @@
                     advancedEditWin.close();
                     refreshGrid();
                 }
-            }); 
-            
-            
+            });  
         }
         
         
@@ -514,7 +461,7 @@
                 title = 'Edit ' + CapSharesGrid.cells(accId,0).getValue().split("^")[0];
             }
             var dhxWins = new dhtmlXWindows();
-            dhxWins.attachViewportTo("wrapper");
+            dhxWins.attachViewportTo("body");
             advancedEditWin = dhxWins.createWindow("w1", 10, 10, 500, 225);
             advancedEditWin.setText(title); 
             advancedEditWin.center();
@@ -571,6 +518,19 @@
                     alert(event.message);
                 } else {
                     var data = result;
+                    isCommunity = data.isCommunity;
+                    isAllowEditing = data.allowEditByCommUser;
+                    if (!isCommunity){
+                        try {
+                        	Toolbar.getInput("AllowEdits");
+                        } catch(e){
+                        	Toolbar.addButtonTwoState("AllowEdits", 11, "Editable on the Portal","pencil.png");
+                        }
+                    }
+                    if (isAllowEditing && !isCommunity){
+                        Toolbar.setItemState("AllowEdits", true, false);
+                    }
+                    
                     jsRounds =  data.rounds;
                     console.log(data);
                     
@@ -615,12 +575,12 @@
                     
                     
                     for(let item of data.rounds){
-                        exportHeaderLabels += ',' + item.Name;
+                        
                         //SerializableColumns += ',true';
                         let current_datetime = new Date(item.Date__c);
                         let formatted_date = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
                         TableHeaders+=',' + '<div style="width:100%; text-align:left;position: absolute;height: 100%;" onmouseenter="showRoundTooltip(this)" onmouseleave="hideRoundTooltip(this)"   id="' + item.Id + '">' + formatted_date; 
-                        
+                        exportHeaderLabels += ',' + formatted_date;
                         
                         TableHeaders+= '<div id="' + item.Id +  '-popup" class="popupDiv" onclick="event.stopPropagation()"><div style="display:inline-block">';
                         
