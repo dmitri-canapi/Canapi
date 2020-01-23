@@ -1,0 +1,921 @@
+<apex:page controller="TeamManagementController" showHeader="false" sidebar="false" standardStylesheets="false" docType="html-5.0">
+    <apex:includeScript value="{!URLFOR($Resource.jquery)}" />
+    <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}" />
+
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/material/dhtmlx.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/terrace/dhtmlx.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/web/dhtmlx.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/skyblue/dhtmlx.css')}" />
+
+    <base target="_parent" />
+
+    <style>
+        html,
+        body {
+            height: 100%
+        }
+
+        .pencil-icon {
+            width: 18px;
+            right: 0px;
+            /*margin: 7px;*/
+            margin: 5px 15px 0px 0px;
+            color: #545656;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .notification,
+        .notification:hover,
+        .UserOrGroupSelected {
+            line-height: 0.7em;
+            text-decoration: none;
+            padding: 5px;
+            position: relative;
+            display: inline-block;
+            border-radius: 2rem !important;
+            border: 1px solid rgb(221, 219, 218);
+            background: #6fb1da;
+            color: white;
+            font-size: 12px;
+        }
+
+        .badge {
+            top: 2px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            text-indent: 8px;
+        }
+
+        .editCardInput {
+            border-bottom: none;
+            color: rgb(153, 153, 153);
+            width: 100%;
+        }
+
+        input {
+            border: 0;
+            outline: 0;
+            background: transparent;
+        }
+
+        .editCardInput:focus {
+            border-bottom: 1px solid rgb(153, 153, 153);
+            color: black;
+        }
+
+        .slds-scope table {
+            width: auto !important;
+        }
+
+        .slds-scope hr {
+            margin: 0px !important;
+        }
+    </style>
+
+    <apex:form >
+
+        <apex:actionFunction name="rerenderData" rerender="mainData" />
+        <div id="layoutDiv" style="width:99%; min-height:500px; float:left; display: table;">
+            <div id="tiles" style="display: table-cell;">
+                <div style="float:left; text-align: center;" class="slds-m-top_medium">
+                    <apex:outputPanel id="mainData">
+                        <apex:repeat value="{!Data.users}" var="rec">
+
+                            <div class="card" id="{!rec.Id}">
+                                <!--img class="pencil-icon" src="{!$Resource.AllianceCommunityAssets + '/Icons/pencil.png'}" id="{!rec.Id}" onclick="editUser(this)"
+                            /-->
+                                <i class="fa fa-ellipsis-h pencil-icon fa-2x" id="{!rec.Id}" data-type="User" onclick="showMenu(this)"></i>
+                                <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">
+                                    <input class="editCardInput" data-field="name" data-rId="{!rec.Id}" type="text" value="{!rec.Name}" style="color:black; text-align: center; font-size: 14px;font-weight: bold; width:80%"
+                                        onblur="updateField(this);" />
+                                </div>
+                                <div style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
+                                    <div style="width:42%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+                                        <img style="width:80px" src="{!rec.FullPhotoUrl }" />
+                                        <br />
+                                        <br />
+                                        <div class="tileValue" style="height: 2.3em;">
+                                            <div class="pu-info">
+                                                &#10003; Portal User
+                                            </div>
+                                            <div class="pu-reset">
+                                                <!--lightning:icon size="xx-small" iconName="utility:unlock" alternativeText="Reset" /-->
+                                                <i class="fa fa-unlock-alt"></i>
+                                                <a href="javascript:void(0);" onclick="resetPassjs(this)" id="{!rec.Id}" style="margin:3px 0px 0px 4px; vertical-align: middle;">
+                                                    Reset password
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <apex:outputPanel rendered="{!if(rec.LastLoginDate!=null , true ,false)}">
+                                            <div style="font-size: 0.7rem; line-height: 0.9rem;  margin: 7px 5px;">
+                                                Last Login: {!rec.LastLoginDate}
+                                            </div>
+                                        </apex:outputPanel>
+
+                                    </div>
+                                    <div style="width:58%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
+
+                                        <br />
+                                        <p class="tileLabel">Title</p>
+                                        <p class="tileValue" style="font-size: 12px;" title="{!rec.Title}">
+                                            <input class="editCardInput" data-field="Title" data-rId="{!rec.Id}" type="text" value="{!rec.Title}" style="" onblur="updateField(this);"
+                                            />
+                                        </p>
+
+
+                                        <br />
+                                        <p class="tileLabel">Phone</p>
+                                        <p class="tileValue">
+                                            <input class="editCardInput" data-field="Phone" data-rId="{!rec.Id}" type="text" value="{!rec.Phone}" style="" onblur="updateField(this);"
+                                            />
+                                        </p>
+
+
+                                        <br />
+                                        <p class="tileLabel">Email</p>
+                                        <p class="tileValue">
+                                            <input class="editCardInput" data-field="Email" data-rId="{!rec.Id}" type="text" value="{!rec.Email}" style="" onblur="updateField(this);"
+                                            />
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <span style="display: flex; padding-left: 25px;">Tags</span>
+                                <div style="display: table; min-height: 40px; padding: 4px 15px 4px 25px; text-align: left;" id="tags-{!rec.Id}">
+                                    <apex:repeat value="{!rec.UserContactTagAssociations__r}" var="tag">
+                                        <span id="{!tag.Id}" class="notification">
+                                            <span> {!tag.UserContactTag__r.Name}</span>
+                                            <a class="badge" onclick="removeTagAssociation('{!tag.Id}')">x</a>
+                                        </span>
+                                    </apex:repeat>
+                                </div>
+                                <div style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
+                                    <div style=" text-align: right; display:table-cell;vertical-align: middle;">
+                                        <a href="javascript:void(null)" onclick="navigateTo('{!rec.Id}')" style="color:white !important;display: inline-flex; line-height: 2rem;">
+                                            <span id="about-{!rec.Id}">About {!rec.Name}</span>
+                                            <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}" style="height: 30px; margin: 0px 5px 0px 5px" />
+
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </apex:repeat>
+
+                        <!-- contacts -->
+                        <apex:slds />
+                        <apex:repeat value="{!Data.contacts}" var="rec">
+                            <div class="card" id="{!rec.Id}">
+                                <!--img class="pencil-icon" src="{!$Resource.AllianceCommunityAssets + '/Icons/pencil.png'}" onclick="editContact('{!rec.Id}')"
+                            /-->
+                                <i class="fa fa-ellipsis-h pencil-icon fa-2x" id="{!rec.Id}" data-type="Contact" onclick="showMenu(this)"></i>
+                                <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">
+                                    <input class="editCardInput" data-field="name" data-rId="{!rec.Id}" type="text" value="{!rec.Name}" style="color:black; text-align: center; font-size: 14px;font-weight: bold; width:80%"
+                                        onblur="updateField(this);" />
+                                </div>
+                                <div style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
+                                    <div style="width:42%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+
+                                        <apex:outputPanel rendered="{!if(rec.Account.External_Logo__c!=null , true ,false)}">
+                                            <img style="width:80px" src="{! 'data:image/png;base64,' + rec.Account.External_Logo__c + rec.Account.External_Logo2__c + rec.Account.External_Logo3__c}"
+                                            />
+                                        </apex:outputPanel>
+                                        <apex:outputPanel rendered="{!if(rec.Account.External_Logo__c==null , true ,false)}">
+                                            <img style="width:80px" src="../profilephoto/005/F" />
+                                        </apex:outputPanel>
+
+                                        <br />
+                                        <br />
+                                        <a class="slds-vf-button_brand slds-button slds-button_brand" href="javascript:void(0);" onclick="inviteToPortal('{!rec.Id}')">Invite To Portal</a>
+
+                                        <!--lightning:button label="Invite To Portal" name="{!rec.Id}" variant="brand"
+                                                onclick="{!c.openmodal}" class="newButt" /-->
+
+
+                                    </div>
+                                    <div style="width:58%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
+
+                                        <br />
+                                        <p class="tileLabel">Title</p>
+                                        <p class="tileValue" style="font-size: 12px;" title="{!rec.Title}">
+                                            <input class="editCardInput" data-field="Title" data-rId="{!rec.Id}" type="text" value="{!rec.Title}" style="" onblur="updateField(this);"
+                                            />
+                                        </p>
+
+                                        <br />
+                                        <p class="tileLabel">Phone</p>
+                                        <p class="tileValue">
+                                            <input class="editCardInput" data-field="Phone" data-rId="{!rec.Id}" type="text" value="{!rec.Phone}" style="" onblur="updateField(this);"
+                                            />
+                                        </p>
+
+                                        <br />
+                                        <p class="tileLabel">Email</p>
+                                        <p class="tileValue">
+                                            <input class="editCardInput" data-field="Email" data-rId="{!rec.Id}" type="text" value="{!rec.Email}" style="" onblur="updateField(this);"
+                                            />
+                                        </p>
+
+                                    </div>
+                                </div>
+                                <span style="display: flex; padding-left: 25px;">Tags</span>
+                                <div style="display: table; min-height: 40px; padding: 4px 15px 4px 25px;text-align: left;" id="tags-{!rec.Id}">
+                                    <apex:repeat value="{!rec.UserContactTagAssociations__r}" var="tag">
+                                        <span id="{!tag.Id}" class="notification">
+                                            <span> {!tag.UserContactTag__r.Name}</span>
+                                            <a class="badge" onclick="removeTagAssociation('{!tag.Id}')">x</a>
+                                        </span>
+                                    </apex:repeat>
+                                </div>
+                                <div style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
+                                    <div style=" text-align: right; display:table-cell;vertical-align: middle;">
+                                        <a href="javascript:void(null)" onclick="navigateTo('{!rec.Id}')" style="color:white !important;display: inline-flex; line-height: 2rem;">
+                                            <span id="about-{!rec.Id}">About {!rec.Name}</span>
+                                            <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}" style="height: 30px; margin: 0px 5px 0px 5px" />
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </apex:repeat>
+                        <script>
+                            $(document).ready(function () {
+                                $("input").on("keyup", function (e) {
+                                    if (e.keyCode === 13) {
+                                        $(this).blur();
+                                    }
+                                });
+                                $('.card').each(function (i, obj) {
+                                    TagTree.dragger.addDragLanding(obj, new s_control);
+                                });
+                            });
+                        </script>
+                    </apex:outputPanel>
+                    <div class="card newContact">
+
+                        <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">
+                            <input id="newContactName" class="editCardInput" type="text" placeholder="New Contact" value="" autocomplete="off" style="text-align: center; font-size: 14px;font-weight: bold;width: 80%;"
+                            />
+                        </div>
+                        <div style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
+                            <div style="width:40%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+                                <img style="width:80px" src="../profilephoto/005/F" />
+                                <br />
+                                <br />
+                            </div>
+                            <div style="width:58%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
+                                <br />
+                                <p class="tileLabel">Title</p>
+                                <p class="tileValue" style="font-size: 12px;">
+                                    <input id="title" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
+                                </p>
+
+
+                                <br />
+                                <p class="tileLabel">Phone</p>
+                                <p class="tileValue">
+                                    <input id="phone" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
+                                </p>
+
+                                <br />
+                                <p class="tileLabel">Email</p>
+                                <p class="tileValue">
+                                    <input id="email" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
+                                </p>
+
+                            </div>
+                        </div>
+                        <span style="display: flex; padding-left: 25px;">Tags</span>
+                        <div style="display: table; min-height: 40px; padding: 4px 15px 4px 25px;"></div>
+                        <div style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
+                            <div style=" text-align: right; display:table-cell;vertical-align: middle;">
+                                <a href="javascript:void(null);" onclick="saveNewUser();" style="color:white !important;display: inline-flex; line-height: 2rem;">Save
+                                    <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}" style="height: 30px; margin: 0px 5px 0px 5px" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div id="treeCont" style=" width:260px;display: table-cell;"></div>
+        </div>
+        <apex:actionFunction name="filterValues" action="{!dummyMethod}" reRender="mainData">
+            <apex:param value="" name="order" />
+            <apex:param value="" name="filterWord" />
+        </apex:actionFunction>
+
+    </apex:form>
+
+    <div id="menu">
+        <a href="javascript:void(null)" onclick="editObject()">
+            <i class="fa fa-pencil"></i>
+            <span id="editMenuOption">Edit User</span>
+        </a>
+        <!--a href="javascript:void(null)" id="sendIntroMenuOption" onclick="sendIntro()">
+            <i class="fa fa-envelope"></i> Send Intro Email
+        </a-->
+        <a href="javascript:void(null)" id="inviteMenuOption" onclick="invite()">
+            <i class="fa fa-envelope"></i> Invite to Portal
+        </a>
+        <a href="javascript:void(null)" id="sendRemindMenuOption" onclick="sendRemind()">
+            <i class="fa fa-envelope"></i> Remind to Register
+        </a>
+        <a href="javascript:void(null)" id="resetPassword" onclick="resetPassjs()">
+            <i class="fa fa-unlock-alt"></i> Send Password Reset Email
+        </a>
+        <hr />
+        <a href="javascript:void(null)" onclick="deleteObject()">
+            <i class="fa fa-trash"></i>
+            <span id="deleteMenuOption">Delete User</span>
+        </a>
+    </div>
+
+    <script>
+        new dhtmlDragAndDropObject();
+
+        var isCommunity = JSON.parse('{!Data.isCommunity}');
+
+        var vars = {};
+        var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+            vars[key] = value;
+        });
+        var recordId = vars["recordId"];
+        if (!recordId) {
+            recordId = '';
+        }
+
+        var clientX, clientY, menuObjType, menuObjId;
+
+        $(document).mousemove(function (e) {
+            $('.dragSpanDiv').css({ 'top': e.pageY + 5, 'left': e.pageX + 5 }).fadeIn('fast');
+            clientX = e.pageX;
+            clientY = e.pageY;
+        });
+        var parentUrl = (window.location != window.parent.location) ? document.referrer : document.location.href;
+
+        var pass_data = { 'func': 'setBaseUrl', 'url': document.location.href };
+        parent.postMessage(JSON.stringify(pass_data), parentUrl);
+
+        window.addEventListener("message", function (event) {
+            var pass_data = JSON.parse(event.data);
+            console.log(pass_data);
+            if (pass_data.func == 'setScrollTop') {
+                if (isCommunity) {
+                    if (pass_data.top > 150) {
+                        $(".containerTableStyle").css('top', pass_data.top - 150 + 'px');
+                    } else {
+                        $(".containerTableStyle").css('top', '0px');
+                    }
+                } else {
+                    if (pass_data.top > 272) {
+                        $(".containerTableStyle").css('top', pass_data.top - 272 + 'px');
+                    } else {
+                        $(".containerTableStyle").css('top', '0px');
+                    }
+                }
+            } else if (pass_data.func == 'refreshData') {
+                rerenderData();
+            } else if (pass_data.func == 'filterData') {
+
+                filterValues(pass_data.order, pass_data.filterWord);
+            }
+        }, false);
+
+        var menu = document.getElementById("menu").style;
+        if (document.addEventListener) {
+            document.addEventListener('click', function (e) {
+                menu.opacity = "0";
+                setTimeout(function () {
+                    //menu.visibility = "hidden";
+                }, 501);
+            }, false);
+        } else {
+            document.attachEvent('onclick', function (e) {
+                menu.opacity = "0";
+                setTimeout(function () {
+                    //menu.visibility = "hidden";
+                }, 501);
+            });
+        }
+
+        function showMenu(obj) {
+            menuObjId = obj.id;
+            menuObjType = jQuery(obj).data('type');
+            if (menuObjType == 'User') {
+                jQuery('#editMenuOption').html('Edit User');
+                jQuery('#deleteMenuOption').html('Delete User');
+                jQuery('#inviteMenuOption').hide();
+                jQuery('#sendRemindMenuOption').show();
+                jQuery('#resetPassword').show();
+            } else {
+                jQuery('#editMenuOption').html('Edit Contact');
+                jQuery('#deleteMenuOption').html('Delete Contact');
+                jQuery('#inviteMenuOption').show();
+                jQuery('#sendRemindMenuOption').hide();
+                jQuery('#resetPassword').hide();
+            }
+            setTimeout(function () {
+                menu.top = clientY + 5 + "px";
+                menu.left = clientX + 5 + "px";
+                menu.visibility = "visible";
+                menu.opacity = "1";
+            }, 20);
+
+        }
+
+        var myLayout = new dhtmlXLayoutObject({
+            parent: "treeCont",
+            pattern: '1C',
+            skin: 'material'
+        });
+        //myLayout.cells("b").setWidth(270);
+        myLayout.cells("a").hideHeader();
+        //myLayout.cells("b").hideHeader();
+        //myLayout.cells("a").attachObject("tiles");
+
+        var TagTree = myLayout.cells("a").attachTree();
+        TagTree.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + 'material' + '/imgs/dhxtree_' + 'material' + '/');
+        TagTree.enableDragAndDrop(true, true);
+        TagTree.attachEvent("onDrag", function (sId, tId, id, sObject, tObject) { return false; });
+
+
+
+        /*function recursiveEach(element) {
+            //console.log(element);
+            //TagTree.dragger.addDragLanding(element, new s_control);
+
+            for (var i = 0; i < element.children.length; i++) {
+                var currentElement = element.children[i]
+
+                //console.log(currentElement);
+                TagTree.dragger.addDragLanding(currentElement, new s_control);
+                
+        if (currentElement.children.length > 0) {
+            recursiveEach(currentElement);
+        }
+
+            }
+        }*/
+
+        function s_control() {
+            this._drag = function (sourceHtmlObject, dhtmlObject, targetHtmlObject) {
+                //targetHtmlObject = targetHtmlObject.closest(".card");
+                targetHtmlObject.style.backgroundColor = "";
+                //getCardDiv(targetHtmlObject);
+                if (targetHtmlObject.id != '') {
+                    applyTag(targetHtmlObject.id, sourceHtmlObject.parentObject.id);
+                }
+            };
+            this._dragIn = function (htmlObject, shtmlObject) {
+                //htmlObject = htmlObject.closest(".card");
+                htmlObject.style.backgroundColor = "#fffacd";
+                return htmlObject;
+            };
+            this._dragOut = function (htmlObject) {
+                //htmlObject = htmlObject.closest(".card");
+                htmlObject.style.backgroundColor = "";
+                return this;
+            }
+        }
+
+        TagTree.attachEvent("onDrag", function (sId, tId, id, sObject, tObject) {
+            //console.log(sId);
+            //console.log(tObject);
+        });
+
+        /*if (!isCommunity) {
+            TagTree.enableContextMenu(Menu);
+        }*/
+        //TagTree.enableItemEditor(true);
+        //TagTree.setOnClickHandler(filterDocs);
+
+        TeamManagementController.getTags(function (result, event) {
+            //CustomDocumentController.getInactiveTagsRecords([], function(result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            } else {
+                data = result;
+
+                var finalData = [];
+                var t = [];
+                t.push('All');
+                t.push(0);
+                t.push('All');
+                finalData.push(t);
+
+                var parents = [];
+                for (var i = 0; i < data.length; i++) {
+                    var temp = [];
+                    temp.push(data[i].Id);
+                    if (data[i].ParentTag__c != null) {
+                        temp.push(data[i].ParentTag__c);
+                        parents.push(data[i].ParentTag__c);
+                    } else {
+                        temp.push('All');
+                    }
+                    temp.push(data[i].Name);
+                    finalData.push(temp);
+                }
+
+                TagTree.parse(finalData, "jsarray");
+                TagTree.openAllItems('All');
+                for (var i = 0; i < parents.length; i++) {
+                    TagTree.openAllItems(parents[i]);
+                }
+                TagTree.sortTree('0', 'ASC', true);
+            }
+        });
+
+        function editObject() {
+            if (menuObjType == 'User') {
+                editUser(menuObjId);
+            } else {
+                editContact(menuObjId);
+            }
+        }
+        function deleteObject() {
+
+            var objName = jQuery('#about-' + menuObjId).html().replace('About ', '');
+            //var conf = confirm("Delete " + objName + "?");
+            dhtmlx.confirm({
+                top: menu.top.replace('px', ''), type: "confirm-error", text: "Delete " + objName + "?", title: "Confirm Deleting", callback: function (result) {
+                    if (result == true) {
+                        TeamManagementController.deleteSFobject(menuObjId, function (result, event) {
+                            if (event.type == 'exception') {
+                                alert(event.message);
+                            } else {
+                                var pass_data = { 'func': 'showMessage', 'type': 'success', 'message': menuObjType == 'User' ? objName + ' is deleting in background. It may take up to 1 minute.' : objName + ' was deleted.' };
+                                parent.postMessage(JSON.stringify(pass_data), parentUrl);
+
+                                var pass_data = { 'func': 'refreshData' };
+                                parent.postMessage(JSON.stringify(pass_data), parentUrl);
+
+                                rerenderData();
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        function invite() {
+            inviteToPortal(menuObjId);
+        }
+
+        function sendIntro() {
+            TeamManagementController.sendIntro(menuObjId, function (result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    var pass_data = { 'func': 'showMessage', 'type': 'success', 'message': 'Intro email was sent.' };
+                    parent.postMessage(JSON.stringify(pass_data), parentUrl);
+                }
+            });
+        }
+
+        function sendRemind() {
+            TeamManagementController.sendRemind(menuObjId, function (result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    var pass_data = { 'func': 'showMessage', 'type': 'success', 'message': 'Remind email was sent.' };
+                    parent.postMessage(JSON.stringify(pass_data), parentUrl);
+                }
+            });
+        }
+
+        function editUser(uId) {
+            var pass_data = { 'func': 'editUser', 'id': uId };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+            pass_data = { 'func': 'dummyCall' };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+        }
+        function resetPassjs(u) {
+
+            var pass_data = { 'func': 'resetPass', 'id': u != null ? u.id : menuObjId };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+            pass_data = { 'func': 'dummyCall' };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+        }
+        function editContact(contactId) {
+            var pass_data = { 'func': 'inviteToPortal', 'id': contactId, 'type': 'Edit Contact' };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+            parent.postMessage(JSON.stringify(pass_data), parentUrl); //weird bug, popup doesn't shows for the first time
+        }
+        function inviteToPortal(contactId) {
+            var pass_data = { 'func': 'inviteToPortal', 'id': contactId, 'type': 'Invite to Portal' };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+            parent.postMessage(JSON.stringify(pass_data), parentUrl); //weird bug, popup doesn't shows for the first time
+        }
+        function navigateTo(recId) {
+            var pass_data = { 'func': 'navigateTo', 'id': recId };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+            pass_data = { 'func': 'dummyCall' };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+        }
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+        function drop(ev) {
+            ev.preventDefault();
+            console.log(ev.dataTransfer);
+            //var data = ev.dataTransfer.getData("text");
+            //ev.target.appendChild(document.getElementById(data));
+        }
+        function applyTag(targetId, tagId) {
+            TeamManagementController.applyTag(targetId, tagId, function (result, event) {
+
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+
+                    jQuery('#tags-' + targetId).html('');
+                    var tagsBadges = '';
+                    result.forEach(function (item, i, result) {
+                        //alert(item.UserContactTag__r.Name);
+                        tagsBadges += "<span id='" + item.Id + "' class='notification' style=''><span>" + item.UserContactTag__r.Name + "</span>";
+
+                        tagsBadges += "<a class='badge' onclick='removeTagAssociation(\"" + item.Id + "\")'>x</a>"
+
+                        tagsBadges += " </span>";
+                    });
+                    jQuery('#tags-' + targetId).html(tagsBadges);
+
+                }
+            });
+        }
+
+        function removeTagAssociation(tagAssocId) {
+            TeamManagementController.removeTagAssociation(tagAssocId, function (result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    jQuery('#' + tagAssocId).remove();
+                }
+            });
+        }
+
+        function saveNewUser() {
+            var re = /\S+@\S+\.\S+/;
+            if (jQuery('#newContactName').val() == '') {
+                dhtmlx.message({
+                    type: "alert-error",
+                    text: 'Please, fill in a Contact Name.'
+                });
+                return;
+            }
+            if (!re.test(jQuery('#email').val())/*jQuery('#email').val() == ''*/) {
+                dhtmlx.message({
+                    type: "alert-error",
+                    text: 'Please, fill in a valid email.'
+                });
+                return;
+            }
+            TeamManagementController.createNewUser(jQuery('#newContactName').val(), jQuery('#title').val(), jQuery('#phone').val(), jQuery('#email').val(), recordId, function (result, event) {
+                if (event.type == 'exception') {
+                    dhtmlx.message({
+                        type: "alert-error",
+                        text: 'Unable to create contact. Contact ' + jQuery('#newContactName').val() + ' already exists.'
+                    });
+                    console.log(event);
+                } else {
+                    var pass_data = { 'func': 'showMessage', 'type': 'success', 'message': 'Contact Created.' };
+                    parent.postMessage(JSON.stringify(pass_data), parentUrl);
+                    //document.location.reload(true);
+                    var pass_data = { 'func': 'refreshData' };
+                    parent.postMessage(JSON.stringify(pass_data), parentUrl);
+                    rerenderData();
+                }
+            });
+
+        }
+
+
+        function updateField(f) {
+            console.log(f);
+            console.log(jQuery(f).data('field'));
+            console.log(jQuery(f).data('rid'));
+            if ((jQuery(f).data('field') == 'name' || jQuery(f).data('field') == 'email') && f.value == '') {
+                dhtmlx.message({
+                    type: "alert-error",
+                    text: "Please, fill in the input field."
+                });
+                return;
+            }
+            TeamManagementController.updateRecord(jQuery(f).data('rid'), jQuery(f).data('field'), f.value, function (result, event) {
+                if (event.type == 'exception') {
+                    dhtmlx.message({
+                        type: "alert-error",
+                        text: event.message
+                    });
+                } else {
+                    if (jQuery(f).data('field') == 'name') {
+                        jQuery('#about-' + jQuery(f).data('rid')).html('About ' + f.value);
+                    }
+                    var pass_data = { 'func': 'refreshData' };
+                    parent.postMessage(JSON.stringify(pass_data), parentUrl);
+                }
+            });
+
+
+
+        }
+
+        $(document).ready(function () {
+            /*$("input").on("keyup", function (e) {
+                if (e.keyCode === 13) {
+                    $(this).blur();
+                }
+            });*/
+
+            /*var layoutHeight = document.getElementById('tiles').scrollHeight;
+            if (layoutHeight > 500) document.body.style.height = layoutHeight + 'px';*/
+            //document.body.scrollHeight
+            console.log('iframeLoaded');
+            var pass_data = { 'func': 'iframeLoaded', 'bodyHeight': document.body.scrollHeight };
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+        });
+    </script>
+    <style>
+        .tileValue,
+        .tileLabel,
+        .tileValue a {
+            color: rgb(153, 153, 153) !important;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            height: 1.2em;
+            white-space: nowrap;
+            max-width: 200px;
+        }
+
+        .tileValue {
+            height: 20px;
+        }
+
+        .newContact .tileValue {
+            height: 1.5em;
+        }
+
+        .slds-dropdown__item a {
+            font-size: 13px;
+            color: black;
+        }
+
+        .tileLabel {
+            font-weight: bold;
+        }
+
+        .card {
+            position: relative;
+            display: inline-block;
+            width: 375px;
+            border: 1px solid rgb(153, 153, 153);
+            margin: 0px 15px 40px 15px;
+            box-shadow: 0 0 7px rgba(0, 0, 0, 0.5);
+        }
+
+        .card:hover {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        br {
+            display: block;
+            content: "";
+            height: 7px;
+        }
+
+
+
+        .pu-reset {
+            display: none;
+        }
+
+        .tileValue:hover .pu-info {
+            display: none;
+        }
+
+        .tileValue:hover .pu-reset {
+            display: block;
+        }
+
+        .slds-radio_button {
+            color: white !important;
+        }
+
+        .slds-radio_button__label {
+            background-color: rgb(50, 128, 203) !important;
+        }
+
+        .slds-radio_button [type="radio"]:checked+.slds-radio_button__label {
+            background-color: white !important;
+            color: rgb(50, 128, 203) !important;
+        }
+
+        div.dhx_cell_cont_layout,
+        .dhxlayout_base_material div.dhx_cell_layout {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .dhxlayout_base_material div.dhx_cell_layout div.dhx_cell_hdr.dhx_cell_hdr_hidden {
+            border-top: none !important;
+        }
+
+        p {
+            margin-block-start: 0em;
+            margin-block-end: 0em;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        html,
+        body {
+            /*overflow-y: hidden !important;*/
+            overflow: hidden !important;
+        }
+
+        .slds-vf-button_brand {
+            /*background-color: rgb(50, 128, 203) !important;*/
+            background-image: none !important;
+            /*padding-left: 1rem !important;
+            padding-right: 1rem !important;*/
+            text-align: center;
+            vertical-align: middle;
+            justify-content: center;
+            border: 1px solid rgb(217, 219, 221) !important;
+            transition: border .15s linear !important;
+            /*border-color: rgb(50, 128, 203) !important;*/
+            color: #ffffff !important;
+            line-height: 1.7rem !important;
+            font-size: 13px !important;
+            font-weight: 100 !important;
+            display: inline-flex !important;
+            width: 130px;
+            border-radius: .25rem !important;
+        }
+
+        .containerTableStyle {
+            position: fixed;
+        }
+
+        #menu {
+            visibility: hidden;
+            opacity: 0;
+            position: fixed;
+            background: #fff;
+            color: #555;
+            font-family: sans-serif;
+            font-size: 11px;
+            -webkit-transition: opacity .5s ease-in-out;
+            -moz-transition: opacity .5s ease-in-out;
+            -ms-transition: opacity .5s ease-in-out;
+            -o-transition: opacity .5s ease-in-out;
+            transition: opacity .5s ease-in-out;
+            -webkit-box-shadow: 2px 2px 2px 0px rgba(143, 144, 145, 1);
+            -moz-box-shadow: 2px 2px 2px 0px rgba(143, 144, 145, 1);
+            box-shadow: 2px 2px 2px 0px rgba(143, 144, 145, 1);
+            padding: 0px;
+            border: 1px solid #C6C6C6;
+            z-index: 5;
+        }
+
+        #menu a {
+            display: block;
+            color: #555;
+            text-decoration: none;
+            padding: 6px 8px 6px 30px;
+            width: 185px;
+            position: relative;
+        }
+
+        #menu a img,
+        #menu a i.fa {
+            height: 20px;
+            font-size: 17px;
+            width: 20px;
+            position: absolute;
+            left: 5px;
+            /*top: 2px;*/
+            text-align: center;
+        }
+
+        #menu a span {
+            /*color: #BCB1B3;
+            float: right;*/
+        }
+
+        #menu a:hover {
+            color: #fff;
+            background: #3879D9;
+        }
+
+        #menu hr {
+            border: 1px solid #EBEBEB;
+            border-bottom: 0;
+        }
+    </style>
+</apex:page>

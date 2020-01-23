@@ -1,6 +1,5 @@
 <apex:component controller="ReportsToEmailController" access="global">
     <apex:attribute name="ReportId" description="Report ID" type="Id" assignTo="{!rptId}" />
-    <apex:attribute name="ReportsCount" description="Reports Count" type="Integer" assignTo="{!rptsCount}" />
 
 
     <apex:outputPanel >

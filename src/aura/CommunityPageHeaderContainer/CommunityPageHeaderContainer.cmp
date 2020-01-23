@@ -1,55 +1,70 @@
-<aura:component controller="CustomDocumentController" implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName,forceCommunity:availableForAllPageTypes" access="global" >
-	<aura:attribute name="imageName" type="String" default="18-Canapi-Icons-11.svg"/>
-    <aura:attribute name="objectName" type="String"/>
+<aura:component controller="CommunityPageHeaderCtrl"
+    implements="lightning:isUrlAddressable,force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName,forceCommunity:availableForAllPageTypes"
+    access="global">
+    <aura:attribute name="imageName" type="String" default="18-Canapi-Icons-11.svg" />
+    <aura:attribute name="objectName" type="String" />
+    <aura:attribute name="sobjName" type="String" />
+    <aura:attribute name="accObj" type="Object" />
+    <aura:attribute name="recType" type="String" />
     <aura:attribute name="recordId" type="String" />
-    <aura:attribute name="breadcrumb1" type="String" default=""/>
+    <aura:attribute name="breadcrumb1" type="String" default="" />
     <aura:attribute name="breadcrumb1Link" type="String" />
     <aura:attribute name="breadcrumb2" type="String" />
     <aura:attribute name="breadcrumb2Link" type="String" />
     <aura:attribute name="accountId" type="String" />
     <aura:attribute name="accName" type="String" />
-    <aura:attribute name="accDescr" type="String" default="null"/>
-    
-    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="accLink" type="String" />
+    <aura:attribute name="accDescr" type="String" default="null" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
     <div style="margin-left: 17px;margin-bottom: 4px;">
-    	<div style="display:inline-block;height: 40px;">
+        <div style="display:inline-block;height: 40px;">
             <a href="/alliance/s/" style="text-decoration: underline !important">Home</a>
         </div>
-       
+
         <aura:if isTrue="{!v.breadcrumb1!=''}">
-            <aura:if isTrue="{! and (v.breadcrumb1!='Fintechs', v.recordId!=null)}">
+            <aura:if isTrue="{! and (v.breadcrumb1!=v.recType, v.recordId!=null)}">
                 <div style="display:inline-block; margin:10px;">></div>
                 <div style="display:inline-block;">
-                    <a href="/alliance/s/fintech-companies" style="text-decoration: underline !important">Fintechs</a>
+                    <a href="{!v.accLink}" style="text-decoration: underline !important">{!v.recType}
+                    </a>
                 </div>
                 <div style="display:inline-block; margin:10px;">></div>
                 <div style="display:inline-block;">
-                    <a href="{!'/alliance/s/detail/' + v.accountId}" style="text-decoration: underline !important">{!v.accName}</a>
+                    <a href="{!'/alliance/s/detail/' + v.accountId}"
+                        style="text-decoration: underline !important">{!v.accName}</a>
                 </div>
-                
-            </aura:if> 
+
+            </aura:if>
             <div style="display:inline-block; margin:10px;">></div>
             <div style="display:inline-block;">
                 <a href="{!v.breadcrumb1Link}" style="text-decoration: underline !important">{!v.breadcrumb1}</a>
             </div>
-    	</aura:if> 
+        </aura:if>
         <aura:if isTrue="{!v.breadcrumb2!=null}">
             <div style="display:inline-block; margin:10px;">></div>
             <div style="display:inline-block;">
                 <a href="{!v.breadcrumb2Link}" style="text-decoration: underline !important">{!v.breadcrumb2}</a>
             </div>
-    	</aura:if> 
+        </aura:if>
     </div>
-    
-    
+
+
     <div style="margin-right: 350px;">
-    	<div style="display:inline-block;    float: left;">
-        	<img src="{!$Resource.AllianceCommunityAssets + '/Icons/' + v.imageName}" style="width: 70px;"/>
+        <div style="/*display:inline-block;*/    float: left;">
+            <aura:if isTrue="{!and(v.sobjName=='Account', v.accObj != null, v.accObj.External_Logo__c)}">
+                <img style="width:70px; margin-right:5px"
+                    src="{! 'data:image/png;base64,' + v.accObj.External_Logo__c + v.accObj.External_Logo2__c + v.accObj.External_Logo3__c}" />
+                <aura:set attribute="else">
+                    <img src="{!$Resource.AllianceCommunityAssets + '/Icons/' + v.imageName}" style="width: 70px;" />
+                </aura:set>
+            </aura:if>
+
 
         </div>
         <div style="font-size:16px;font-weight: 700;margin-left: 10px;padding-top: 15px;">
             <div>{!v.objectName}</div>
         </div>
     </div>
-    
+
 </aura:component>

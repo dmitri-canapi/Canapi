@@ -212,6 +212,9 @@
         .objbox td {
             height: auto !important;
         }
+        .selectedTreeRow {
+            color: black;
+        }
     </style>
 
     <body>
@@ -513,7 +516,39 @@
                             }
                         }
 
-                        if (result.Contacts) {
+                        /*if (result.Investment__r) { // round Relationship name
+                            t = [];
+                            t.push('Investment__r');
+                            t.push(result.Id);
+                            t.push('Rounds');
+                            finalData.push(t);
+                            parents.push(t);
+                            for (let c of result.Investment__r) {
+                                t = [];
+                                t.push(c.Id);
+                                t.push('Investment__r');
+                                t.push(c.Name);
+                                finalData.push(t);
+                            }
+                        }
+
+                        if (result.Investments__r) { // investment Relationship name
+                            t = [];
+                            t.push('Investments__r');
+                            t.push(result.Id);
+                            t.push('Investments');
+                            finalData.push(t);
+                            parents.push(t);
+                            for (let c of result.Investments__r) {
+                                t = [];
+                                t.push(c.Id);
+                                t.push('Investments__r');
+                                t.push(c.Name);
+                                finalData.push(t);
+                            }
+                        }*/
+
+                        /*if (!isCommunity && result.Contacts) {
                             t = [];
                             t.push('Contacts');
                             t.push(result.Id);
@@ -527,7 +562,7 @@
                                 t.push(c.Name);
                                 finalData.push(t);
                             }
-                        }
+                        }*/
 
 
                         try { ObjectsTree.deleteChildItems(0) } catch (e) { };
@@ -557,7 +592,7 @@
 
             ObjectsTree.attachEvent("onDrag", function (sId, tId, id, sObject, tObject) {
                 if (sObject.fldSort) {
-                    if (tId == 'Board_Meetings__r' || tId == 'Contacts' || tId == 'Opportunities') {
+                    if (tId == 'Board_Meetings__r' || tId == 'Contacts' || tId == 'Opportunities' || tId == 'Investment__r' || tId == 'Investments__r') {
                         dhtmlx.message({
                             type: "error",
                             text: "Please, move the document(s) to the correct parent object."

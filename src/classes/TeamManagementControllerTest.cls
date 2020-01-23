@@ -1,10 +1,37 @@
 @isTest public class TeamManagementControllerTest {
     static testMethod void testMethod1() {
-        User u = new User(LastName='test', email='test@test.com');
+        User u = new User(LastName='test123', FirstName='alliancetest', email='test-all@test.com');
         account a = new account (name='Canapi');
         insert a;
-		TeamManagementController.saveRecordContr (JSON.serialize(u));
+		TeamManagementController.saveRecordContr (JSON.serialize(u), 'Invite to Portal', null);
         
-        TeamManagementController.getUsers();
+        TeamManagementController.getUsers(null);
+        TeamManagementController contr = new TeamManagementController();
+        contr.getData();
+        
+        TeamManagementController.createNewUser('test4545', 'test565656', 'test87878', 'test2-alliance@test.com', null);
+
+        TeamManagementController.getTags();
+
+        contact c = new contact(LastName='test2');
+        insert c;
+
+
+        TeamManagementController.updateRecord(c.Id, 'name', 'test3');
+        TeamManagementController.updateRecord(UserInfo.getUserId(), 'phone', '555555');
+
+        UserContactTag__c tag = new UserContactTag__c(name = 'test');
+        insert tag;
+
+        TeamManagementController.applyTag(UserInfo.getUserId(), tag.Id);
+        TeamManagementController.applyTag(c.Id, tag.Id);
+
+        TeamManagementController.removeTagAssociation([select id from UserContactTagAssociation__c limit 1].Id);
+
+        TeamManagementController.sendIntro(c.Id);
+        TeamManagementController.sendRemind(UserInfo.getUserId());
+
+        TeamManagementController.deleteSFobject(c.Id);
+
     }
 }

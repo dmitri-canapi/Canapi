@@ -1,6 +1,7 @@
 ({
     fetchData: function (cmp, event, helper) {
         var action = cmp.get("c.getUsers");
+        action.setParams({ recordId: cmp.get("v.recordId") });
         action.setCallback(this, function (response) {
             var state = response.getState();
             if (state === "SUCCESS") {
@@ -22,28 +23,21 @@
         });
         $A.enqueueAction(action);
     },
-    getRowActions: function (cmp, row, doneCallback) {
-        console.log(row);
-        var actions = [];
-
-        if (row.rowType == 'Contact') {
-            actions.push({ label: 'Invite To Portal', name: 'Invite', 'iconName': 'utility: groups' });
-        } else {
-            actions.push({ label: 'Edit User', name: 'Edit', 'iconName': 'utility: edit' });
-            actions.push({ label: 'Send password reset link', name: 'resetPass', 'iconName': 'utility: edit' });
-        }
-
-
-        // simulate a trip to the server
-        setTimeout($A.getCallback(function () {
-            doneCallback(actions);
-        }), 50);
-    },
-    openmodalForGrid: function (component, rowId) {
+    openEditContactModal: function (component, rowId) {
         var cmpTarget = component.find('Modalbox');
         var cmpBack = component.find('Modalbackdrop');
         $A.util.addClass(cmpTarget, 'slds-fade-in-open');
         $A.util.addClass(cmpBack, 'slds-backdrop--open');
+
+        var user = component.get("v.newUser");
+        user.FirstName = '';
+        user.LastName = '';
+        user.Phone = '';
+        user.Email = '';
+        user.Title = '';
+        user.ContactId = null;
+        user.Manager__c = null;
+        component.set("v.newUser", user);
 
         if (rowId) {
             var data = component.get("v.contactsData");
@@ -96,23 +90,40 @@
     createTeamManagementUserEditComponent: function (component, rowId) {
 
         //var modalBody;
-        $A.createComponent("c:TeamManagementUserEdit", { recordId: rowId },
-            function (content, status) {
-                console.log(status);
-                if (status === "SUCCESS") {
-                    component.find('overlayLib').showCustomModal({
-                        header: "User  Edit",
-                        body: content,
-                        showCloseButton: true,
-                        cssClass: "mymodal",
+        try {
+            $A.createComponent("c:TeamManagementUserEdit", { recordId: rowId },
+                function (content, status) {
+                    console.log(status);
+                    if (status === "SUCCESS") {
+                        component.find('overlayLib').showCustomModal({
+                            header: "User Edit",
+                            body: content,
+                            showCloseButton: true,
+                            cssClass: "mymodal"
 
-                    })
-                }
-            });
+                        })
+                    }
+                });
+        } catch (e) {
+            $A.createComponent("c:TeamManagementUserEdit", { recordId: rowId },
+                function (content, status) {
+                    console.log(status);
+                    if (status === "SUCCESS") {
+                        component.find('overlayLib').showCustomModal({
+                            header: "User Edit",
+                            body: content,
+                            showCloseButton: true,
+                            cssClass: "mymodal"
+
+                        })
+                    }
+                });
+        }
+
     },
     createUser: function (component, event, helper) {
         var record = component.get("v.newUser");
-        if (record.Email == '' || record.LastName == '') {
+        if (record.Email == '' || record.Email == null || record.LastName == '') {
             var toastEvent = $A.get("e.force:showToast");
             toastEvent.setParams({
                 title: 'Error',
@@ -122,31 +133,45 @@
             });
             toastEvent.fire();
         } else {
-            var data = component.get("v.contactsData");
-            var isDupl = false;
-            data.forEach(function (contact) {
-                contact.FirstName = contact.FirstName ? contact.FirstName : '';
-                console.log(contact.LastName + contact.FirstName);
-                console.log(record.LastName + record.FirstName);
-                if (contact.LastName == record.LastName && contact.FirstName == record.FirstName) {
-                    isDupl = true;
-                    return;
-                }
-            });
 
-            if (isDupl) {
-                var conf = confirm("Contact " + record.FirstName + " " + record.LastName + " already exists. Would you like to invite them to the Portal");
-                if (conf == true) {
-                    isDupl = false;
+            var isDupl = false;
+            if (component.get("v.ContactInviteType") == 'Invite to Portal') {
+                var data = component.get("v.contactsData");
+                data.forEach(function (contact) {
+                    contact.FirstName = contact.FirstName ? contact.FirstName : '';
+                    console.log(contact.LastName + contact.FirstName);
+                    console.log(record.LastName + record.FirstName);
+                    if (contact.LastName == record.LastName && contact.FirstName == record.FirstName) {
+                        isDupl = true;
+                        return;
+                    }
+                });
+
+                if (isDupl) {
+                    var conf = confirm("This will send an email invite to  " + record.FirstName + " " + record.LastName + ". Please select OK to continue");
+                    if (conf == true) {
+                        isDupl = false;
+                    }
                 }
             }
             if (!isDupl) {
                 var action = component.get("c.saveRecordContr");
-                action.setParams({ UserRec: JSON.stringify(component.get("v.newUser")) });
+                action.setParams({ UserRec: JSON.stringify(component.get("v.newUser")), InviteType: component.get("v.ContactInviteType"), recordId: component.get("v.recordId") });
                 action.setCallback(this, function (response) {
                     var state = response.getState();
                     if (component.isValid() && state == 'SUCCESS') {
                         $A.get('e.force:refreshView').fire();
+                        helper.fetchData(component, event, helper);
+                        //location.reload();
+                        var pass_data = { 'func': 'refreshData' };
+                        var vfWindow = component.find("vfFrame").getElement().contentWindow;
+                        vfWindow.postMessage(JSON.stringify(pass_data), component.get("v.BaseUrl") + 'apex/TeamManagementDHTMLX?recordId=' + component.get("v.recordId"));
+
+                        var cmpTarget = component.find('Modalbox');
+                        var cmpBack = component.find('Modalbackdrop');
+                        $A.util.removeClass(cmpBack, 'slds-backdrop--open');
+                        $A.util.removeClass(cmpTarget, 'slds-fade-in-open');
+
                     } else {
                         console.log('Failed with state: ' + state);
                         var toastEvent = $A.get("e.force:showToast");

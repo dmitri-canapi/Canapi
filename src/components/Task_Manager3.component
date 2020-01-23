@@ -1300,9 +1300,9 @@ define(
                             self.refreshingInProgress(false);
                         } else if (event.status) {
                             if(result.length==250){
-                            	document.getElementById("warningMessage").style.display = "block";
+                                document.getElementById("warningMessage").style.display = "block";
                             } else {
-                            	document.getElementById("warningMessage").style.display = "none";
+                                document.getElementById("warningMessage").style.display = "none";
                             }
                             _.forEach(result, function(task) {
                                 if (task.activityDate) {
@@ -1438,9 +1438,9 @@ define(
                             self.refreshingInProgress(false);
                         } else if (event.status) {
                             if(result.length==250){
-                            	document.getElementById("warningMessage").style.display = "block";
+                                document.getElementById("warningMessage").style.display = "block";
                             } else {
-                            	document.getElementById("warningMessage").style.display = "none";
+                                document.getElementById("warningMessage").style.display = "none";
                             }
                             _.forEach(result, function(task) {
                                 if (task.activityDate) {
@@ -1572,7 +1572,7 @@ define(
                     debug.log({ 'TypeFilter': 'Oaker'});
                     _.forEach(self.myTaskList(), function (task) {
                         if (!task.visible()) { return true; }
-                        if (task.what().objectType() !== 'OaKeR') {
+                        if (task.what().objectType() !== 'OKR') {
                             task.visible(false);
                         }
                     });

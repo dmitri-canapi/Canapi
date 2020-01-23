@@ -19,6 +19,10 @@ trigger SetSeriesExternalPBId on Round__c (before insert, before update) {
                 r.Target_Company__c.addError('No such company or company already has investments (CapTable)');
             }
         }
+        if (r.pbk_Total_Investment_Dollars__c != null && r.pbk_Total_Investment_Dollars__c !=0 && r.Updating_By_Skyvia__c == true){
+            r.pbk_Total_Investment_Dollars__c *= 1000000; // make millions
+            r.Updating_By_Skyvia__c = false;
+        }
     }
     
 }

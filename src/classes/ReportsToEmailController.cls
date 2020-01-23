@@ -1,9 +1,8 @@
 public class ReportsToEmailController {
     public Id rptId { get; set; } // Here we will get the report Id from the VF Component
-    public Integer rptsCount { get; set; }
     public Integer trimTo { get {
             if (trimTo == null){
-                trimTo = rptsCount > 1 ? (1500 / rptsCount) : 1000;
+                trimTo = 1000;
                 return trimTo;
             }
             else {

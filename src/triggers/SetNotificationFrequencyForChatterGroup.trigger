@@ -1,4 +1,4 @@
-trigger SetNotificationFrequencyForChatterGroup on CollaborationGroupMember (before insert, before update) {
+trigger SetNotificationFrequencyForChatterGroup on CollaborationGroupMember (before insert, after insert, before update) {
     Map <Id, CollaborationGroupMember> groupToFreq = new Map <Id, CollaborationGroupMember>();
 
     for (CollaborationGroupMember cgm: [select NotificationFrequency, CollaborationGroupId, CollaborationGroup.OwnerId, MemberId from CollaborationGroupMember where CollaborationRole = 'Admin']){
@@ -8,12 +8,21 @@ trigger SetNotificationFrequencyForChatterGroup on CollaborationGroupMember (bef
     }
     
     if (Trigger.isInsert) {
-        for (CollaborationGroupMember cgm : Trigger.new) {
-            if(groupToFreq.ContainsKey(cgm.CollaborationGroupId)){
-                cgm.NotificationFrequency = groupToFreq.get(cgm.CollaborationGroupId).NotificationFrequency;
-            } else {
-                cgm.NotificationFrequency = 'D';
+        if (Trigger.IsBefore) {
+            for (CollaborationGroupMember cgm : Trigger.new) {
+                if(!groupToFreq.ContainsKey(cgm.CollaborationGroupId)){
+                    cgm.NotificationFrequency = 'D';
+                }
             }
+        }
+        List <id> grIds = new List <id>();
+        for (CollaborationGroupMember cgm : Trigger.new) {
+            grIds.add(cgm.CollaborationGroupId);
+        }
+        if (!System.isFuture()){
+            SetNotificationFrequencyForChatterGroup.updateNotification(grIds);
+        } else {
+            SetNotificationFrequencyForChatterGroup.updateNotificationNonFuture(grIds);
         }
     }
 

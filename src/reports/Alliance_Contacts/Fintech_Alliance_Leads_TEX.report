@@ -13,6 +13,9 @@
         <field>ACCOUNT.NAME</field>
     </columns>
     <columns>
+        <field>Contact.Contact_Groups__c</field>
+    </columns>
+    <columns>
         <field>PHONE3</field>
     </columns>
     <columns>

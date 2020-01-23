@@ -57,13 +57,17 @@ public without sharing class CustomDocumentControllerWoutSharing {
         
         string query = 'select id, Name__c,UserRecordAccess.HasEditAccess, Owner.Name, OwnerId from Document__c where id!=null';
         if (DocumentParentObjectId==FullaccId){
-            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId)'; 
+            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
         } else if(DocumentParentObjectId=='Opportunities'){
             query+=' AND Opportunity__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Contacts'){
             query+=' AND Contact__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Board_Meetings__r'){
             query+=' AND Board_Meeting__r.Account__c=:accId'; 
+        } else if(DocumentParentObjectId=='Investment__r'){// round Relationship name
+            query+=' AND Round__r.Target_Company__c=:accId'; 
+        } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
+            query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';      
         } else if(DocumentParentObjectId.contains(',')){
             List <String> docIds = DocumentParentObjectId.split(',');
             query+=' AND Id in:docIds';
@@ -317,13 +321,17 @@ public without sharing class CustomDocumentControllerWoutSharing {
         
         string query = 'select id, Name__c,UserRecordAccess.HasEditAccess, Owner.Name, OwnerId from Document__c where id!=null';
         if (DocumentParentObjectId==FullaccId){
-            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId)'; 
+            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
         } else if(DocumentParentObjectId=='Opportunities'){
             query+=' AND Opportunity__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Contacts'){
             query+=' AND Contact__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Board_Meetings__r'){
             query+=' AND Board_Meeting__r.Account__c=:accId'; 
+        } else if(DocumentParentObjectId=='Investment__r'){// round Relationship name
+            query+=' AND Round__r.Target_Company__c=:accId'; 
+        } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
+            query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';  
         } else if(DocumentParentObjectId.contains(',')){
             List <String> docIds = DocumentParentObjectId.split(',');
             query+=' AND Id in:docIds';

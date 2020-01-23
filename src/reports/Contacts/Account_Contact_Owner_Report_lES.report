@@ -16,7 +16,7 @@
         <field>Contact.Current_Event_Response__c</field>
     </columns>
     <columns>
-        <field>Contact.Alliance_Meetings__c</field>
+        <field>Contact.Contact_Groups__c</field>
     </columns>
     <columns>
         <aggregateTypes>Sum</aggregateTypes>

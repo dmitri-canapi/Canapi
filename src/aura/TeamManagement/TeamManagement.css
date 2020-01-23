@@ -45,3 +45,36 @@
 .THIS .tileValue:hover .pu-reset {
     display: block;
  }
+ /*.THIS .slds-radio_button {
+     color: white !important;
+ }
+ 
+ .THIS .slds-radio_button__label {
+    background-color: rgb(50, 128, 203) !important;
+ }
+ .THIS .slds-radio_button [type="radio"]:checked + .slds-radio_button__label {
+    background-color: white !important;
+    color: rgb(50, 128, 203) !important;
+ }*/
+
+ .THIS .form-element__label {
+    display : none;
+    visibility : hidden;
+}
+.THIS .uiInputText {
+  margin-right: 10px;
+}
+.THIS .front.slds-button:focus, .THIS .front.slds-button_neutral:active {
+  box-shadow: none;
+  background-color:transparent;
+}
+.THIS .slds-button.front {
+  padding-right: 5px;
+  padding-left: 12px;
+}
+.THIS .slds-form-element__legend{
+  margin-top: -3px;
+}
+.THIS .filter.slds-input-has-icon{
+  margin-left: 15px;
+}

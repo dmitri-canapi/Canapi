@@ -36,7 +36,7 @@
     </columns>
     <filter>
         <criteriaItems>
-            <column>Contact.Alliance_Meetings__c</column>
+            <column>Contact.Contact_Groups__c</column>
             <operator>equals</operator>
             <value>Kick Off 2019 ILM</value>
         </criteriaItems>

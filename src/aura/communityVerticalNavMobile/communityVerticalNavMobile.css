@@ -24,8 +24,8 @@
      background-color: #3280CB;
  }
  .THIS .slds-navigation-list-vertical__action, .THIS .slds-navigation-list--vertical__action {
-    padding: 0.5rem 0.4rem !important;
-    white-space: nowrap;
+     padding: 0.5rem 0.4rem !important;
+     white-space: nowrap;
  }
  .THIS .icon {
      width: 40px;

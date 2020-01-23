@@ -61,7 +61,12 @@ global with sharing class CustomDocumentController {
                 doc.Opportunity__c=parentId;
             } else if (id.valueOf(parentId).getSObjectType().getDescribe().getName()=='Board_Meeting__c'){
                 doc.Board_Meeting__c=parentId;
+            } else if (id.valueOf(parentId).getSObjectType().getDescribe().getName()=='Round__c'){
+                doc.Round__c=parentId;
+            } else if (id.valueOf(parentId).getSObjectType().getDescribe().getName()=='Investment__c'){
+                doc.Investment__c=parentId;
             } 
+            
         }
             else {
             doc.Account__c=accId;
@@ -740,7 +745,7 @@ global with sharing class CustomDocumentController {
             
        if (searchCondition!=null && searchCondition!=''){
            string searchConditionFiltered = '*' +  String.escapeSingleQuotes(searchCondition) + '*';
-           List<List<sObject>> searchList = [FIND :searchConditionFiltered in ALL Fields returning ContentVersion(ContentDocumentId,FileExtension,OwnerId)];
+           List<List<sObject>> searchList = [FIND :searchConditionFiltered in ALL Fields returning ContentVersion(Title,ContentDocumentId,FileExtension,OwnerId)];
 			ContentVersion[] searchContentVersion = (ContentVersion[])searchList[0];
            system.debug(searchContentVersion);
            
@@ -773,13 +778,17 @@ global with sharing class CustomDocumentController {
             query+=' AND id in (SELECT Document__c FROM TagDocumentAssociation__c WHERE Tag__r.name = \'' + tagName +'\' or Tag__r.ParentTag__r.name = \'' + tagName +'\' or  Tag__r.ParentTag__r.ParentTag__r.name = \'' + tagName +'\')';
         }
         if (DocumentParentObjectId==FullaccId){
-            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId)'; 
+            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
         } else if(DocumentParentObjectId=='Opportunities'){
             query+=' AND Opportunity__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Contacts'){
             query+=' AND Contact__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Board_Meetings__r'){
             query+=' AND Board_Meeting__r.Account__c=:accId'; 
+        } else if(DocumentParentObjectId=='Investment__r'){// round Relationship name
+            query+=' AND Round__r.Target_Company__c=:accId'; 
+        } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
+            query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';    
         } else {
             string objName = Id.valueOf(DocumentParentObjectId).getSObjectType().getDescribe().getName(); 
             system.debug(objName);
@@ -873,7 +882,7 @@ global with sharing class CustomDocumentController {
         
         string query = 'select id, Name__c, CreatedDate,Owner.Name from Document__c where Name__c=:docName';
        
-        query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId)'; 
+        query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
         
         query+=' order by CreatedDate desc';
 		system.debug(query);
@@ -985,13 +994,17 @@ global with sharing class CustomDocumentController {
             query+=' AND id in (SELECT Document__c FROM TagDocumentAssociation__c WHERE Tag__r.name = \'' + tagName +'\' or Tag__r.ParentTag__r.name = \'' + tagName +'\' or  Tag__r.ParentTag__r.ParentTag__r.name = \'' + tagName +'\')';
         }
         if (DocumentParentObjectId==FullaccId){
-            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId)'; 
+            query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
         } else if(DocumentParentObjectId=='Opportunities'){
             query+=' AND Opportunity__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Contacts'){
             query+=' AND Contact__r.AccountId=:accId'; 
         } else if(DocumentParentObjectId=='Board_Meetings__r'){
             query+=' AND Board_Meeting__r.Account__c=:accId'; 
+         } else if(DocumentParentObjectId=='Investment__r'){// round Relationship name
+            query+=' AND Round__r.Target_Company__c=:accId'; 
+        } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
+            query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';  
         } else {
             string objName = Id.valueOf(DocumentParentObjectId).getSObjectType().getDescribe().getName(); 
             system.debug(objName);
@@ -1221,11 +1234,14 @@ global with sharing class CustomDocumentController {
          if (id.valueOf(recId).getSObjectType().getDescribe().getName()=='Round__c'){
              recId = [select id, Target_Company__c from Round__c where id=:recId].Target_Company__c;
          }
+         if (id.valueOf(recId).getSObjectType().getDescribe().getName()=='Investment__c'){
+             recId = [select id, Investor__c from Investment__c where id=:recId].Investor__c;
+         }
          if (id.valueOf(recId).getSObjectType().getDescribe().getName()=='Task'){
              recId = [SELECT Id, AccountId from Task where id=:recId].AccountId;
          }
          
-         Account a = [select Id,name,(select id,name from opportunities order by name asc), (select id, name from contacts order by name asc),(select id, name from Board_Meetings__r order by Date__c desc nulls last) from Account where id=:recId];
+         Account a = [select Id,name,(select id,name from opportunities order by name asc), (select id, name from contacts order by name asc),(select id, name from Board_Meetings__r order by Date__c desc nulls last),(select id, name from Investment__r order by name asc),(select id, name from Investments__r order by name asc) from Account where id=:recId];
          return a;
      }
     @AuraEnabled
@@ -1242,6 +1258,12 @@ global with sharing class CustomDocumentController {
          } else if (id.valueOf(recordId).getSObjectType().getDescribe().getName()=='Board_Meeting__c'){
              Board_Meeting__c bm = [select Account__c,Account__r.Name from Board_Meeting__c where id=:recordId];
          	return bm.Account__c + '-del-' + bm.Account__r.Name;
+         } else if (id.valueOf(recordId).getSObjectType().getDescribe().getName()=='Round__c'){
+             Round__c r = [select Target_Company__c,Target_Company__r.Name from Round__c where id=:recordId];
+         	return r.Target_Company__c + '-del-' + r.Target_Company__r.Name;
+         } else if (id.valueOf(recordId).getSObjectType().getDescribe().getName()=='Investment__c'){
+             Investment__c i = [select Investor__c,Investor__r.Name from Investment__c where id=:recordId];
+         	return i.Investor__c + '-del-' + i.Investor__r.Name;
          }
          return '';
      }
@@ -1304,7 +1326,19 @@ global with sharing class CustomDocumentController {
                 if (checkDocPermission.size() > 0 && checkDocPermission[0].UserRecordAccess.HasEditAccess!= true){
                     throw new applicationException('You can\'t edit ' + filename + '.');
                 }
-            } 
+            } else if (id.valueOf(parentId).getSObjectType().getDescribe().getName()=='Round__c'){
+                doc.Round__c=parentId;
+                List <Document__c> checkDocPermission = [select id, UserRecordAccess.HasEditAccess from Document__c where Round__c=:parentId and Name__c=:filename order by CreatedDate desc limit 1];
+                if (checkDocPermission.size() > 0 && checkDocPermission[0].UserRecordAccess.HasEditAccess!= true){
+                    throw new applicationException('You can\'t edit ' + filename + '.');
+                }
+            } else if (id.valueOf(parentId).getSObjectType().getDescribe().getName()=='Investment__c'){
+                doc.Investment__c=parentId;
+                List <Document__c> checkDocPermission = [select id, UserRecordAccess.HasEditAccess from Document__c where Investment__c=:parentId and Name__c=:filename order by CreatedDate desc limit 1];
+                if (checkDocPermission.size() > 0 && checkDocPermission[0].UserRecordAccess.HasEditAccess!= true){
+                    throw new applicationException('You can\'t edit ' + filename + '.');
+                }
+            }
         }
             else {
             	doc.Account__c=accId;
@@ -1332,6 +1366,8 @@ global with sharing class CustomDocumentController {
             doc.Board_Meeting__c=null;
             doc.Contact__c=null;
             doc.Opportunity__c=null;
+            doc.Round__c=null;
+            doc.Investment__c=null;
             if(id.valueOf(targetId).getSObjectType().getDescribe().getName()=='Account'){
                 doc.Account__c = targetId;
             } else if (id.valueOf(targetId).getSObjectType().getDescribe().getName()=='Contact'){
@@ -1340,6 +1376,10 @@ global with sharing class CustomDocumentController {
                 doc.Opportunity__c = targetId;
             } else if (id.valueOf(targetId).getSObjectType().getDescribe().getName()=='Board_Meeting__c'){
                 doc.Board_Meeting__c = targetId;
+            } else if (id.valueOf(targetId).getSObjectType().getDescribe().getName()=='Round__c'){
+                doc.Round__c = targetId;
+            } else if (id.valueOf(targetId).getSObjectType().getDescribe().getName()=='Investment__c'){
+                doc.Investment__c = targetId;
             }
         }
         update documents;
@@ -1390,7 +1430,9 @@ global with sharing class CustomDocumentController {
                                Account__c =:AccId or
                                Board_Meeting__r.Account__c =:AccId or
                                Contact__r.AccountId =:AccId or
-                               Opportunity__r.AccountId =:AccId
+                               Opportunity__r.AccountId =:AccId or 
+                               Round__r.Target_Company__c =:AccId or
+                               Investment__r.Investor__c =:AccId 
                               ]){
             for (ID tagId : tagKeywords.keySet() ){
                 for (String keyword: tagKeywords.get(tagId)){

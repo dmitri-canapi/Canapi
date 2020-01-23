@@ -29,16 +29,14 @@
             menus.push(helper.createObj('Fintech Directory', '18-Canapi-Icons-32.svg', 'fintech-companies', childmmenus, 1));
 
             childmmenus = [];
-            childmmenus.push(helper.createObj('Canapi Calendar', '18-Canapi-Icons-36.svg', 'calendar', null, 8));
-
             for (let gr of groups) {
                 childmmenus.push(helper.createObj(gr.Name, '18-Canapi-Icons-08.svg', 'group/' + gr.Id));
             }
 
-            /*childmmenus.push(helper.createObj('Canapi News', '18-Canapi-Icons-08.svg', 'group/0F93u000000m1A2CAI/canapi-news-announcements'));
-            childmmenus.push(helper.createObj('Industry News', '18-Canapi-Icons-08.svg', 'group/0F93u000000m19dCAA/industry-news'));
-            childmmenus.push(helper.createObj('Fintech Alliance Forum', '18-Canapi-Icons-08.svg', 'group/0F93u000000m19nCAA/fintech-alliance-forum'));*/
             menus.push(helper.createObj('Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
+            
+            menus.push(helper.createObj('Messages', '18-Canapi-Icons-16.svg', 'messages/Home'));
+            menus.push(helper.createObj('Calendar', 'Calendar.png', 'calendar'));
 
             menus.push(helper.createObj('Reports', '18-Canapi-Icons-32.svg', 'reports'));//report/Report/Recent/Report/?queryScope=everything
             menus.push(helper.createObj('Dashboards', '18-Canapi-Icons-39.svg', 'dashboard/01Z6A000000Cc3PUAS', null, 7));

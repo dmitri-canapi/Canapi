@@ -99,7 +99,8 @@ global without sharing class Task_Manager3 {
             'LOB System Administrator Skuid',
             'Executive',
             'System Administrator',
-            'Standard User'
+            'Standard User',
+            'Canapi User'
         },
         'Partner User' => new Set<String> {
             'LOB_Partner_User',
@@ -111,7 +112,9 @@ global without sharing class Task_Manager3 {
             'CP_CommunityLogin',
             'CP_CommunityLoginPlus',
             'CP_Profile',
-            'LOB_Portal_User'
+            'LOB_Portal_User',
+            'Community: Alliance Portal',
+            'Community: Fintech Portal'
         }
     };
     global static String AVAIL_ASSIGNED_TO_TYPES_JSON {
@@ -411,6 +414,8 @@ global without sharing class Task_Manager3 {
                 break;
             }
         }
+        
+            system.debug(userType);
         if (enableBenchmarking) {
             System.debug(performanceLogLevel, 'getUserType Finish time: ' + (System.currentTimeMillis() - funtionTimeStart));
             System.debug(performanceLogLevel, 'Total Time So Far: ' + (System.currentTimeMillis() - classStartTime));
