@@ -5,12 +5,13 @@ public class AddCommunityUserToPublicGroupHandler {
         List<CollaborationGroupMember> listGroupMember = new List<CollaborationGroupMember>(); 
         List<EntitySubscription> listEntitySubscription = new List<EntitySubscription>();
 
-        Set <String> blackList = new Set <String>();
-        for (Subscriptions_Blacklist__mdt blItem: [select GroupId__c from Subscriptions_Blacklist__mdt]){
-            blackList.add(blItem.GroupId__c);
+        
+        Set <String> whiteList = new Set <String>();
+        for (Auto_Enroll_Chatter_Groups__mdt wlItem: [select GroupId__c from Auto_Enroll_Chatter_Groups__mdt]){
+            whiteList.add(wlItem.GroupId__c);
         }
         List<TagsTemplate__mdt> tagsTemplate = [select id,Tag_Name__c,Parent_Tag_Name__c from TagsTemplate__mdt];
-        List <CollaborationGroup> cgroups = [select Id, Name, NetworkId from CollaborationGroup where NetworkId =: netwkId  and CollaborationType = 'Public' and IsArchived = false and id not in: blackList];
+        List <CollaborationGroup> cgroups = [select Id, Name, NetworkId from CollaborationGroup where NetworkId =: netwkId  and CollaborationType = 'Public' and IsArchived = false and id in: whiteList];
         List <Account> portfolios = [SELECT Id FROM Account where recordtype.name='Portfolio Company'];
         for (Id uId: usersIds){
             for ( CollaborationGroup cg: cgroups){

@@ -1269,8 +1269,20 @@ global with sharing class CustomDocumentController {
      }
     
     @RemoteAction
-    global static void updateDocument(String docId, String notes, String releaseDate){
-        Document__c doc = new Document__c (id = docId, Notes__c = notes, Release_date__c = releaseDate != null ? DateTime.valueOf(releaseDate.replace('T', ' ')) : null);
+    global static void updateDocument(String docId, String notes, String releaseDate, String docName){
+        
+
+        Document__c doc = [select id, Name__c from Document__c where id =: docId];
+        if (doc.Name__c.contains('.')){
+            List <String> t = doc.Name__c.split('\\.');
+            system.debug(t);
+            String ext = t[t.size()-1];
+            doc.Name__c = docName + '.' + ext;
+        } else {
+            doc.Name__c = docName;
+        }
+        doc.Notes__c = notes;
+        doc.Release_date__c = releaseDate != null ? DateTime.valueOf(releaseDate.replace('T', ' ')) : null;
         update doc;
     }
     

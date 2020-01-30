@@ -75,6 +75,9 @@
  .THIS .menuExpanded .main-menu .child-menu-info{
      display:none;
  }
+ .THIS .Connections-false {
+     color: rgb(205, 202, 202);
+ }
  @media only screen and (max-width: 47.9375em){
      .THIS {
          display:none !important;

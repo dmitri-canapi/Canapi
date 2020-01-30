@@ -3,7 +3,9 @@
     private static void test1() {
         Account a = new Account(Name='-');
         insert a;
-        Contact c = new Contact(LastName='test', AccountId = a.Id);
+        Account a2 = new Account(Name='test');
+        insert a2;
+        Contact c = new Contact(LastName='test', AccountId = a2.Id);
         insert c;
         
         Event e = new Event();

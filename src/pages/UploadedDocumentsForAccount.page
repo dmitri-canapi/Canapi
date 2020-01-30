@@ -212,6 +212,7 @@
         .objbox td {
             height: auto !important;
         }
+
         .selectedTreeRow {
             color: black;
         }
@@ -1571,7 +1572,7 @@
                         }
                     }
 
-                    if ('{!$Profile.Name}' == 'System Administrator' || isAllFilesOwner) {
+                    if ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin' || isAllFilesOwner) {
                         GridMenu.showItem('Delete');
                         GridMenu.showItem('ShareMenuItem');
                     } else {
@@ -1582,7 +1583,7 @@
                     GridMenu.hideItem('Properties');
 
                 } else {
-                    if ('{!$Profile.Name}' == 'System Administrator' || '{!$User.Id}' == myGrid.cells(data, 10).getValue()) {
+                    if ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin' || '{!$User.Id}' == myGrid.cells(data, 10).getValue()) {
                         GridMenu.showItem('ShareMenuItem');
                         GridMenu.showItem('Manage');
                         GridMenu.showItem('Delete');
@@ -1859,7 +1860,7 @@
                 var dhxWins = new dhtmlXWindows();
                 dhxWins.attachViewportTo("wrapper");
 
-                docVersionsWindow = dhxWins.createWindow("w1", 10, 10, 400, 300);
+                docVersionsWindow = dhxWins.createWindow("w1", 10, 10, 400, 350);
                 docVersionsWindow.setText(myGrid.cells(currentDocId, 1).getValue().split("^")[0] + " Properties");
                 dhxWins.window("w1").center();
                 dhxWins.window("w1").setModal(true);
@@ -1871,12 +1872,18 @@
                     return true;
                 });
 
+                var cellVal = myGrid.cells(currentDocId, 1).getValue().split("^")[0];
+                if (cellVal.includes('.')) {
+                    cellVal = cellVal.split(".")[0];
+                }
+
                 formData = [
                     { type: "settings", position: "label-top", labelWidth: 150, inputWidth: 345 },
                     {
                         type: "block", inputWidth: "auto", offsetTop: 12, list: [
-                            { type: "input", label: "Notes", name: 'Notes', value: myGrid.cells(currentDocId, 6).getValue(), rows: 6 },
+                            { type: "input", label: "File Name", name: 'FileName', value: cellVal, required: true },
                             { type: "calendar", label: "Release Date", name: 'ReleaseDate', value: myGrid.getUserData(currentDocId, "ReleaseDate"), skin: lSkin, dateFormat: "%Y-%m-%d %H:%i", width: 240, enableTime: true, enableTodayButton: true },
+                            { type: "input", label: "Notes", name: 'Notes', value: myGrid.cells(currentDocId, 6).getValue(), rows: 6 },
                             { type: "button", value: "Save", width: 134, name: "Save", offsetLeft: 100 }
                         ]
                     }
@@ -1885,13 +1892,17 @@
                 myForm.setUserData("Notes", "docId", currentDocId);
 
                 myForm.attachEvent("onButtonClick", function (name) {
-                    CustomDocumentController.updateDocument(myForm.getUserData("Notes", "docId"), myForm.getItemValue("Notes"), myForm.getItemValue("ReleaseDate"), function (result, event) {
-                        if (event.type == 'exception') {
-                            alert(event.message);
-                        } else {
-                            docVersionsWindow.close();
-                        }
-                    });
+                    myForm.validate();
+                    if (myForm.getItemValue("FileName") != '') {
+                        CustomDocumentController.updateDocument(myForm.getUserData("Notes", "docId"), myForm.getItemValue("Notes"), myForm.getItemValue("ReleaseDate"), myForm.getItemValue("FileName"),function (result, event) {
+                            if (event.type == 'exception') {
+                                alert(event.message);
+                            } else {
+                                docVersionsWindow.close();
+                            }
+                        });
+                    }
+
                 });
 
 

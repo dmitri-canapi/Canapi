@@ -300,6 +300,9 @@
                 </div>
 
             </div>
+            <div id="grid" style="display: none;height:500px;min-height:500px;width:100%">
+
+            </div>
             <div id="treeCont" style=" width:260px;display: table-cell;"></div>
         </div>
         <apex:actionFunction name="filterValues" action="{!dummyMethod}" reRender="mainData">
@@ -314,9 +317,9 @@
             <i class="fa fa-pencil"></i>
             <span id="editMenuOption">Edit User</span>
         </a>
-        <!--a href="javascript:void(null)" id="sendIntroMenuOption" onclick="sendIntro()">
+        <!-- a href="javascript:void(null)" id="sendIntroMenuOption" onclick="sendIntro()">
             <i class="fa fa-envelope"></i> Send Intro Email
-        </a-->
+        </a -->
         <a href="javascript:void(null)" id="inviteMenuOption" onclick="invite()">
             <i class="fa fa-envelope"></i> Invite to Portal
         </a>
@@ -370,8 +373,8 @@
                         $(".containerTableStyle").css('top', '0px');
                     }
                 } else {
-                    if (pass_data.top > 272) {
-                        $(".containerTableStyle").css('top', pass_data.top - 272 + 'px');
+                    if (pass_data.top > 252) {
+                        $(".containerTableStyle").css('top', pass_data.top - 252 + 'px');
                     } else {
                         $(".containerTableStyle").css('top', '0px');
                     }
@@ -379,8 +382,17 @@
             } else if (pass_data.func == 'refreshData') {
                 rerenderData();
             } else if (pass_data.func == 'filterData') {
-
                 filterValues(pass_data.order, pass_data.filterWord);
+                refreshGrid(pass_data.filterWord);
+            } else if (pass_data.func == 'changeViewStyle') {
+                if (pass_data.style == 'Grid') {
+                    $("#tiles").hide();
+                    $("#grid").show();
+                    refreshGrid(null);
+                } else {
+                    $("#tiles").show();
+                    $("#grid").hide();
+                }
             }
         }, false);
 
@@ -485,6 +497,12 @@
             //console.log(sId);
             //console.log(tObject);
         });
+        TagTree.attachEvent("onBeforeDrag", function (sId) {
+            if (sId.includes('parent') || sId == ('All')) {
+                return false;
+            }
+            return true;
+        });
 
         /*if (!isCommunity) {
             TagTree.enableContextMenu(Menu);
@@ -500,32 +518,60 @@
                 data = result;
 
                 var finalData = [];
-                var t = [];
+                /*var t = [];
                 t.push('All');
                 t.push(0);
                 t.push('All');
-                finalData.push(t);
+                finalData.push(t);*/
 
                 var parents = [];
                 for (var i = 0; i < data.length; i++) {
                     var temp = [];
                     temp.push(data[i].Id);
-                    if (data[i].ParentTag__c != null) {
-                        temp.push(data[i].ParentTag__c);
-                        parents.push(data[i].ParentTag__c);
+                    if (data[i].Function__c != null) {
+                        if (!parents.includes('parent-' + data[i].Function__c)) {
+                            parents.push('parent-' + data[i].Function__c);
+
+                            var parentObj = [];
+                            parentObj.push('parent-' + data[i].Function__c);
+                            parentObj.push(0);
+                            parentObj.push(data[i].Function__c);
+                            finalData.push(parentObj);
+                        }
+
+                        temp.push('parent-' + data[i].Function__c);
+                        temp.push(data[i].Name);
+                        finalData.push(temp);
+
+
+
                     } else {
-                        temp.push('All');
+                        temp.push(0);
+                        temp.push(data[i].Name);
+                        finalData.push(temp);
                     }
-                    temp.push(data[i].Name);
-                    finalData.push(temp);
+
                 }
 
                 TagTree.parse(finalData, "jsarray");
-                TagTree.openAllItems('All');
-                for (var i = 0; i < parents.length; i++) {
-                    TagTree.openAllItems(parents[i]);
-                }
-                TagTree.sortTree('0', 'ASC', true);
+                TagTree.openAllItems(0);
+                //parents.sort();
+                //TagTree.sortTree('0', 'ASC', true);
+                /*for (var i = 0; i < parents.length; i++) {
+                    console.log(parents[i]);
+                    //TagTree.openAllItems(parents[i]);
+                    TagTree.moveItem(parents[i], 'up', 'All');
+                    TagTree.moveItem(parents[i], 'up', 'All');
+                    TagTree.moveItem(parents[i], 'up_strict ', 'All');
+                    TagTree.moveItem(parents[i], 'up_strict ', 'All');
+                    TagTree.moveItem(parents[i], 'up', 'All');
+                    TagTree.moveItem(parents[i], 'up', 'All');
+                    TagTree.moveItem(parents[i], 'up_strict ', 'All');
+                    TagTree.moveItem(parents[i], 'up_strict ', 'All');
+                }*/
+
+
+
             }
         });
 
@@ -724,19 +770,46 @@
         }
 
         $(document).ready(function () {
-            /*$("input").on("keyup", function (e) {
-                if (e.keyCode === 13) {
-                    $(this).blur();
-                }
-            });*/
-
-            /*var layoutHeight = document.getElementById('tiles').scrollHeight;
-            if (layoutHeight > 500) document.body.style.height = layoutHeight + 'px';*/
-            //document.body.scrollHeight
-            console.log('iframeLoaded');
             var pass_data = { 'func': 'iframeLoaded', 'bodyHeight': document.body.scrollHeight };
             parent.postMessage(JSON.stringify(pass_data), parentUrl);
         });
+
+        function refreshGrid(filter) {
+            filter = (filter && filter.length > 1) ? filter : null;
+            TeamManagementController.getGridData(recordId, filter, function (result, event) {
+                if (event.type == 'exception') {
+                    alert(event.message);
+                } else {
+                    var data = result;
+                    data = ($('<div>').html(data).text());
+                    myGrid.clearAll();
+                    myGrid.parse(data, "json");
+                }
+            });
+        }
+
+
+        initGrid();
+        function initGrid() {
+            myGrid = new dhtmlXGridObject('grid');
+            myGrid.setHeader("First Name,Last Name,Title,Last Login,Type,Tags");
+            myGrid.setInitWidths("*,*,*,100,120,*");
+            myGrid.setColAlign("left,left,left,left,left,left");
+            myGrid.setColTypes("link,link,rotxt,rotxt,rotxt,rotxt,rotxt,tags");
+            myGrid.setColSorting("str,str,str,str,str,str");
+
+            //myGrid.setCustomSorting(custom_1, 8);
+
+            myGrid.enableDragAndDrop(true);
+
+            myGrid.enableAlterCss("even", "uneven");
+            myGrid.enableRowsHover(true, 'grid_hover');
+
+            myGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + 'material' + '/imgs/dhxgrid_' + 'material' + '/');
+            myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
+
+            myGrid.init();
+        }
     </script>
     <style>
         .tileValue,

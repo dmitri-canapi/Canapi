@@ -1,4 +1,4 @@
-trigger setDefaultAccountForEvent on Event (after insert) {
+trigger setDefaultAccountForEvent on Event (after insert, after update) {
     Account a = [select id from Account where name = '-' limit 1];
     List <Event> evToUpdate = new  List <Event>();
     Set <Id> contIds = new Set <Id>();
@@ -20,7 +20,7 @@ trigger setDefaultAccountForEvent on Event (after insert) {
             e.WhatId = a.Id;
             e.Id = ev.Id;
             evToUpdate.add(e);
-        } else if ((ev.WhoId!= null && ev.WhoId.getSObjectType().getDescribe().getName()=='Contact') && ev.WhatId == null){
+        } else if ((ev.WhoId!= null && ev.WhoId.getSObjectType().getDescribe().getName()=='Contact') && (ev.WhatId == null || ev.WhatId == a.Id)){
             Event e = new Event();
             e.WhatId = contactAccountIdsMap.get(ev.WhoId);
             e.Id = ev.Id;

@@ -42,6 +42,52 @@ global  without sharing class TeamManagementController {
         return new UsersData(users, contacts);
     }
 
+    @RemoteAction
+    global static String getGridData(String recordId, String filter){
+        List <User> users = new List <User>();
+        List <contact> contacts = new List <contact>();
+        String accId = recordId != '' ? recordId :TeamManagementController.getCommunityAccId();
+        String q ='Select Id, FirstName, LastName,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from User where Account_Id__c =: accId and IsActive = true ';
+        if (filter != null && filter != '') q += 'and ( Name like \'%' + filter + '%\')';
+        q+= ' order by Name asc nulls last';
+        users = Database.query(q);
+       
+        q ='Select id, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from Contact where Account.Id =: accId and id not in (select  ContactID from User) ';
+        if (filter != null && filter != '') q += 'and ( Name like \'%' + filter + '%\')';
+        q+= ' order by Name asc nulls last limit 100';
+        contacts = Database.query(q);
+
+        JSONGenerator generator = JSON.createGenerator(true);
+        generator.writeStartObject(); 
+        generator.writeFieldName('rows');
+        generator.writeStartArray(); //Write the starting marker of a JSON object '['
+
+        for (User u: users){
+            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+            generator.writeStringField('id', u.Id);
+            List<String> strlist = new List<String>();
+            if (u.FirstName != null){
+                String link = 'javascript:navigateTo("' + u.Id + '")^_self';
+                strlist.add( u.FirstName  + '^' + link );
+            } else {
+                strlist.add('');
+            }
+            String link = 'javascript:navigateTo("' + u.Id + '")^_self';
+            strlist.add( u.LastName  + '^' + link );
+            strlist.add(u.Title);
+            strlist.add(string.valueOfGmt(u.LastLoginDate));
+            strlist.add('Portal User');
+            strlist.add('');
+            generator.writeObjectField('data', strlist);
+            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+        }
+        generator.writeEndArray(); //Write the end marker of a JSON object ']'
+        generator.writeEndObject();
+            
+        return generator.getAsString();
+
+    }
+
    
 
     
@@ -220,7 +266,7 @@ global  without sharing class TeamManagementController {
 
     @RemoteAction
     global static List <UserContactTag__c> getTags (){
-        return [select id, name  from UserContactTag__c  order by name asc];
+        return [select id, name, Function__c from UserContactTag__c  order by Function__c desc, Hierarchy_Level__c asc, name asc];
     }
 
     @RemoteAction
@@ -259,6 +305,7 @@ global  without sharing class TeamManagementController {
                 tagAssoc.Contact__c = targetId;
             } else {
                 tagAssoc.User__c = targetId;
+                tagAssoc.Contact__c = [select ContactId from User where id =: targetId].ContactId;
             }
             insert tagAssoc;
         }

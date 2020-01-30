@@ -8,6 +8,7 @@
         TeamManagementController.getUsers(null);
         TeamManagementController contr = new TeamManagementController();
         contr.getData();
+        contr.dummyMethod();
         
         TeamManagementController.createNewUser('test4545', 'test565656', 'test87878', 'test2-alliance@test.com', null);
 
@@ -32,6 +33,10 @@
         TeamManagementController.sendRemind(UserInfo.getUserId());
 
         TeamManagementController.deleteSFobject(c.Id);
+
+        TeamManagementController.getGridData('','test2');
+
+
 
     }
 }

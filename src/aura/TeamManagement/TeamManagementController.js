@@ -83,21 +83,14 @@
         var a = component.get('c.filterData');
         $A.enqueueAction(a);
     },
-
-    /*scroll: function (component, event, helper) {
-        console.log(event.target.scrollTop);
-        component.set("v.pos", event.target.scrollTop);
-    },*/
-
-    /*iframeLoaded: function (component, event, helper) {
-        try {
-            var iFrameID = component.find('vfFrame').getElement();
-            //console.log(iFrameID.contentWindow.document.body.scrollHeight);
-            //iFrameID.height = iFrameID.contentWindow.document.body.scrollHeight + "px";
-        } catch (e) {
-
-        }
-    },*/
+    changeViewStyle: function (cmp, event, helper) {
+        cmp.set('v.filter', '');
+        var a = cmp.get('c.filterData');
+        $A.enqueueAction(a);
+        var pass_data = { 'func': 'changeViewStyle', 'style': cmp.get("v.viewStyle") };
+        var vfWindow = cmp.find("vfFrame").getElement().contentWindow;
+        vfWindow.postMessage(JSON.stringify(pass_data), cmp.get("v.BaseUrl") + 'apex/TeamManagementDHTMLX?recordId=' + cmp.get("v.recordId"));
+    },
 
     resetPassjs: function (component, event, helper) {
         helper.resetPass(component, event.target.getAttribute("data-rowId"));

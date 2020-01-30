@@ -1,0 +1,48 @@
+.THIS .tileValue, .THIS .tileLabel, .THIS a {
+    color: rgb(153, 153, 153) !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    /*height: 1.2em;*/
+    white-space: nowrap;
+    max-width: 200px;
+}
+.THIS .tileLabel {
+    font-weight:bold;
+}
+.THIS .card {
+    position: relative;
+    display:inline-block; 
+    width:340px; 
+    border: 1px solid rgb(153, 153, 153); 
+    margin: 0px 15px 40px 15px;
+    box-shadow: 0 0 7px rgba(0,0,0,0.5);
+}
+.THIS .card:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.THIS br {
+    display: block;
+    content: "";
+    height: 7px;
+}
+.THIS .form-element__label {
+      display : none;
+      visibility : hidden;
+}
+.THIS .uiInputText {
+    margin-right: 10px;
+}
+.THIS .front.slds-button:focus, .THIS .front.slds-button_neutral:active {
+    box-shadow: none;
+    background-color:transparent;
+}
+.THIS .slds-button.front {
+    padding-right: 5px;
+    padding-left: 12px;
+}
+.THIS .slds-form-element__legend{
+    margin-top: -3px;
+}
+.THIS .slds-input-has-icon{
+    margin-left: 15px;
+}

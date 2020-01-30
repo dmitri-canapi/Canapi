@@ -26,6 +26,7 @@
             childmmenus.push(helper.createObj('Maps', '18-Canapi-Icons-42.svg', 'map', null, 3));
             childmmenus.push(helper.createObj('Alliance Contacts', '18-Canapi-Icons-10.svg', 'people', null, 4));
             childmmenus.push(helper.createObj('Canapi Contacts', '18-Canapi-Icons-10.svg', 'canapi-contacts'));
+            childmmenus.push(helper.createObj('Connections', '18-Canapi-Icons-10.svg', 'connections'));
             menus.push(helper.createObj('Fintech Directory', '18-Canapi-Icons-32.svg', 'fintech-companies', childmmenus, 1));
 
             childmmenus = [];
@@ -34,7 +35,7 @@
             }
 
             menus.push(helper.createObj('Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
-            
+
             menus.push(helper.createObj('Messages', '18-Canapi-Icons-16.svg', 'messages/Home'));
             menus.push(helper.createObj('Calendar', 'Calendar.png', 'calendar'));
 
@@ -61,6 +62,13 @@
         });
         $A.enqueueAction(action);
 
+        action = component.get("c.hasTags");
+
+        action.setCallback(this, function (response) {
+            component.set('v.UserHasTags', response.getReturnValue());
+
+        });
+        $A.enqueueAction(action);
     },
 
     onClick: function (component, event, helper) {
@@ -121,7 +129,9 @@
             urlEvent.setParams({
                 "url": event.target.dataset.menuItemLink
             });
-            urlEvent.fire();
+            if ((component.get("v.UserHasTags") == true && event.target.dataset.menuItemLink == 'https://canapi.force.com/alliance/s/connections') || event.target.dataset.menuItemLink != 'https://canapi.force.com/alliance/s/connections') {
+                urlEvent.fire();
+            }
         }
     },
     showLabels: function (component, event, helper) {

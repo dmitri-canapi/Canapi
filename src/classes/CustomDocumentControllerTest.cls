@@ -171,7 +171,7 @@ public class CustomDocumentControllerTest {
         system.debug(CustomDocumentController.getFileRecords(docH.id));
         
             system.debug(CustomDocumentController.getCommunityAccId());
-        	CustomDocumentController.updateDocument(doc.Id, 'test', '2019-09-11 05:21:00');
+        	CustomDocumentController.updateDocument(doc.Id, 'test', '2019-09-11 05:21:00', 'test2');
             system.debug(Review_Items_Controller.getLinkedDocuments(reviewItem.id,''));
             
             string extId = String.valueOf(reviewItem.id) + String.valueOf(doc.id);

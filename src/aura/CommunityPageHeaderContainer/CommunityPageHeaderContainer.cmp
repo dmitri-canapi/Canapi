@@ -17,8 +17,8 @@
     <aura:attribute name="accDescr" type="String" default="null" />
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
-    <div style="margin-left: 17px;margin-bottom: 4px;">
-        <div style="display:inline-block;height: 40px;">
+    <div style="margin-left: 17px;margin-bottom: 0px;">
+        <div style="display:inline-block;/*height: 40px;*/">
             <a href="/alliance/s/" style="text-decoration: underline !important">Home</a>
         </div>
 
@@ -50,7 +50,7 @@
     </div>
 
 
-    <div style="margin-right: 350px;">
+    <div style="margin-right: 350px;margin-bottom: 10px;">
         <div style="/*display:inline-block;*/    float: left;">
             <aura:if isTrue="{!and(v.sobjName=='Account', v.accObj != null, v.accObj.External_Logo__c)}">
                 <img style="width:70px; margin-right:5px"
