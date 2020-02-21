@@ -38,6 +38,7 @@
 
             menus.push(helper.createObj('Messages', '18-Canapi-Icons-16.svg', 'messages/Home'));
             menus.push(helper.createObj('Calendar', 'Calendar.png', 'calendar'));
+            menus.push(helper.createObj('Files', '18-Canapi-Icons-27.svg', 'files'));
 
             menus.push(helper.createObj('Reports', '18-Canapi-Icons-32.svg', 'reports'));//report/Report/Recent/Report/?queryScope=everything
             menus.push(helper.createObj('Dashboards', '18-Canapi-Icons-39.svg', 'dashboard/01Z6A000000Cc3PUAS', null, 7));

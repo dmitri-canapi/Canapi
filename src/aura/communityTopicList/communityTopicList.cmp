@@ -1,0 +1,36 @@
+<aura:component controller="communityTopicListController"
+    implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes">
+    <aura:attribute name="Topics" type="List" default="[]" />
+    <aura:attribute name="currentTopic" type="String" default="" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+
+    <div class="slds-m-vertical_medium">
+        <h1 class="slds-card__header-title" style="width: 200px; display: inline-block;    ">
+            <span class="slds-card__header-link slds-text-heading--small" style="font-size: 18px;">TOPICS</span>
+        </h1>
+    </div>
+
+    <div>
+        <ul>
+            <aura:iteration items="{!v.Topics}" var="vlist">
+                <li class="{!vlist.Id == v.currentTopic? 'topicItem activeTopic': 'topicItem'}"
+                    style="{! 'font-size:' + vlist.fsize + 'px' }"><a data-topicId="{!vlist.Id}"
+                        data-topicName="{!vlist.Name}" onclick="{!c.filter}">{!vlist.Name}</a></li>
+            </aura:iteration>
+        </ul>
+         <div class="slds-m-vertical_medium">
+        	<a onclick="{!c.showAllFeed}">Show all topics</a>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+</aura:component>

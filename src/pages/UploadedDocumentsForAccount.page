@@ -392,6 +392,7 @@
             var componentHeight = vars["componentHeight"];
             var childRecordId;
             var AccId;//accId
+            var AccRecordTypeName;
             var AccName;
             var myPop;
             var myPop2;
@@ -443,7 +444,9 @@
             });
             myLayout.attachEvent("onExpand", function (name) {
                 reAlignNotes();
+                optimizeScreenView("onExpand");
             });
+
 
             Menu = new dhtmlXMenuObject();
             Menu.renderAsContextMenu();
@@ -474,47 +477,74 @@
                         alert(event.message);
                     } else {
                         console.log(result);
-                        childRecordId = result.Id;
-                        AccName = result.Name;
-                        console.log(result);
+                        childRecordId = result.acc.Id;
+                        AccName = result.acc.Name;
+                        AccRecordTypeName = result.acc.RecordType.Name;
+                        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
+                            myLayout.cells("c").expand();
+                        }
                         var finalData = [];
                         var t = [];
-                        t.push(result.Id);
+                        t.push(result.acc.Id);
                         t.push(0);
                         t.push(AccName + ' (Account)');
                         finalData.push(t);
-                        var parents = []
+                        var parents = [];
 
-                        if (result.Opportunities) {
-                            t = [];
-                            t.push('Opportunities');
-                            t.push(result.Id);
-                            t.push('Deals');
-                            finalData.push(t);
-                            parents.push(t);
-                            for (let c of result.Opportunities) {
+                        console.log(AccRecordTypeName);
+                        if (AccRecordTypeName != 'Limited Partner' && AccRecordTypeName != 'Bank') {
+                            if (result.acc.Opportunities) {
                                 t = [];
-                                t.push(c.Id);
                                 t.push('Opportunities');
-                                t.push(c.Name);
+                                t.push(result.acc.Id);
+                                t.push('Deals');
                                 finalData.push(t);
+                                parents.push(t);
+                                for (let c of result.acc.Opportunities) {
+                                    t = [];
+                                    t.push(c.Id);
+                                    t.push('Opportunities');
+                                    t.push(c.Name);
+                                    finalData.push(t);
+                                }
+                            }
+
+                            if (result.acc.Board_Meetings__r) {
+                                t = [];
+                                t.push('Board_Meetings__r');
+                                t.push(result.acc.Id);
+                                t.push('Board Meetings');
+                                finalData.push(t);
+                                parents.push(t);
+                                for (let c of result.acc.Board_Meetings__r) {
+                                    t = [];
+                                    t.push(c.Id);
+                                    t.push('Board_Meetings__r');
+                                    t.push(c.Name);
+                                    finalData.push(t);
+                                }
                             }
                         }
 
-                        if (result.Board_Meetings__r) {
-                            t = [];
-                            t.push('Board_Meetings__r');
-                            t.push(result.Id);
-                            t.push('Board Meetings');
+                        if (result.folders && (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank')) {
+                            var t = [];
+                            t.push('Documents');
+                            t.push(result.acc.Id);
+                            t.push('Documents');
                             finalData.push(t);
-                            parents.push(t);
-                            for (let c of result.Board_Meetings__r) {
-                                t = [];
-                                t.push(c.Id);
-                                t.push('Board_Meetings__r');
-                                t.push(c.Name);
-                                finalData.push(t);
+
+                            for (var i = 0; i < result.folders.length; i++) {
+                                var temp = [];
+                                temp.push(result.folders[i].Id);
+                                if (result.folders[i].Parent_Folder__c != null) {
+                                    temp.push(result.folders[i].Parent_Folder__c);
+                                } else {
+                                    temp.push('Documents');
+                                }
+                                temp.push(result.folders[i].Name);
+                                finalData.push(temp);
                             }
+
                         }
 
                         /*if (result.Investment__r) { // round Relationship name
@@ -568,7 +598,7 @@
 
                         try { ObjectsTree.deleteChildItems(0) } catch (e) { };
                         ObjectsTree.parse(finalData, "jsarray");
-                        ObjectsTree.openAllItems(result.Id);
+                        ObjectsTree.openAllItems(result.acc.Id);
 
                         for (var i = 0; i < parents.length; i++) {
                             ObjectsTree.openAllItems(parents[i]);
@@ -577,7 +607,7 @@
                         if (ObjectsTree.getIndexById(recordId) != null) {
                             ObjectsTree.selectItem(recordId, true, false);
                         } else {
-                            ObjectsTree.selectItem(result.Id, true, false);
+                            ObjectsTree.selectItem(result.acc.Id, true, false);
                         }
 
                         if (TagTree.hasChildren(0) == 0)
@@ -593,7 +623,7 @@
 
             ObjectsTree.attachEvent("onDrag", function (sId, tId, id, sObject, tObject) {
                 if (sObject.fldSort) {
-                    if (tId == 'Board_Meetings__r' || tId == 'Contacts' || tId == 'Opportunities' || tId == 'Investment__r' || tId == 'Investments__r') {
+                    if (tId == 'Board_Meetings__r' || tId == 'Contacts' || tId == 'Opportunities' || tId == 'Investment__r' || tId == 'Investments__r' || tId == 'Documents') {
                         dhtmlx.message({
                             type: "error",
                             text: "Please, move the document(s) to the correct parent object."
@@ -869,7 +899,7 @@
             console.log(AccId);
 
             function getTags() {
-                CustomDocumentController.getAccountTagsRecords(AccId, function (result, event) {
+                CustomDocumentController.getAccountTagsRecords(AccId, AccRecordTypeName, function (result, event) {
                     //CustomDocumentController.getInactiveTagsRecords([], function(result, event) {
                     if (event.type == 'exception') {
                         alert(event.message);
@@ -1113,7 +1143,7 @@
                     if (TagTreeId.includes(',')) {
                         TagTreeId = null;
                     }
-                    CustomDocumentController.GetAccountDocumentsFilteredCount(TagTreeId, o.value, AccId, ObjectsTreeId, function (result, event) {
+                    CustomDocumentController.GetAccountDocumentsFilteredCount(TagTreeId, o.value, AccId, AccRecordTypeName, ObjectsTreeId, function (result, event) {
                         if (event.type == 'exception') {
                             alert(event.message);
                         } else {
@@ -1199,6 +1229,10 @@
                         myLayout.cells("a").setText(ObjectsTree.getItemText(pId) + " (" + ObjectsTree.getItemText(ObjectsTreeId) + ")");
                     }
 
+                    if (ObjectsTree.getParentId(pId) == 'Documents') {
+                        pId = 'Documents';
+                    }
+
                     var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
                     parent.postMessage('setFileParent' + '-del-' + ObjectsTreeId + '-del-' + pId + '-del-' + ObjectsTree.getItemText(ObjectsTreeId), url);
 
@@ -1207,7 +1241,7 @@
                 if (ObjectsTreeId == null || ObjectsTreeId == '') {
                     ObjectsTreeId = recordId;
                 }
-
+                console.log('!!-' + childRecordId);
                 if (childRecordId) {
                     AccId = childRecordId;
                 } else {
@@ -1216,7 +1250,7 @@
 
                 var searchText = ($("#SearchDocuments").val().length > 1) ? $("#SearchDocuments").val() : null;
                 TagTreeId = (TagTreeId.includes(',')) ? null : TagTreeId;
-                CustomDocumentController.GetAccountDocumentsFiltered(TagTreeId, searchText, AccId, ObjectsTreeId, function (result, event) {
+                CustomDocumentController.GetAccountDocumentsFiltered(TagTreeId, searchText, AccId, AccRecordTypeName, ObjectsTreeId, function (result, event) {
                     if (event.type == 'exception') {
                         alert(event.message);
                     } else {
@@ -1235,7 +1269,7 @@
                             /*myGrid.setColumnHidden(6,true);*/
                             myLayout.cells("b").progressOff();
                         }, 500);
-
+                        optimizeScreenView("FirstLoad");
 
                     }
                 });
@@ -1419,7 +1453,7 @@
                     });
                 } else {
 
-                    CustomDocumentController.addNewTag(TagTree.contextID, myForm.getItemValue("TagName"), AccId, function (result, event) {
+                    CustomDocumentController.addNewTag(TagTree.contextID, myForm.getItemValue("TagName"), AccId, AccRecordTypeName, function (result, event) {
                         if (event.type == 'exception') {
                             alert(event.message);
                         } else {
@@ -1500,11 +1534,15 @@
 
 
             myGrid = myLayout.cells("b").attachGrid();
-            myGrid.setHeader("TYPE,DOCUMENT,portal-deprecated,CREATED DATE,OWNER,ACCESS,NOTES,RELEASE DATE-deprecated,TAGS,upl by full text,ownerId,IsEditable");
-            myGrid.setInitWidths("46,*,0,100,53,80,0,100,*,0,0,0");
-            myGrid.setColAlign("center,left,left,left,left,left,left,left,left,left,left,left");
-            myGrid.setColTypes("img,link,rotxt,rotxt,rotxt,rotxt,sub_row,rotxt,tags,rotxt,rotxt,rotxt");
-            myGrid.setColSorting("str,str,str,str,str,str,str,str,str,str,str,str");
+            myGrid.setHeader("TYPE,DOCUMENT,portal-deprecated,CREATED DATE,OWNER,ACCESS,NOTES,RELEASE DATE-deprecated,TAGS,OWNER,ownerId,IsEditable,DATE");
+            if ($("#layoutObj").width() < 1000) {
+                myGrid.setInitWidths("46,240,0,100,0,80,0,100,340,60,0,0,100");
+            } else {
+                myGrid.setInitWidths("46,*,0,100,53,80,0,100,*,0,0,0,0");
+            }
+            myGrid.setColAlign("center,left,left,left,left,left,left,left,left,left,left,left,left");
+            myGrid.setColTypes("img,link,rotxt,rotxt,rotxt,rotxt,sub_row,rotxt,tags,rotxt,rotxt,rotxt,rotxt");
+            myGrid.setColSorting("str,str,str,str,str,str,str,str,str,str,str,str,str");
 
             myGrid.setCustomSorting(custom_1, 8);
 
@@ -1518,13 +1556,30 @@
             myGrid.setColumnHidden(9, true);
             myGrid.setColumnHidden(10, true);
             myGrid.setColumnHidden(11, true);
-
+            myGrid.setColumnHidden(12, true);
 
             myGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxgrid_' + dhtmlxSkin + '/');
             myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
 
             //start grid
             myGrid.init();
+
+            if ($("#layoutObj").width() < 1000) {
+                myGrid.splitAt(2);
+                myGrid.setColumnHidden(4, true);
+                myGrid.setColumnHidden(5, true);
+                myGrid.setColumnHidden(9, false);
+                myGrid.setColumnHidden(12, false);
+                if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
+                    myLayout.cells("c").expand();
+                    myLayout.cells("c").collapse();
+                    myLayout.cells("c").expand();
+                } else {
+                    myLayout.cells("c").collapse();
+                    myLayout.cells("c").expand();
+                    myLayout.cells("c").collapse();
+                }
+            }
 
             CustomDocumentController.getFavoriteGroups(function (result, event) {
                 if (event.type == 'exception') {
@@ -1557,6 +1612,9 @@
             myGrid.attachEvent("onBeforeContextMenu", function (id, ind) {
                 myGrid.selectRowById(id, true);
                 var data = myGrid.getSelectedRowId();
+                if (AccRecordTypeName != 'Limited Partner' && AccRecordTypeName != 'Bank') {
+                    GridMenu.hideItem('OwnAccount');
+                }
                 if (data.includes(',')) {
                     GridMenu.hideItem('Manage');
 
@@ -1604,6 +1662,26 @@
                     } else {
                         showRestrictAccessWindow(data);
                     }
+                } else if (menuitemId == 'OwnAccount') {
+                    CustomDocumentController.setAccountShareOnly(data, true, AccId, 'Read', function (result, event) {
+                        if (event.type == 'exception') {
+                            console.log(event.type);
+                            dhtmlx.alert({
+                                type: "alert-error",
+                                text: event.message,
+                                title: "Error",
+                                ok: "Ok",
+                                callback: function (result) {
+
+                                }
+                            });
+                        } else {
+                            dhtmlx.message({
+                                text: 'File(s) shared with Finance Team - This account only'
+                            });
+                            filterDocs(null);
+                        }
+                    });
                 } else if (menuitemId == 'Manage') {
                     if (data.includes(',')) {
                         dhtmlx.message({
@@ -1712,10 +1790,18 @@
                 } else if (menuitemId.includes('ShareWithGroup')) {
                     CustomDocumentController.shareForFavGroups(menuitemId, data, function (result, event) {
                         if (event.type == 'exception') {
-                            alert(event.message);
+                            dhtmlx.alert({
+                                type: "alert-error",
+                                text: event.message,
+                                title: "Error",
+                                ok: "Ok",
+                                callback: function (result) {
+
+                                }
+                            });
                         } else {
                             dhtmlx.message({
-                                text: "Document(s) successfully shared."
+                                text: "File(s) shared with " + GridMenu.getItemText(menuitemId)
                             });
                             filterDocs(null);
                         }
@@ -1894,7 +1980,7 @@
                 myForm.attachEvent("onButtonClick", function (name) {
                     myForm.validate();
                     if (myForm.getItemValue("FileName") != '') {
-                        CustomDocumentController.updateDocument(myForm.getUserData("Notes", "docId"), myForm.getItemValue("Notes"), myForm.getItemValue("ReleaseDate"), myForm.getItemValue("FileName"),function (result, event) {
+                        CustomDocumentController.updateDocument(myForm.getUserData("Notes", "docId"), myForm.getItemValue("Notes"), myForm.getItemValue("ReleaseDate"), myForm.getItemValue("FileName"), function (result, event) {
                             if (event.type == 'exception') {
                                 alert(event.message);
                             } else {
@@ -1921,6 +2007,7 @@
 
                 docVersionsWindow.attachEvent("onClose", function (win) {
                     filterDocs(null);
+                    $(".dhx_cell_progress_img").css("background", "");
                     return true;
                 });
 
@@ -1930,7 +2017,9 @@
                     RestrictAccessWindowLayout.cells("a").setWidth(dim[0] / 2);
                 });
 
+
                 var RestrictAccessWindowLayout = docVersionsWindow.attachLayout("2U");
+
                 RestrictAccessWindowLayout.setSkin(lSkin);
                 RestrictAccessWindowLayout.cells('a').setText("Add Members");
                 RestrictAccessWindowLayout.cells('b').setText("Shared With");
@@ -1957,7 +2046,7 @@
                     },
                     {
                         type: "block", style: "margin: 0px 0px 0px 0px;", list: [
-                            { type: "container", name: "HTMLcontainer", id: "HTMLcontainer", inputWidth: "auto", inputHeight: RestrictAccessWindowLayout.cells("a").getHeight() - 100 }
+                            { type: "container", name: "HTMLcontainer", id: "HTMLcontainer", inputWidth: "auto", inputHeight: RestrictAccessWindowLayout.cells("b").getHeight() - 100 }
                         ]
                     }
                 ]);
@@ -1969,7 +2058,7 @@
                         alert(event.message);
                     } else {
                         var data = result;
-                        console.log(result);
+                        //console.log(result);
                         data = ($('<div>').html(data).text());
                         usersList = data;
                         dhxCombo.load(data);
@@ -1999,7 +2088,25 @@
                     //console.log(members);
                     for (var i = 0; i < members.length; i++) {
                         if (members[i].id) {
-                            addAccess(members[i].id, currentDocId, members[i].dataset.accesstype);
+                            if (members[i].id != 'OwnAccount') {
+                                addAccess(members[i].id, currentDocId, members[i].dataset.accesstype);
+                            } else {
+                                CustomDocumentController.setAccountShareOnly(currentDocId, true, AccId, members[i].dataset.accesstype, function (result, event) {
+                                    if (event.type == 'exception') {
+                                        dhtmlx.alert({
+                                            type: "alert-error",
+                                            text: event.message,
+                                            title: "Error",
+                                            ok: "Ok",
+                                            callback: function (result) {
+
+                                            }
+                                        });
+                                    } else {
+                                        getCurrentPermissionsForTheDocument(currentDocId);
+                                    }
+                                });
+                            }
                         }
                     }
                     RestrictAccessActionWindowForm.disableItem("AddAccess");
@@ -2019,11 +2126,18 @@
                                         data = ($('<div>').html(data).text());
                                         groupsList = data;
                                         dhxCombo.load(data);
+                                        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
+                                            dhxCombo.addOption("OwnAccount", "Finance Team - This account only", null, null);
+                                        }
                                     }
                                 });
                             } else {
                                 dhxCombo.load(groupsList);
+                                if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
+                                    dhxCombo.addOption("OwnAccount", "Finance Team - This account only", null, null);
+                                }
                             }
+
                         } else {
                             dhxCombo.load(usersList);
                         }
@@ -2261,8 +2375,34 @@
             function resizeLayout() {
                 window.clearTimeout(t);
                 t = window.setTimeout(function () {
+                    optimizeScreenView();
                     myLayout.setSizes(false);
+
                 }, 200);
+            }
+
+            function optimizeScreenView(obj) {
+                console.log($("#layoutObj").width());
+                if ($("#layoutObj").width() > 1000) {
+                    myLayout.cells("a").setWidth(230);
+                    myLayout.cells("c").setWidth(290);
+                    myGrid.setColWidth(3, "100");
+                    myGrid.setColLabel(3, "CREATED DATE");
+                    //myGrid.moveColumn(4, 8);
+                } else {
+                    myLayout.cells("a").setWidth(180);
+                    myLayout.cells("c").setWidth(200);
+                    myGrid.setColWidth(3, "37");
+                    myGrid.setColLabel(3, "DATE");
+                    //myGrid.moveColumn(8, 6);
+                    if (obj == "FirstLoad") {
+                        //
+
+                    }
+
+
+                }
+
             }
 
             function reAlignNotes() {

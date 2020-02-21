@@ -1,25 +1,31 @@
 trigger JoinCommunityGroup on Contact (after update) {
-	/*
-    CollaborationGroup FintechLeads = [select Id, name from CollaborationGroup Where Name='Fintech Leads' limit 1];
+	
+    CollaborationGroup AllianceLeads = [select Id from CollaborationGroup Where Name = 'Alliance Leads' limit 1];
     
-    List<CollaborationGroupMember > listGroupMemberToInsert = new List<CollaborationGroupMember >(); 
-    List<CollaborationGroupMember > listGroupMemberToDelete = new List<CollaborationGroupMember >(); 
+    List<CollaborationGroupMember> listGroupMemberToInsert = new List<CollaborationGroupMember>(); 
+    List<CollaborationGroupMember> listGroupMemberToDelete = new List<CollaborationGroupMember>(); 
     Set <Id> contactsToInsert = new Set <Id>();
     Set <Id> contactsToDelete = new Set <Id>();
+    List <Id> allConts = new List <Id>();
     
     for(Contact c:Trigger.new) {
-        if (c.FTA__c){ //Alliance profile id
+        if(Trigger.oldMap.get(c.Id).FTA__c != c.FTA__c)
+        if (c.FTA__c){ 
            contactsToInsert.add(c.id);
         } else {
             contactsToDelete.add(c.id);
         }
+        allConts.add(c.Id);
+    }
+    if (!System.isFuture()){
+        AddCommunityUserToPublicGroupHandler.updateUsers(allConts);
     }
 
-    for (User u: [select id from User where IsActive = true and ContactId in: contactsToInsert]){
+    for (User u: [select id from User where IsActive = true and ContactId in: contactsToInsert and profile.name = 'Community: Alliance Portal']){
         CollaborationGroupMember gm = new CollaborationGroupMember();
-        gm.collaborationGroupId=FintechLeads.Id;
-        gm.memberId=u.Id;
-        gm.NotificationFrequency='P';
+        gm.collaborationGroupId = AllianceLeads.Id;
+        gm.memberId = u.Id;
+        gm.NotificationFrequency = 'D';
         listGroupMemberToInsert.add(gm);
     }
     
@@ -27,7 +33,7 @@ trigger JoinCommunityGroup on Contact (after update) {
     for (User u: [select id from User where IsActive = true and ContactId in: contactsToDelete]){
         gmToDelUsersIds.add(u.Id);
     }
-    listGroupMemberToDelete = [select id from CollaborationGroupMember where memberId in: gmToDelUsersIds and collaborationGroupId=:FintechLeads.Id];
+    listGroupMemberToDelete = [select id from CollaborationGroupMember where memberId in: gmToDelUsersIds and collaborationGroupId=:AllianceLeads.Id];
     
     try{
         insert listGroupMemberToInsert;
@@ -36,5 +42,5 @@ trigger JoinCommunityGroup on Contact (after update) {
     try{
         delete listGroupMemberToDelete;
     } catch(exception e){}
-*/
+
 }

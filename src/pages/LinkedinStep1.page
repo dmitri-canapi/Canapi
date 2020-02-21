@@ -1,0 +1,13 @@
+<apex:page showHeader="false" sidebar="false" controller="LIAuthClass">
+
+    <head>
+        <apex:slds id="sldsCss" />
+    </head>
+
+    <body>
+        <apex:form >
+            <apex:commandButton action="{!authorize}" value="Get from Linkedin..."
+                styleClass="slds-vf-button_brand slds-button slds-button_brand" />
+        </apex:form>
+    </body>
+</apex:page>

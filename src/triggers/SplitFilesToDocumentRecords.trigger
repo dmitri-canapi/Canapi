@@ -48,6 +48,7 @@ trigger SplitFilesToDocumentRecords on Document_Helper__c (after update) {
             doc.Opportunity__c = docHmap.get(obj.LinkedEntityId).Opportunity__c;
             doc.Round__c = docHmap.get(obj.LinkedEntityId).Round__c;
             doc.Investment__c = docHmap.get(obj.LinkedEntityId).Investment__c;
+            doc.Documents_Folder_Template__c = docHmap.get(obj.LinkedEntityId).Documents_Folder_Template__c;
             
             docs.add(doc);
             docToDocHepler.put(j, obj.LinkedEntityId);

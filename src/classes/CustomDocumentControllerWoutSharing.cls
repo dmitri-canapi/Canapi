@@ -5,6 +5,8 @@ public without sharing class CustomDocumentControllerWoutSharing {
         generator.writeFieldName('rows');
         generator.writeStartArray(); //Write the starting marker of a JSON object '['
         List <Document__Share> dshares = [select id,UserOrGroupId,AccessLevel,RowCause from Document__Share where ParentId=:currentDocId and RowCause!= 'Owner'];
+        Boolean FinanceTeamShare = [select Shared_with_Users_from_this_account__c from Document__c where id =: currentDocId].Shared_with_Users_from_this_account__c;
+        
         Map <id,string> UserOrGroupIds = new map <id,string>();
         
         for (Document__Share  ds: dshares){
@@ -28,13 +30,31 @@ public without sharing class CustomDocumentControllerWoutSharing {
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
+
+        /*if (FinanceTeamShare){
+            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+            generator.writeStringField('id', 'OwnAccount');
+            List<String> strlist = new List<String>();
+            strlist.add( 'Group' );
+            strlist.add( 'Finance Team - This account only' );
+            strlist.add('Read');
+            String link='';
+            link = 'javascript:removeAccess("' + 'OwnAccount' + '","' + currentDocId + '")';
+            strlist.add( 'X'  + '^' + link + '^_self');
+            generator.writeObjectField('data', strlist);
+            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+        }*/
         
-        for (User  u: [select name from User where id in: UserOrGroupIds.KeySet() order by name asc]){
+        for (User  u: [select name, (select id from UserContactTagAssociations__r where UserContactTag__r.name ='Finance') from User where id in: UserOrGroupIds.KeySet() order by name asc]){
             generator.writeStartObject(); //Write the starting marker of a JSON object '{'
             generator.writeStringField('id', u.Id);
             List<String> strlist = new List<String>();
             strlist.add( 'User' );
-            strlist.add( u.Name );
+            String Uname = u.Name;
+            if (u.UserContactTagAssociations__r.size() > 0 ){
+                Uname += ' (Finance Team)';
+            }
+            strlist.add( Uname );
             strlist.add(UserOrGroupIds.get(u.Id));
             String link='';
             link = 'javascript:removeAccess("' + u.Id + '","' + currentDocId + '")';
@@ -80,7 +100,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             query+=' AND ' + objName + '=:DocumentParentObjectId';
         }
         
-        if (p.Name!='System Administrator'){
+        if (p.Name!='System Administrator' && p.Name != 'Canapi System Admin'){
             string Uid = userInfo.getUserId();
              query+=' AND OwnerId =: Uid';
         }
@@ -207,6 +227,11 @@ public without sharing class CustomDocumentControllerWoutSharing {
             generator.writeEndObject();
         }
         generator.writeStartObject();
+        generator.writeStringField('id', 'OwnAccount');
+        generator.writeStringField('text', 'Finance Team - This account only');
+        generator.writeEndObject();
+
+        generator.writeStartObject();
         generator.writeStringField('id', 'RestrictAccess');
         generator.writeStringField('text', 'Edit Sharing...');
         generator.writeEndObject();
@@ -287,6 +312,45 @@ public without sharing class CustomDocumentControllerWoutSharing {
         upsert ds;
     }
 
+    public static void setAccountShareOnly(String docIds, boolean state, String AccId, String AccessLevel){
+        List <Document__c> docs = [select id, OwnerId from Document__c where id in: docIds.split(',')];
+        
+        if (state){
+            list <Document__Share> dsList = new list <Document__Share>();
+            
+            List <User> FinTeamUsers = [select id from User where Account_Id__c =: AccId and id !=: userInfo.getUserId() and IsActive = true and id in (select User__c from UserContactTagAssociation__c where UserContactTag__r.Name = 'Finance')];
+            if (FinTeamUsers.size() == 0 && !Test.IsRunningTest()){
+                throw new CustomDocumentController.applicationException('Unable to share with Finance Team. No portal users tagged "Finance" found for this account');
+            }
+            for (User u: FinTeamUsers){
+                for (Document__c doc : docs){   
+                    doc.Shared_with_Users_from_this_account__c = state; 
+                    doc.Shared_With_Account__c = AccId;
+                    if (doc.OwnerId != u.Id){
+                        Document__Share ds = new Document__Share();
+                        ds.ParentId = doc.Id;
+                        ds.UserOrGroupId = u.Id;
+                        ds.AccessLevel = AccessLevel;
+                        dsList.add(ds);
+                    }
+                }
+            }
+            insert dsList;
+
+            List <ContentDocumentLink> cdlList = new List <ContentDocumentLink> ();
+            cdlList=  [SELECT ContentDocumentId,LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId =:docIds.split(',')];
+            for(ContentDocumentLink l:cdlList) {
+                l.Visibility='AllUsers';
+            } 
+            if (cdlList.size()>0){
+                update cdlList;
+            }
+        } else {
+            delete [select id from Document__Share where ParentId in: docIds.split(',') and RowCause='Manual'];
+        }
+        update docs;
+    }
+
     public static void shareForFavGroups(String userOrGroupId,String docIds){
         userOrGroupId = userOrGroupId.replace('ShareWithGroup','');
         
@@ -344,7 +408,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             query+=' AND ' + objName + '=:DocumentParentObjectId';
         }
         
-        if (p.Name!='System Administrator'){
+        if (p.Name!='System Administrator' && p.Name != 'Canapi System Admin'){
             string Uid = userInfo.getUserId();
             query+=' AND OwnerId =: Uid';
         }

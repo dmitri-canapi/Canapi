@@ -46,3 +46,26 @@
 .THIS .slds-input-has-icon{
     margin-left: 15px;
 }
+.THIS .notification,
+.THIS .notification:hover,
+.THIS .UserOrGroupSelected {
+    line-height: 0.7em;
+    text-decoration: none;
+    padding: 5px;
+    position: relative;
+    display: inline-block;
+    border-radius: 2rem !important;
+    border: 1px solid rgb(221, 219, 218);
+    background: #6fb1da;
+    color: white;
+    font-size: 12px;
+}
+
+.THIS .badge {
+    top: 2px;
+    border-radius: 50%;
+    text-decoration: none;
+    color: white;
+    display: inline-block;
+    text-indent: 8px;
+}

@@ -18,12 +18,17 @@ public class AddCommunityUserToPublicGroupTest {
         cont.LastName = u.LastName;
         cont.Email = u.Email;
         cont.AccountId = a.Id;
+        cont.FTA__c = false;
         
         Database.DMLOptions dml = new Database.DMLOptions(); 
         dml.DuplicateRuleHeader.AllowSave = true; 
         Database.SaveResult sr = Database.insert(cont, dml);
+
         
         ID canapiConnectProfileId = [select id,name from Profile where name ='Community: Alliance Portal' limit 1].Id;
+
+        Document__c doc = new Document__c (Name__c='test',Account__c=a.Id,Shared_with_Users_from_this_account__c=true);
+        insert doc;
         
         u.ContactId = sr.id;
         u.Username = u.Email + '.all';
@@ -40,6 +45,19 @@ public class AddCommunityUserToPublicGroupTest {
         dlo.EmailHeader.triggerUserEmail = true;
         u.setOptions(dlo);*/
         insert u;
+
+        test.starttest();
+        AddCommunityUserToPublicGroupScheduler sch = new AddCommunityUserToPublicGroupScheduler ();   
+        String chron = '0 0 23 * * ?';        
+        system.schedule('Test Sched' + String.valueOf(Datetime.now()), chron, sch);
+        
+        test.stopTest();
+
+        cont.FTA__c = true;
+        update cont;
+
+        cont.FTA__c = false;
+        update cont;
         
     }
 }

@@ -7,9 +7,9 @@ public class CustomDocumentControllerTest {
         
         Account acc = new Account(Name = 'Test Account');
         insert acc;
-        List <Tag__c> tags = CustomDocumentController.getAccountTagsRecords(acc.Id);
-        
-        
+        Account CanapiAcc = new Account(Name = 'Canapi');
+        insert CanapiAcc;
+        List <Tag__c> tags = CustomDocumentController.getAccountTagsRecords(acc.Id,'');
         
         system.debug(CustomDocumentController.getTags(CustomDocumentController.createNewRec()));
         
@@ -18,8 +18,8 @@ public class CustomDocumentControllerTest {
         
         CustomDocumentController.DeleteRec(CustomDocumentController.createNewRec());
         
-        string tag1Id = CustomDocumentController.addNewTag(null,'test',acc.Id);
-        string tag2Id = CustomDocumentController.addNewTag(tag1Id,'test',acc.Id);
+        string tag1Id = CustomDocumentController.addNewTag(null,'test',acc.Id,'');
+        string tag2Id = CustomDocumentController.addNewTag(tag1Id,'test',acc.Id,'');
         CustomDocumentController.setTagParent(tag1Id,tag2Id);
         CustomDocumentController.setTagParent(tag1Id,'0');
         
@@ -96,34 +96,36 @@ public class CustomDocumentControllerTest {
         CustomDocumentController.uploadAttachment('test','test','txt',o.Id, acc.Id, tag1Id);
         CustomDocumentController.uploadAttachment('test','test','txt',b.Id, acc.Id, tag1Id);
         CustomDocumentController.uploadAttachment('test','test','txt','notId', acc.Id, tag1Id);*/
-        
+
         system.debug(CustomDocumentController.GetDocumentsAccPage(acc.Id));
         
         system.debug(CustomDocumentController.GetDocuments());
         system.debug(CustomDocumentController.GetDocumentsHomePage());
         system.debug(CustomDocumentController.GetDocumentsRI());
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Opportunities'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Contacts'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Board_Meetings__r'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,acc.id));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test','testestesttestetest',acc.id));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,null,'testestesttestetest',acc.id));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Opportunities'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Contacts'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Board_Meetings__r'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,acc.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Opportunities'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Contacts'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Board_Meetings__r'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner',acc.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test','testestesttestetest','Limited Partner',acc.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,null,'testestesttestetest','Limited Partner',acc.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Limited Partner','Opportunities'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Limited Partner','Contacts'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Limited Partner','Board_Meetings__r'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Limited Partner',acc.id));
         
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,'test',acc.id,acc.id));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Opportunities'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Contacts'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Board_Meetings__r'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,'test',acc.id,'Limited Partner',acc.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Opportunities'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Contacts'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Board_Meetings__r'));
         //system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,acc.id));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,c.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner',c.id));
+
         
         system.debug(CustomDocumentController.GetAccountsRelatedLists(acc.id));
         system.debug(CustomDocumentController.getAccNameById(acc.id));
-        
-        
+
+        Test.startTest();
+        CustomDocumentController.setAccountShareOnly(doc.Id,true,acc.Id,'Read');
         system.debug(CustomDocumentController.getAccNameById(c.id));
         system.debug(CustomDocumentController.getAccNameById(o.id));
         system.debug(CustomDocumentController.getAccNameById(b.id));
@@ -157,13 +159,14 @@ public class CustomDocumentControllerTest {
         insert reviewItem;
         
         
-        Test.startTest();
+        
         system.debug(CustomDocumentController.GetDocNotes(doc.Id,reviewItem.id));
         CustomDocumentController.LinkDocToRI(reviewItem.id,doc.Id,'test');
         CustomDocumentController.LinkDocToRI(reviewItem.id,doc.Id,'test');
         
         
         system.debug(CustomDocumentController.GetDocumentsFilteredRI(null,null));
+        system.debug(CustomDocumentController.GetDocumentsFilteredRI(doc.Id,'test'));
         
         system.debug(CustomDocumentController.GetDocNotes(doc.Id,reviewItem.id));
         
@@ -205,7 +208,9 @@ public class CustomDocumentControllerTest {
         
         Account acc = new Account(Name = 'Test Account');
         insert acc;
-        List <Tag__c> tags = CustomDocumentController.getAccountTagsRecords(acc.Id);
+        Account CanapiAcc = new Account(Name = 'Canapi');
+        insert CanapiAcc;
+        List <Tag__c> tags = CustomDocumentController.getAccountTagsRecords(acc.Id,'');
         
         
         
@@ -215,8 +220,8 @@ public class CustomDocumentControllerTest {
         
         CustomDocumentController.DeleteRec(CustomDocumentController.createNewRec());
         
-        string tag1Id = CustomDocumentController.addNewTag(null,'test',acc.Id);
-        string tag2Id = CustomDocumentController.addNewTag(tag1Id,'test',acc.Id);
+        string tag1Id = CustomDocumentController.addNewTag(null,'test',acc.Id,'');
+        string tag2Id = CustomDocumentController.addNewTag(tag1Id,'test',acc.Id,'');
         CustomDocumentController.setTagParent(tag1Id,tag2Id);
         CustomDocumentController.setTagParent(tag1Id,'0');
         
@@ -268,6 +273,7 @@ public class CustomDocumentControllerTest {
         insert o;
         Board_Meeting__c b = new Board_Meeting__c (Account__c=acc.Id);
         insert b;
+
         
         CustomDocumentController contr = new CustomDocumentController();
         contr.filecontent = 'test';
@@ -294,11 +300,14 @@ public class CustomDocumentControllerTest {
         CustomDocumentController.prepareDocumentForUpload('verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext',acc.Id,acc.Id,tag1Id);
         CustomDocumentController.changeDocumentsParent(doc.Id,acc.Id);
         CustomDocumentController.changeDocumentsParent(doc.Id,c.Id);
+        CustomDocumentController.setAccountShareOnly(doc.Id,true,acc.Id,'Read');
         CustomDocumentController.changeDocumentsParent(doc.Id,b.Id);
         CustomDocumentController.changeDocumentsParent(doc.Id,o.Id);
+        CustomDocumentController.setAccountShareOnly(doc.Id,false,acc.Id,'Read');
         update doc;
         CustomDocumentController.reApplyTags(acc.Id);
         
+    
         Test.startTest();
         CustomDocumentController.addPermission(gp.Id,doc.Id,'read');
         CustomDocumentController.addBulkPermission(gp.Id,acc.Id,acc.Id,'read');
@@ -320,8 +329,18 @@ public class CustomDocumentControllerTest {
         
         CustomDocumentController.getFavoriteGroups();
         CustomDocumentController.shareForFavGroups('ShareWithGroup' + gp.Id,doc.Id);
+
+        Default_Sharing__c ds = new Default_Sharing__c();
+        
+        ds.UserOrGroup__c = userInfo.getUserId();
+        ds.Access__c = 'Read';
+        insert ds;
+        CustomDocumentController.removeDSAccess(ds.Id);
+
         Test.stopTest();
         
     }
+
+
 
 }

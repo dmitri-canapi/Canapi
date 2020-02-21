@@ -74,6 +74,16 @@
         .slds-scope hr {
             margin: 0px !important;
         }
+
+        .slds-scope td,
+        .slds-scope th {
+            box-sizing: content-box;
+        }
+
+        .slds-scope table {
+            border-collapse: inherit;
+
+        }
     </style>
 
     <apex:form >
@@ -166,7 +176,9 @@
                         </apex:repeat>
 
                         <!-- contacts -->
-                        <apex:slds />
+
+                        <apex:slds id="sldsCss" />
+
                         <apex:repeat value="{!Data.contacts}" var="rec">
                             <div class="card" id="{!rec.Id}">
                                 <!--img class="pencil-icon" src="{!$Resource.AllianceCommunityAssets + '/Icons/pencil.png'}" onclick="editContact('{!rec.Id}')"
@@ -317,9 +329,9 @@
             <i class="fa fa-pencil"></i>
             <span id="editMenuOption">Edit User</span>
         </a>
-        <!-- a href="javascript:void(null)" id="sendIntroMenuOption" onclick="sendIntro()">
+        <!--a href="javascript:void(null)" id="sendIntroMenuOption" onclick="sendIntro()">
             <i class="fa fa-envelope"></i> Send Intro Email
-        </a -->
+        </a-->
         <a href="javascript:void(null)" id="inviteMenuOption" onclick="invite()">
             <i class="fa fa-envelope"></i> Invite to Portal
         </a>
@@ -340,6 +352,7 @@
         new dhtmlDragAndDropObject();
 
         var isCommunity = JSON.parse('{!Data.isCommunity}');
+
 
         var vars = {};
         var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
@@ -367,8 +380,8 @@
             console.log(pass_data);
             if (pass_data.func == 'setScrollTop') {
                 if (isCommunity) {
-                    if (pass_data.top > 150) {
-                        $(".containerTableStyle").css('top', pass_data.top - 150 + 'px');
+                    if (pass_data.top > 120) {
+                        $(".containerTableStyle").css('top', pass_data.top - 120 + 'px');
                     } else {
                         $(".containerTableStyle").css('top', '0px');
                     }
@@ -772,6 +785,9 @@
         $(document).ready(function () {
             var pass_data = { 'func': 'iframeLoaded', 'bodyHeight': document.body.scrollHeight };
             parent.postMessage(JSON.stringify(pass_data), parentUrl);
+
+            $(".containerTableStyle").css('height', (screen.height / 2) + 60 + 'px');
+
         });
 
         function refreshGrid(filter) {
@@ -805,8 +821,10 @@
             myGrid.enableAlterCss("even", "uneven");
             myGrid.enableRowsHover(true, 'grid_hover');
 
-            myGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + 'material' + '/imgs/dhxgrid_' + 'material' + '/');
+            myGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + 'skyblue' + '/imgs/dhxgrid_' + 'skyblue' + '/');
+            //myGrid.setSkin("Skyblue");
             myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
+
 
             myGrid.init();
         }
@@ -933,6 +951,10 @@
 
         .containerTableStyle {
             position: fixed;
+            width: 270px !important;
+            /*height: 300px !important;*/
+            display: block !important;
+            overflow-y: auto !important;
         }
 
         #menu {

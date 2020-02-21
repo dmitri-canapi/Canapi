@@ -23,6 +23,8 @@
 
     </lightning:layout>
 
+
+
     <div class="slds-clearfix">
         <div class="slds-float_right slds-m-right_x-large" style=" margin-top: 25px;">
             <!--ul class="slds-list_horizontal">
@@ -45,6 +47,27 @@
                             onclick="{!c.clearFilter}" />
                         <ui:inputText aura:id="searchInput" label="Search" placeholder="Filter"
                             keyup="{!c.performSearch}" updateOn="keyup" value="{!v.filter}" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="demo-only" style="height:4rem">
+                <div class="slds-notify_container slds-is-relative" style="z-index: 0;">
+                    <div class="slds-notify slds-notify_toast slds-theme_info" role="status"
+                        style="background-color: #6b6d708c !important;">
+                        <span class="slds-assistive-text">info</span>
+
+                        <span
+                            class="slds-icon_container slds-icon-utility-info slds-m-right_small slds-no-flex slds-align-top">
+                            <lightning:icon class="black" iconName="utility:info" size="medium" />
+                        </span>
+                        <div class="slds-notify__content">
+                            <h3 class="slds-text-heading_small" style="color: black;font-size: 12px;">
+                                Use Connections to meet executives that have a similar role as YOU at another Alliance
+                                Bank! At Canapi, we’re trying to foster deep relationships across the Alliance.
+                            </h3>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -94,6 +117,14 @@
                                     </p>
                                 </aura:if>
                             </div>
+                        </div>
+                        <span style="display: flex; padding-left: 25px;">Tags</span>
+                        <div style="display: table; min-height: 40px; padding: 4px 15px 4px 25px;text-align: left;">
+                            <aura:iteration items="{!rec.UserContactTagAssociations__r}" var="tag">
+                                <span class="notification">
+                                    <span> {!tag.UserContactTag__r.Name}</span>
+                                </span>
+                            </aura:iteration>
                         </div>
                         <div
                             style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">

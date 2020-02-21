@@ -2,25 +2,11 @@ public class AddCommunityUserToPublicGroupHandler {
 	@future
     public static void subscribe(List<Id> usersIds){
         ID netwkId = [select id from network where name = 'Canapi Connect' limit 1].Id;
-        List<CollaborationGroupMember> listGroupMember = new List<CollaborationGroupMember>(); 
         List<EntitySubscription> listEntitySubscription = new List<EntitySubscription>();
 
-        
-        Set <String> whiteList = new Set <String>();
-        for (Auto_Enroll_Chatter_Groups__mdt wlItem: [select GroupId__c from Auto_Enroll_Chatter_Groups__mdt]){
-            whiteList.add(wlItem.GroupId__c);
-        }
-        List<TagsTemplate__mdt> tagsTemplate = [select id,Tag_Name__c,Parent_Tag_Name__c from TagsTemplate__mdt];
-        List <CollaborationGroup> cgroups = [select Id, Name, NetworkId from CollaborationGroup where NetworkId =: netwkId  and CollaborationType = 'Public' and IsArchived = false and id in: whiteList];
         List <Account> portfolios = [SELECT Id FROM Account where recordtype.name='Portfolio Company'];
+        //List <User> userToUpdate = new List <User>();
         for (Id uId: usersIds){
-            for ( CollaborationGroup cg: cgroups){
-                CollaborationGroupMember gm = new CollaborationGroupMember(); 
-                gm.CollaborationGroupId = cg.id;
-                gm.MemberId = uId;
-                gm.NotificationFrequency = cg.Name == 'Canapi News & Announcements' ? 'P' : 'D';
-                listGroupMember.add(gm);
-            }
             for (Account a: portfolios){
                 EntitySubscription ES = new EntitySubscription();
                 ES.ParentId = a.Id;
@@ -28,9 +14,47 @@ public class AddCommunityUserToPublicGroupHandler {
                 ES.NetworkId = netwkId;
                 listEntitySubscription.add(ES);
             }
+            //userToUpdate.add(New User(id = uId, NeedSubscribing__c = true));
         }
-        insert listGroupMember;
         insert listEntitySubscription;
+        //system.debug(userToUpdate);
+        //update userToUpdate;
+    }
+
+    @future
+    public static void updateUsers(List<Id> contactIds){
+        List <User> users = [select id, ContactId, Phone, MobilePhone, Title, Email, FirstName, Lastname from User where ContactId in: contactIds];
+        Map <Id, Contact> contactsMap = new Map <Id, Contact>([select id, Phone, MobilePhone, Title, Email, FirstName, Lastname from Contact where id in: contactIds]);
+        for (User u: users){
+            if (u.Phone != contactsMap.get(u.ContactId).Phone && contactsMap.get(u.ContactId).Phone != null){
+                u.Phone = contactsMap.get(u.ContactId).Phone;
+            }
+            if (u.MobilePhone != contactsMap.get(u.ContactId).MobilePhone && contactsMap.get(u.ContactId).MobilePhone != null){
+                u.MobilePhone = contactsMap.get(u.ContactId).MobilePhone;
+            }
+            if (u.Title != contactsMap.get(u.ContactId).Title && contactsMap.get(u.ContactId).Title != null){
+                u.Title = contactsMap.get(u.ContactId).Title;
+            }
+            if (u.Email != contactsMap.get(u.ContactId).Email && contactsMap.get(u.ContactId).Email != null){
+                u.Email = contactsMap.get(u.ContactId).Email;
+            }
+            if (u.FirstName != contactsMap.get(u.ContactId).FirstName && contactsMap.get(u.ContactId).FirstName != null){
+                u.FirstName = contactsMap.get(u.ContactId).FirstName;
+            }
+            if (u.Lastname != contactsMap.get(u.ContactId).Lastname && contactsMap.get(u.ContactId).Lastname != null){
+                u.Lastname = contactsMap.get(u.ContactId).Lastname;
+            }
+        }
+        update users;
+    }
+
+    @future
+    public static void finishSubscribing (){
+        List <User> UsersToUpdate = [select id, Contact.Fta__c from User where NeedSubscribing__c = true];
+        for (User u: UsersToUpdate){
+            u.NeedSubscribing__c = false;
+        }
+        update UsersToUpdate;
     }
 
     @future

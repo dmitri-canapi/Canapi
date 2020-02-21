@@ -1,6 +1,20 @@
 ({
     doInit: function (component, event, helper) {
+        if (component.get("v.objectName").includes('Latest Activity')) {
+            window.setInterval(function () {
+                var value = sessionStorage.getItem('setTopicFilteringHeader');
 
+                sessionStorage.removeItem('setTopicFilteringHeader');
+                if (value != null) {
+                    if (value !== 'All Topics') {
+                        component.set("v.objectName", "Latest Activity - " + JSON.parse(value).name);
+                    } else {
+                        component.set("v.objectName", "Latest Activity");
+                    }
+
+                }
+            }, 500);
+        }
         if (component.get("v.recordId") != '' && component.get("v.recordId") != null && (component.get("v.recordId").substring(0, 3) != '01Z' && component.get("v.recordId").substring(0, 3) != '00O')) {
             var objToImageMap = new Map([['Account', '18-Canapi-Icons-05.svg'], ['Contact', '18-Canapi-Icons-14.svg'], ['Board_Meeting__c', '18-Canapi-Icons-24.svg'],
             ['Opportunity', '18-Canapi-Icons-30.svg'], ['Assessment__c', '18-Canapi-Icons-37.svg'], ['Financial_Report__c', '18-Canapi-Icons-39.svg'],

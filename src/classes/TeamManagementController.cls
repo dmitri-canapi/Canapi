@@ -27,13 +27,13 @@ global  without sharing class TeamManagementController {
         List <User> users = new List <User>();
         List <contact> contacts = new List <contact>();
         String accId = recordId != null ? recordId :TeamManagementController.getCommunityAccId();
-        String q ='Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from User where Account_Id__c =: accId and IsActive = true ';
+        String q ='Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Function__c desc, UserContactTag__r.name asc) from User where Account_Id__c =: accId and IsActive = true ';
         if (filter != null && filter != '') q += 'and ' + order + ' like \'%' + filter + '%\'';
         q+= ' order by ' + order + ' asc nulls last';
         users = Database.query(q);
         //users = [Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from User where Account_Id__c =: accId and IsActive = true]; 
         
-        q ='Select id, Name, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from Contact where Account.Id =: accId and id not in (select  ContactID from User) ';
+        q ='Select id, Name, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Function__c desc, UserContactTag__r.name asc) from Contact where Account.Id =: accId and id not in (select  ContactID from User) ';
         if (filter != null && filter != '') q += 'and ' + order + ' like \'%' + filter + '%\'';
         q+= ' order by ' + order + ' asc nulls last limit 100';
         contacts = Database.query(q);
@@ -77,6 +77,25 @@ global  without sharing class TeamManagementController {
             strlist.add(u.Title);
             strlist.add(string.valueOfGmt(u.LastLoginDate));
             strlist.add('Portal User');
+            strlist.add('');
+            generator.writeObjectField('data', strlist);
+            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+        }
+        for (Contact c: contacts){
+            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+            generator.writeStringField('id', c.Id);
+            List<String> strlist = new List<String>();
+            if (c.FirstName != null){
+                String link = 'javascript:navigateTo("' + c.Id + '")^_self';
+                strlist.add( c.FirstName  + '^' + link );
+            } else {
+                strlist.add('');
+            }
+            String link = 'javascript:navigateTo("' + c.Id + '")^_self';
+            strlist.add( c.LastName  + '^' + link );
+            strlist.add(c.Title);
+            strlist.add('');
+            strlist.add('Contact');
             strlist.add('');
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
@@ -150,12 +169,13 @@ global  without sharing class TeamManagementController {
                 if(/*Site.getSiteId()!=null &&*/ u.ContactId == null){
                     
                     u.ContactId = ContactId;
-                    system.debug(ContactId);
                 } 
+
+                String CommunityUserNameSuffix = [select DeveloperName from Portal_User_Suffix__mdt limit 1].DeveloperName;
                 
                 DateTime currentTime = System.now(); 
                 Long timeInMili = currentTime.getTime()/1000;
-                u.Username = u.Email + '.all' + timeInMili;
+                
                 u.CommunityNickname = u.LastName + timeInMili;
                 u.Alias = 'all' + u.LastName.codePointAt(0);
                 u.TimeZoneSidKey = '' + UserInfo.getTimeZone();
@@ -168,7 +188,18 @@ global  without sharing class TeamManagementController {
                 u.setOptions(dlo);
                 if (InviteType == 'Invite to Portal' /*|| InviteType == 'New Contact'*/) {
                     TeamManagementController.sendIntro(u.ContactId);
-                    insert u;
+                    
+                    for (integer i = 1; i < 11; i++){
+                        try {
+                            String username = u.Email + '.' + CommunityUserNameSuffix;
+                            if (i > 1) {
+                                username += i;
+                            }
+                            u.Username = username;
+                            insert u;
+                            return;
+                        } catch(exception e){ }
+                    }
                 }
 
              }
@@ -305,7 +336,9 @@ global  without sharing class TeamManagementController {
                 tagAssoc.Contact__c = targetId;
             } else {
                 tagAssoc.User__c = targetId;
-                tagAssoc.Contact__c = [select ContactId from User where id =: targetId].ContactId;
+                String cId = [select ContactId from User where id =: targetId].ContactId;
+                tagAssoc.Contact__c = cId;
+                delete [select id from UserContactTagAssociation__c where Contact__c =: cId and UserContactTag__c =: TagId];
             }
             insert tagAssoc;
         }

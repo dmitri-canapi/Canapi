@@ -10,6 +10,7 @@
             var state = response.getState();
             if (state === "SUCCESS") {
                 var data = response.getReturnValue();
+
                 cmp.set('v.data', data);
             }
             // error handling when state is "INCOMPLETE" or "ERROR"

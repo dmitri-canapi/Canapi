@@ -1,8 +1,12 @@
 @isTest public class TeamManagementControllerTest {
     static testMethod void testMethod1() {
+        CollaborationGroup cg = new CollaborationGroup(Name = 'Alliance Leads', CollaborationType='Public');
+        insert cg;
         User u = new User(LastName='test123', FirstName='alliancetest', email='test-all@test.com');
         account a = new account (name='Canapi');
         insert a;
+
+        Portal_User_Suffix__mdt pref = new Portal_User_Suffix__mdt(DeveloperName = 'test', MasterLabel = 'test');
 		TeamManagementController.saveRecordContr (JSON.serialize(u), 'Invite to Portal', null);
         
         TeamManagementController.getUsers(null);
@@ -34,9 +38,7 @@
 
         TeamManagementController.deleteSFobject(c.Id);
 
-        TeamManagementController.getGridData('','test2');
-
-
+        TeamManagementController.getGridData(a.Id,'test2');
 
     }
 }

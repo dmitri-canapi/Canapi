@@ -8,14 +8,26 @@ public with sharing class ReportSubscriptions {
             subsMap.put(rs.ReportId__c, rs.Subscribed__c);
         }
 
-        List <Report> reportsIn = [select id, Name, Owner.Name, Description  from Report order by Owner.Name asc, name asc];
+        List <Report> reportsIn = [select id, Name, Owner.Name, Description  from Report order by Owner.Name asc, name asc limit 200];
         
         set<ID> filterList = (new Map<Id,Report>(reportsIn)).keySet();
 
         // Query to see if current user has record access
         List<userRecordAccess> accessResults = [SELECT RecordId FROM UserRecordAccess  WHERE UserId = :userInfo.getUserId()
                                                 AND RecordId IN :filterList
-                                                AND HasReadAccess = true];
+                                                AND HasReadAccess = true limit 200]; // need to split into parts (limits)
+
+        if (reportsIn.size()>200){
+            reportsIn = [select id, Name, Owner.Name, Description  from Report order by Owner.Name asc, name asc limit 200 offset 200];
+            
+            set<ID> filterList2 = (new Map<Id,Report>(reportsIn)).keySet();
+
+            // Query to see if current user has record access
+            List<userRecordAccess> accessResults2 = [SELECT RecordId FROM UserRecordAccess  WHERE UserId = :userInfo.getUserId()
+                                                    AND RecordId IN :filterList2
+                                                    AND HasReadAccess = true limit 200];
+            accessResults.addAll(accessResults2);
+       }
 
         // Create a lookup
         set<ID> validIds = new Set<ID>();
