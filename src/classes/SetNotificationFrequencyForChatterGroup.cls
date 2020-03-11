@@ -9,7 +9,7 @@ global without sharing class SetNotificationFrequencyForChatterGroup {
         }
         //List <CollaborationGroupMember> updList = new List <CollaborationGroupMember>();
         List <CollaborationGroupMember> updList = [select id,CollaborationGroupId,MemberId, CollaborationGroup.OwnerId from CollaborationGroupMember where 
-                            CollaborationGroupId in:groupIds];
+                            CollaborationGroupId in:groupIds FOR UPDATE];
                             //
 
         for (CollaborationGroupMember cgm : updList) {
@@ -22,9 +22,7 @@ global without sharing class SetNotificationFrequencyForChatterGroup {
 
         update updList;
 
-        if (Test.isRunningTest()){
-            SetNotificationFrequencyForChatterGroup.updateNotificationNonFuture(groupIds);
-        }
+
     }
 
     
@@ -37,7 +35,7 @@ global without sharing class SetNotificationFrequencyForChatterGroup {
         }
         //List <CollaborationGroupMember> updList = new List <CollaborationGroupMember>();
         List <CollaborationGroupMember> updList = [select id,CollaborationGroupId,MemberId, CollaborationGroup.OwnerId from CollaborationGroupMember where 
-                            CollaborationGroupId in:groupIds];
+                            CollaborationGroupId in:groupIds FOR UPDATE];
                             //
 
         for (CollaborationGroupMember cgm : updList) {

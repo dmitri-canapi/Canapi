@@ -1,4 +1,4 @@
-public without sharing class Review_Items_Controller {
+global with sharing class Review_Items_Controller {
     
     @auraenabled
     public Static List <Document__c> getLinkedDocuments(String recordId, String serchCondition){
@@ -34,7 +34,7 @@ public without sharing class Review_Items_Controller {
                                             WHERE 
                                             Review_Item__c=:recordId
                                         )
-                                        and OwnerId=:UserInfo.getUserId()
+                                        /*and OwnerId=:UserInfo.getUserId()*/
                                        ];
         return documents;
     }
@@ -44,6 +44,61 @@ public without sharing class Review_Items_Controller {
         j.id = recordId;
         Delete j;
     }
+
+    @AuraEnabled
+    public static config getConfig (){ 
+        Id siteId = Network.getNetworkId();//Site.getSiteId(); 
+        String commName = '';
+        system.debug(siteId);
+        if (siteId != null) {
+            system.debug([SELECT UrlPathPrefix FROM Network]);
+            system.debug([SELECT UrlPathPrefix FROM Network WHERE id =: siteId limit 1].UrlPathPrefix);
+            commName = [SELECT UrlPathPrefix FROM Network WHERE id =: siteId limit 1].UrlPathPrefix;
+        }
+        return new config(siteId != null, commName);
+    }
+
+    @RemoteAction
+     global static String GetDocNotes (String docid, String reviewItemId){
+         try{
+        	Junction_Document_ReviewItem__c obj = [ select id,Notes__c from Junction_Document_ReviewItem__c where External_Id__c=:reviewItemId+docid][0];
+            return obj.Notes__c;
+        } catch(exception e){}
+         return '';
+     }
+
+    @RemoteAction
+    global static void LinkDocToRI(String reviewItemId, String selectedId, String content){
+    	Junction_Document_ReviewItem__c obj = new Junction_Document_ReviewItem__c();
+        
+       try{
+        	obj = [ select id from Junction_Document_ReviewItem__c where External_Id__c=:reviewItemId+selectedId][0];
+        } catch(exception e){}
+        
+        obj.Notes__c = content;
+        
+        if (obj.id!=null){
+            update obj;
+        } else {
+            obj.Document__c = selectedId;
+            obj.External_Id__c=reviewItemId+selectedId;
+            obj.Review_Item__c = reviewItemId;
+            insert obj;
+        }
+        
+    }
+
+    public class config {
+        @AuraEnabled
+        public Boolean isCommunity {get; set;}
+        @AuraEnabled
+        public String communityName {get; set;}
+        public config(boolean isCommunity, String communityName){
+            this.isCommunity = isCommunity;
+            this.communityName = communityName;
+        }
+    }
+
     /*
     @auraenabled
     public Static List <Tag__c> getTags(String tagSerchCondition){

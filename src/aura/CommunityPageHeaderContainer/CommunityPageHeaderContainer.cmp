@@ -15,11 +15,12 @@
     <aura:attribute name="accName" type="String" />
     <aura:attribute name="accLink" type="String" />
     <aura:attribute name="accDescr" type="String" default="null" />
+     <aura:attribute name="CommunityName" type="String"/>
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
     <div style="margin-left: 17px;margin-bottom: 0px;">
         <div style="display:inline-block;/*height: 40px;*/">
-            <a href="/alliance/s/" style="text-decoration: underline !important">Home</a>
+            <a href="{! '/' + v.CommunityName + '/s/'}" style="text-decoration: underline !important">Home</a>
         </div>
 
         <aura:if isTrue="{!v.breadcrumb1!=''}">
@@ -31,7 +32,7 @@
                 </div>
                 <div style="display:inline-block; margin:10px;">></div>
                 <div style="display:inline-block;">
-                    <a href="{!'/alliance/s/detail/' + v.accountId}"
+                    <a href="{!'/' + v.CommunityName + '/s/detail/' + v.accountId}"
                         style="text-decoration: underline !important">{!v.accName}</a>
                 </div>
 

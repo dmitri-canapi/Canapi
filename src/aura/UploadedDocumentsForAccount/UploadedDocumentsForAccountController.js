@@ -6,6 +6,8 @@
         });
         $A.enqueueAction(action);
 
+
+
         console.log(component.get("v.recordId"));
 
         if (component.get("v.recordId") == null) {
@@ -62,6 +64,7 @@
                         recordIds: [event.data.split('-del-')[1]]
                     });
                 } else if (event.data.includes('openUploadWindow')) {
+
                     console.log(event.data.split('-del-')[1]);
                     component.set("v.defaultOptions", null);
                     component.set("v.ReviewItemFiles", null);
@@ -121,6 +124,10 @@
 
                 } else if (event.data.includes('setBaseUrl')) {
                     component.set("v.BaseUrl", event.data.split('-del-')[1]);
+                } else if (event.data.includes('setSelectedRow')) {
+                    var updateLookup = $A.get("e.c:DHTMLXgridRowSelect");
+                    updateLookup.setParams({ "docId": event.data.split('-del-')[1] });
+                    updateLookup.fire();
                 }
             } catch (e) { }
         }, false);
@@ -351,6 +358,8 @@
         $A.util.removeClass(cmpTarget, 'slds-fade-in-open');
     },
     openmodal: function (component, event, helper) {
+
+
         component.set("v.defaultOptions", null);
         component.set("v.ReviewItemFiles", null);
         var action = component.get("c.createNewRec");

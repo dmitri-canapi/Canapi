@@ -4,6 +4,9 @@
         <field>OPPORTUNITY_NAME</field>
     </columns>
     <columns>
+        <field>FULL_NAME</field>
+    </columns>
+    <columns>
         <field>STAGE_NAME</field>
     </columns>
     <columns>
@@ -26,11 +29,6 @@
         <field>NEXT_STEP</field>
     </columns>
     <format>Summary</format>
-    <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
-        <field>FULL_NAME</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
     <name>Deals Added Last Week</name>
     <params>
         <name>open</name>

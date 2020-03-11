@@ -3,6 +3,7 @@
     <aura:attribute name="menus" type="Object[]" />
     <aura:attribute name="showMenu" type="boolean" default="false" />
     <aura:attribute name="UserHasTags" type="boolean" default="false" />
+    <aura:attribute name="CommunityName" type="String" default="" />
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
 
@@ -57,7 +58,7 @@
                             <img data-menu-item-id="{!menu.Id}" data-menu-item-link="{!menu.link}"
                                 src="{!$Resource.AllianceCommunityAssets + '/Menu/' + menu.pic}" class="icon"></img>
                             <span data-menu-item-id="{!menu.Id}" data-menu-item-link="{!menu.link}" aura:id="itemLabel"
-                                class="itemLabel slds-hide">{!menu.label}</span>
+                                class="itemLabel">{!menu.label}</span>
                         </a>
 
                     </li>

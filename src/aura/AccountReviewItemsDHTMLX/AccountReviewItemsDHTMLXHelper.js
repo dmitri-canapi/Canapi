@@ -1,5 +1,54 @@
 ({
-    helperMethod : function() {
+    openLinkPopup: function (component, event, RIid) {
+
+        var modalBody;
+        $A.createComponent("c:ReviewItemLinkDocument", { recordId: RIid },
+            function (content, status) {
+                if (status === "SUCCESS") {
+                    modalBody = content;
+                    component.find('overlayLib').showCustomModal({
+                        header: "Link Documents",
+                        body: modalBody,
+                        showCloseButton: true,
+                        cssClass: "mymodal",
+                        closeCallback: function () {
+                            console.log('@@@@@@@@@@@@@@@@@@@@@@@');
+                            //hlp.doInit(component);
+                        }
+                    })
+                }
+
+            });
+    },
+    openEditPopup: function (component, event, RIid) {
+        var modalBody;
+        $A.createComponent("c:ReviewItemEdit", { recordId: RIid },
+            function (content, status) {
+                if (status === "SUCCESS") {
+                    modalBody = content;
+                    component.find('overlayLib').showCustomModal({
+                        header: "Edit Review Item",
+                        body: modalBody,
+                        showCloseButton: true,
+                        cssClass: "mymodal",
+                        closeCallback: function () {
+                            console.log(component.get("v.BaseUrl"));
+                            var pass_data = { 'func': 'updateGrid' };
+
+                            try {
+                                var vfWindow = component.find("ariFrame").getElement().contentWindow;
+                                vfWindow.postMessage(JSON.stringify(pass_data), component.get("v.BaseUrl"));
+                            } catch (e) {
+                                var vfWindow = document.getElementById("ariFrame").contentWindow;
+                                vfWindow.postMessage(JSON.stringify(pass_data), component.get("v.BaseUrl"));
+                            }
+                        }
+                    })
+                }
+
+            });
+    },
+    fakeCall: function (component, event) {
 
     }
 })

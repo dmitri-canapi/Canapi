@@ -19,18 +19,8 @@
                         data-topicName="{!vlist.Name}" onclick="{!c.filter}">{!vlist.Name}</a></li>
             </aura:iteration>
         </ul>
-         <div class="slds-m-vertical_medium">
-        	<a onclick="{!c.showAllFeed}">Show all topics</a>
+        <div class="slds-m-vertical_medium">
+            <a onclick="{!c.showAllFeed}">Show all topics</a>
         </div>
     </div>
-
-
-
-
-
-
-
-
-
-
 </aura:component>

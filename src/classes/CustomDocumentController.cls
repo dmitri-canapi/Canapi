@@ -1282,6 +1282,9 @@ global with sharing class CustomDocumentController {
          if (id.valueOf(recId).getSObjectType().getDescribe().getName()=='Task'){
              recId = [SELECT Id, AccountId from Task where id=:recId].AccountId;
          }
+         if (id.valueOf(recId).getSObjectType().getDescribe().getName()=='review_item__c'){
+            recId = [SELECT Id, Assessment__r.Account__c from review_item__c where id=:recId].Assessment__r.Account__c;
+        }
 
         
         
@@ -1310,7 +1313,10 @@ global with sharing class CustomDocumentController {
          } else if (id.valueOf(recordId).getSObjectType().getDescribe().getName()=='Investment__c'){
              Investment__c i = [select Investor__c,Investor__r.Name from Investment__c where id=:recordId];
          	return i.Investor__c + '-del-' + i.Investor__r.Name;
-         }
+         } else if (id.valueOf(recordId).getSObjectType().getDescribe().getName()=='review_item__c'){
+            review_item__c ri = [SELECT Id, Assessment__r.Account__c, Assessment__r.Account__r.Name from review_item__c where id=:recordId];
+         	return ri.Assessment__r.Account__c + '-del-' + ri.Assessment__r.Account__r.Name;
+        }
          return '';
      }
     

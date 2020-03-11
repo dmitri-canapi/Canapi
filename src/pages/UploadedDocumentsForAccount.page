@@ -216,6 +216,19 @@
         .selectedTreeRow {
             color: black;
         }
+
+        .dhxtree_dhx_terrace span.selectedTreeRow_lor,
+        .dhxtree_dhx_terrace span.selectedTreeRow {
+            background-color: #d9eaff !important;
+        }
+
+        div.gridbox_dhx_terrace.gridbox table.obj tr.rowselected,
+        div.gridbox_dhx_terrace.gridbox table.obj tr.rowselected td,
+        div.gridbox_dhx_terrace.gridbox table.obj tr td.cellselected,
+        div.gridbox_dhx_terrace.gridbox table.obj.row20px tr.rowselected,
+        td.cellselected {
+            background: #d9eaff !important;
+        }
     </style>
 
     <body>
@@ -1199,6 +1212,8 @@
             }
 
             function filterDocs(id) {
+                var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
+                parent.postMessage('setSelectedRow' + '-del-' + 'null', url);
                 myLayout.cells("b").progressOn();
                 TagTreeId = TagTree.getSelectedItemId();
                 if (TagTreeId && !TagTreeId.includes(',')) {
@@ -1608,6 +1623,11 @@
                     myGrid.enableContextMenu(GridMenu);
                 }
             });
+
+            myGrid.attachEvent("onRowSelect", function (id, ind) {
+                parent.postMessage('setSelectedRow' + '-del-' + id, url);
+            });
+
 
             myGrid.attachEvent("onBeforeContextMenu", function (id, ind) {
                 myGrid.selectRowById(id, true);

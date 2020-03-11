@@ -78,7 +78,7 @@
                     // Account/001m000000bu3ODAAY/view
                     var tooltip
                     if({!SiteName!=null}){
-                        tooltip = "<b>Name:</b> <a href='/{!SiteName}/s/detail/" + item.Id + "' target='_blank'> "+ item.Name + "</a><br>";
+                        tooltip = "<b>Name:</b> <a href='/alliance/s/detail/" + item.Id + "' target='_blank'> "+ item.Name + "</a><br>";
                     }else{
                           tooltip = "<b>Name:</b> <a href='../lightning/r/Account/" + item.Id + "/view' target='_blank'> "+ item.Name + "</a><br>";  
                     }

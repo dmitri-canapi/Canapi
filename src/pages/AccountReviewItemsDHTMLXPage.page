@@ -1,4 +1,4 @@
-<apex:page controller="AccountReviewItemsDHTMLXController">
+<apex:page controller="AccountReviewItemsDHTMLXController" showHeader="false" sidebar="false">
     <apex:includeScript value="{!URLFOR($Resource.jquery)}" />
     <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}" />
     <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/material/dhtmlx.css')}" />
@@ -7,10 +7,10 @@
     <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/skyblue/dhtmlx.css')}" />
 
     <body>
-        <div id="layoutObj"></div>
-
+        <div id="layoutObj" style="width: 100%;"></div>
+        <div id="submitFormDiv" style="height:40px; width:100%"></div>
         <div id="RIDetailForm">
-            <div id="riInfo" style="height:54px;">
+            <div id="riInfo">
                 <div id="riTitle">
 
                 </div>
@@ -18,11 +18,23 @@
 
                 </div>
             </div>
-            <div style="float:left; width:100%; height:100% overflow:auto">
-                <div style="display:inline-block; width:49%;" id="ed1">
+            <div style="float:left; width:100%; height:100% overflow:auto;font-size: 0; background-color: #f5f5f5;">
+                <div style="display:inline-block; width:49.5%;font-size: 14px;text-align: center;">
+                    Item Comments
+                </div>
+                <div style="display:inline-block; width:1%;">
 
                 </div>
-                <div style="display:inline-block; width:50%;" id="ed2">
+                <div style="display:inline-block; width:49.5%;  font-size: 14px;text-align: center;">
+                    Grade Description
+                </div>
+                <div style="display:inline-block; width:49.5%;outline: 1px solid rgb(185, 179, 179)" id="ed1">
+
+                </div>
+                <div style="display:inline-block; width:1%;">
+
+                </div>
+                <div style="display:inline-block; width:49.5%;  outline: 1px solid rgb(185, 179, 179)" id="ed2">
 
                 </div>
             </div>
@@ -30,17 +42,37 @@
     </body>
 
     <script>
+
+
+
         var vars = {};
         var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
             vars[key] = value;
         });
         var recordId = vars["recordId"];
-        var componentHeightInt = Number(vars["componentHeight"]) - 36;
+        var componentHeightInt = Number(vars["componentHeight"]) - 45;
         document.getElementById("layoutObj").style.height = componentHeightInt + "px";
         var dhtmlxSkin = vars["skin"];
+        if (!dhtmlxSkin) {
+            dhtmlxSkin = 'terrace';
+        }
 
         var lSkin = "dhx_" + dhtmlxSkin;
 
+        var commEditor;
+        var descEditor;
+
+        var parentUrl = (window.location != window.parent.location) ? document.referrer : document.location.href;
+        sendToParent('setBaseUrl', document.location.href);
+
+        window.addEventListener("message", function (event) {
+
+            var pass_data = JSON.parse(event.data);
+            if (pass_data.func)
+                if (pass_data.func == 'updateGrid') {
+                    filterRI(ObjectsTree.getSelectedItemId());
+                }
+        }, false);
 
         if (dhtmlxSkin == 'material') {
             lSkin = dhtmlxSkin;
@@ -60,8 +92,10 @@
         myLayout.cells("a").setWidth(230);
         myLayout.cells("a").setText("Due Diligence Checklists");
         myLayout.cells("b").hideHeader();
+        myLayout.cells("b").setHeight(componentHeightInt / 2 - 40);
         myLayout.cells("c").hideHeader();
         myLayout.cells("c").attachObject("RIDetailForm");
+
         //myLayout.cells("b").setText("Review Items");
         //myLayout.setAutoSize("a;b;c", "a;b;c");
 
@@ -71,6 +105,7 @@
         ObjectsTree.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxtree_' + dhtmlxSkin + '/');
         //ObjectsTree.enableContextMenu(HirrMenu);
         ObjectsTree.setOnClickHandler(filterRI);
+
 
         function filterRI(id) {
             if (id && id.includes('--cat--')) {
@@ -85,8 +120,16 @@
                     } else {
                         var data = result;
                         data = ($('<div>').html(data).text());
+                        var selectedId = myGrid.getSelectedRowId();
                         myGrid.clearAll();
                         myGrid.parse(data, "json");
+                        if (selectedId && myGrid.doesRowExist(selectedId)) {
+                            myGrid.selectRowById(selectedId, false, true, true);
+                        } else {
+                            myGrid.selectRow(0, true);
+                        }
+                        //
+
                     }
                 });
 
@@ -100,12 +143,14 @@
                 if (event.type == 'exception') {
                     alert(event.message);
                 } else {
+                    console.log(result);
                     var AccName = result.length > 0 ? result[0].Account__r.Name + ' (Account)' : 'No available DD Checklists';
+                    var AccId = result.length > 0 ? result[0].Account__c : recordId;
                     var firstRI = '';
 
                     var finalData = [];
                     var t = [];
-                    t.push(recordId);
+                    t.push(AccId);
                     t.push(0);
                     t.push(AccName);
                     finalData.push(t);
@@ -113,8 +158,9 @@
 
                     for (let c of result) {
                         t = [];
+                        console.log(c.Id);
                         t.push(c.Id);
-                        t.push(recordId);
+                        t.push(AccId);
                         t.push(c.Name);
                         finalData.push(t);
                         parents.push(t);
@@ -132,11 +178,11 @@
                         if (cats.size > 0) {
                             for (let cat of cats) {
                                 t = [];
-                                t.push(c.Id + '--cat--' + cat);
+                                t.push(c.Id + '--cat--' + $('<div>').html(cat).text());
                                 t.push(c.Id);
                                 t.push(cat);
                                 finalData.push(t);
-                                if (firstRI == '') {
+                                if (firstRI == '' && c.Id == recordId) {
                                     firstRI = t[0];
                                 }
                             }
@@ -168,11 +214,11 @@
 
         var myGrid = myLayout.cells("b").attachGrid();
 
-        myGrid.setHeader("Review Item Name, Review Item Status, Assets Needed, Details");
-        myGrid.setInitWidths("*,120,*,70");
-        myGrid.setColAlign("left,left,left,left");
-        myGrid.setColTypes("edtxt,edtxt,edtxt,ed");
-        myGrid.setColSorting("str,str,str,str");
+        myGrid.setHeader("Review Item Name, Review Item Status, Assets Needed, Details,#cspan");
+        myGrid.setInitWidths("*,150,*,39,35");
+        myGrid.setColAlign("left,left,left,left,left");
+        myGrid.setColTypes("edtxt,edtxt,edtxt,img,img");
+        myGrid.setColSorting("str,str,str,str,str");
         myGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxgrid_' + dhtmlxSkin + '/');
         myGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
         myGrid.init();
@@ -193,8 +239,10 @@
 
                     $("#ed1").height(componentHeightInt / 2 - 60);
                     $("#ed2").height(componentHeightInt / 2 - 60);
-                    var commEditor = new dhtmlXEditor("ed1");
-                    var descEditor = new dhtmlXEditor("ed2");
+                    commEditor = new dhtmlXEditor("ed1");
+                    commEditor.setSkin(lSkin);
+                    descEditor = new dhtmlXEditor("ed2");
+                    descEditor.setSkin(lSkin);
 
                     if (data.Item_Comments__c) {
                         var t = ($('<div>').html(data.Item_Comments__c).text());
@@ -208,8 +256,41 @@
             });
         });
 
-    /* grid configuring end*/
+        /* grid configuring end*/
 
+
+        var formData = [
+            { type: "button", value: 'Cancel', hidden: true, name: 'cancel' },
+            { type: "newcolumn" },
+            { type: "button", value: 'Save', name: 'save' }
+        ];
+        var Form = new dhtmlXForm("submitFormDiv", formData);
+        Form.setSkin(lSkin);
+        Form.attachEvent("onButtonClick", function (name) {
+            if (name == 'save') {
+                AccountReviewItemsDHTMLXController.setRIData(myGrid.getSelectedRowId(), commEditor.getContent(), descEditor.getContent(), function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        dhtmlx.message({
+                            type: "NotifyMessage",
+                            text: 'Review Item successfully saved.'
+                        })
+                    }
+                });
+            }
+        });
+
+
+        function sendToParent(method, RIid) {
+            var pass_data = { 'func': method, 'RIid': RIid };
+
+            //parent.postMessage(JSON.stringify('fakeCall'), parentUrl);
+            //parent.postMessage(JSON.stringify('fakeCall'), parentUrl);
+
+            parent.postMessage(JSON.stringify(pass_data), parentUrl);
+            parent.postMessage(JSON.stringify({ 'func': 'fakeCall' }), parentUrl); //need to do this for proper work on community
+        }
 
     </script>
 
@@ -217,6 +298,57 @@
     <style>
         body {
             overflow: hidden;
+        }
+
+        #riInfo {
+            min-height: 70px;
+            padding: 3px;
+            border-bottom: 1px solid rgb(185, 179, 179);
+            /*background-color: #e2efff;
+            background: linear-gradient(#e2efff, #d3e7ff);
+            background: -webkit-linear-gradient(#e2efff, #d3e7ff);*/
+            background-color: #f5f5f5;
+        }
+
+        #riTitle {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        #riDesc {
+            height: 50px;
+            overflow-y: auto;
+        }
+
+        #submitFormDiv .dhxform_base {
+            float: right;
+            margin-right: 14px;
+        }
+
+        .dhxlayout_base_dhx_skyblue {
+            background-color: #ffffff;
+        }
+
+        td>a>img {
+            max-height: 19px !important;
+        }
+
+        .objbox>table>tbody>tr>td:last-of-type {
+            padding-left: 10px !important;
+        }
+
+        .dhxtree_dhx_terrace span.selectedTreeRow_lor,
+        .dhxtree_dhx_terrace span.selectedTreeRow {
+            background-color: #d9eaff !important;
+        }
+
+        div.gridbox_dhx_terrace.gridbox table.obj tr.rowselected,
+        div.gridbox_dhx_terrace.gridbox table.obj tr.rowselected td,
+        div.gridbox_dhx_terrace.gridbox table.obj tr td.cellselected,
+        div.gridbox_dhx_terrace.gridbox table.obj.row20px tr.rowselected,
+        td.cellselected {
+            background: #d9eaff !important;
         }
     </style>
 

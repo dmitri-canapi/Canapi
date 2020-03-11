@@ -1,18 +1,44 @@
-<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes">
+<aura:component controller="AccountReviewItemsDHTMLXController"
+    implements="flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes">
     <aura:attribute name="recordId" type="Id" />
     <aura:attribute name="communityName" type="String" />
     <aura:attribute name="componentHeight" type="String" default="400" />
-    <aura:attribute name="skin" type="String" default="skyblue"/>
+    <aura:attribute name="BaseUrl" type="String" />
+    <aura:attribute name="isCreateable" type="Boolean" default="false" />
 
-    <aura:if isTrue="{!v.communityName != null}">
-        <iframe id="vfFrame" aura:id="vfFrame"
-            style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
-            src="{! '/' +v.communityName + '/apex/AccountReviewItemsDHTMLXPage?recordId=' + v.recordId + '&amp;communityName=' + '&amp;skin=' + v.skin + v.communityName + '&amp;componentHeight=' + v.componentHeight}" />
-        <aura:set attribute="else">
-            <iframe id="vfFrame" aura:id="vfFrame"
-                style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
-                src="{!'/apex/AccountReviewItemsDHTMLXPage?recordId=' + v.recordId + '&amp;communityName=' + v.communityName + '&amp;skin=' + v.skin + '&amp;componentHeight=' + v.componentHeight}" />
-        </aura:set>
-    </aura:if>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <lightning:overlayLibrary aura:id="overlayLib" />
 
+    <div class="slds-card">
+        <div class="slds-m-around_medium">
+            <div class="slds-clearfix">
+                <div class="slds-text-heading_medium slds-m-left_medium slds-m-right_medium slds-float_left"
+                    style="display: inline-flex;">Review Items
+                </div>
+
+
+                <div class="slds-float_right ">
+                    <aura:if isTrue="{!v.isCreateable}">
+                        <lightning:button label="New" onclick="{!c.createRecord}" />
+                    </aura:if>
+
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="slds-m-left_small">
+            <aura:if isTrue="{!v.communityName != null}">
+                <iframe id="ariFrame" aura:id="ariFrame"
+                    style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
+                    src="{! '/' +v.communityName + '/apex/AccountReviewItemsDHTMLXPage?recordId=' + v.recordId + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight}" />
+                <aura:set attribute="else">
+                    <iframe id="ariFrame" aura:id="ariFrame"
+                        style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
+                        src="{!'/apex/AccountReviewItemsDHTMLXPage?recordId=' + v.recordId + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight}" />
+                </aura:set>
+            </aura:if>
+        </div>
+    </div>
 </aura:component>

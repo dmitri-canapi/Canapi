@@ -34,7 +34,7 @@ trigger SetNotificationFrequencyForChatterGroup on CollaborationGroupMember (bef
             }
         }
         List <CollaborationGroupMember> updList = [select id,CollaborationGroupId,MemberId, CollaborationGroup.OwnerId from CollaborationGroupMember where 
-                                CollaborationGroupId in:groupToFreq2.keySet() and id not IN: Trigger.newMap.KeySet()];
+                                CollaborationGroupId in:groupToFreq2.keySet() and id not IN: Trigger.newMap.KeySet() FOR UPDATE];
         for (CollaborationGroupMember cgm: updList){
             cgm.NotificationFrequency = groupToFreq2.get(cgm.CollaborationGroupId);
         }

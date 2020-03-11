@@ -4,6 +4,9 @@
         <field>OPPORTUNITY_NAME</field>
     </columns>
     <columns>
+        <field>FULL_NAME</field>
+    </columns>
+    <columns>
         <field>AMOUNT</field>
     </columns>
     <columns>
@@ -20,6 +23,9 @@
         <field>Opportunity.Lead_Contact__c</field>
     </columns>
     <columns>
+        <field>Opportunity.Pass_Reason_1__c</field>
+    </columns>
+    <columns>
         <field>Opportunity.Pass_Reason__c</field>
     </columns>
     <filter>
@@ -30,11 +36,6 @@
         </criteriaItems>
     </filter>
     <format>Summary</format>
-    <groupingsDown>
-        <dateGranularity>Day</dateGranularity>
-        <field>FULL_NAME</field>
-        <sortOrder>Asc</sortOrder>
-    </groupingsDown>
     <name>Closed Pass Report</name>
     <params>
         <name>open</name>
@@ -51,6 +52,8 @@
     <reportType>Opportunity</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <sortColumn>FULL_NAME</sortColumn>
+    <sortOrder>Asc</sortOrder>
     <timeFrameFilter>
         <dateColumn>LAST_STAGE_CHANGE_DATE</dateColumn>
         <interval>INTERVAL_LASTMONTH</interval>

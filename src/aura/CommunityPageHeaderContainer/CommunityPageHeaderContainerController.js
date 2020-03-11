@@ -1,5 +1,10 @@
 ({
     doInit: function (component, event, helper) {
+        if (window.location.href.includes('https://canapi.force.com/alliance')){
+            component.set("v.CommunityName", 'alliance');
+        } else {	
+            component.set("v.CommunityName", 'fintech');
+        }
         if (component.get("v.objectName").includes('Latest Activity')) {
             window.setInterval(function () {
                 var value = sessionStorage.getItem('setTopicFilteringHeader');

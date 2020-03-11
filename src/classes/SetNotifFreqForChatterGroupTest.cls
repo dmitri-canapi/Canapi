@@ -8,5 +8,7 @@
         insert g;
         
         update [select id from CollaborationGroupMember limit 1];
+        
+        SetNotificationFrequencyForChatterGroup.updateNotificationNonFuture(new List <id>{g.Id});
     }
 }

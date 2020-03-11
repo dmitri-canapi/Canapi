@@ -1,0 +1,113 @@
+<aura:component controller="CommunityLoginController"
+    implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
+    access="global">
+
+    <!-- Username and Password -->
+    <aura:attribute name="Username" type="String" />
+    <aura:attribute name="Password" type="String" />
+    <aura:attribute name="ResetUsername" type="String" />
+    <aura:attribute name="mylabel" type="String" />
+    <aura:attribute name="mylabel1" type="String" />
+
+    <!--create a component attributs -->
+
+    <aura:attribute name="isVisible" type="boolean" default="true" />
+    <aura:attribute name="terms" type="String" default="" />
+    <aura:attribute name="showTerms" type="boolean" default="false" />
+    <aura:attribute name="today" type="Date" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <!-- PAGE HEADER -->
+    <div id="over" style="width:100%; height:100%;margin-bottom: -20px;">
+        <img id="logoImg" src="{!$Resource.AllianceCommunityAssets + '/Canapi-PrimaryLogo-Color.png'}" />
+    </div>
+
+    <!-- / PAGE HEADER -->
+    <!-- NEW FORM -->
+    <lightning:layout>
+        <lightning:layoutItem padding="around-small" size="12" class="main-wrapper">
+            <div aria-labelledby="newform">
+                <!-- BOXED AREA -->
+                <fieldset class="slds-box slds-theme--default slds-container--medium">
+                    <legend id="newform" class="slds-text-heading--small
+slds-p-vertical--medium login-heading">
+                    </legend>
+                    <!-- IF Condition -->
+                    <aura:if isTrue="{!v.isVisible}">
+                        <div id="error">
+                            <ui:outputRichText value="{!v.mylabel}" />
+                        </div>
+                        <!-- CREATE NEW FORM -->
+                        <div style="color: #F3714F;">To access this page, you have to log in to Canapi Connect</div>
+                        <form class="slds-form--stacked">
+                            <lightning:input aura:id="FormVal" label="Username" name="Username" type="text"
+                                value="{!v.Username}" required="true"
+                                messageWhenPatternMismatch="User name you entered is invalid. Please check your user name and try again"
+                                pattern="^[a-zA-Z0-9.!#$%'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$" />
+                            <lightning:input aura:id="FormVal" label="Password" name="password" type="password"
+                                value="{!v.Password}" required="true" />
+                            <lightning:button label="Login" class="slds-m-top--medium loginButt" variant="brand"
+                                onclick="{!c.getInput}" />
+                            <p class="formItem">
+                                <lightning:input label="Remember me" type="checkbox" />
+                            </p>
+                            <p class="formItem">
+                                <a href="javascript:void(0)" onclick="{!c.resetPass}">Forgot Your Password?</a>
+                            </p>
+
+                        </form>
+
+                        <!-- / CREATE NEW FORM -->
+                        <aura:set attribute="else">
+                            <!-- Else Part Start-->
+                            <!-- CREATE NEW FORM -->
+                            <form class="slds-form--stacked">
+                                <!-- Reset Password code -->
+                                <div id="error1">
+                                    <ui:outputRichText value="{!v.mylabel1}" />
+                                </div>
+                                <div id="error">
+                                    <ui:outputRichText value="{!v.mylabel}" />
+                                </div>
+                                <lightning:input aura:id="FormReset" label="Username" name="Username" type="text"
+                                    placeholder="Enter your Username" value="{!v.ResetUsername}" required="true"
+                                    messageWhenPatternMismatch="User name you entered is invalid. Please check your user name and try again"
+                                    pattern="^[a-zA-Z0-9.!#$%'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$" />
+                                <lightning:button label="Reset" class="slds-m-top--medium" variant="brand"
+                                    onclick="{!c.submitresetPass}" />
+                                <lightning:button label="Cancel" class="slds-m-top--medium" variant="brand"
+                                    onclick="{!c.CancelReset}" />
+                            </form>
+                        </aura:set>
+                        <!-- Else Part End -->
+                    </aura:if>
+                </fieldset>
+                <!-- / BOXED AREA -->
+            </div>
+            <!-- / CREATE NEW FORM -->
+        </lightning:layoutItem>
+    </lightning:layout>
+    <div style="text-align: center;">{!v.today} All Rights Reserved. &nbsp;<a style="text-decoration: underline;"
+            onclick="{!c.openModal}">Privacy and Terms</a></div>
+    <!-- / NEW FORM -->
+
+    <aura:if isTrue="{!v.showTerms}">
+        <div role="dialog" tabindex="-1" aria-labelledby="header43" aura:id="Modalbox"
+            class="slds-modal slds-modal_large slds-fade-in-open">
+            <div class="slds-modal__container" style="width: 90%;line-height: 2rem;margin: 0 auto;">
+                <div class="slds-modal__header" style="font-size: 18px; font-weight:bold;">
+                    <button class="slds-button slds-modal__close slds-button--icon-inverse" title="Close"
+                        onclick="{!c.closeModal}">
+                        x<span class="slds-assistive-text">Close</span>
+                    </button>
+                    <p>Terms of Service</p>
+                </div>
+                <div class="slds-modal__content slds-p-around--medium">
+                    <aura:unescapedHtml value="{!v.terms}" />
+                </div>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+</aura:component>

@@ -56,6 +56,7 @@ public class AccountTriggerHandler {
                 endpoint +=  website;
                 req.setEndpoint(endpoint);
                 req.setMethod('GET');
+                req.setTimeout(2 * 60 * 1000);
                 
                 if (!Test.isRunningTest()) {      
                     res = http.send(req);

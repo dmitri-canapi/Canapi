@@ -29,6 +29,7 @@
     <aura:attribute name="isOpen" type="boolean" default="false" />
     <aura:attribute name="currentFileId" type="String" default="" />
 
+    <aura:registerEvent name="updateLookup" type="c:DHTMLXgridRowSelect" />
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
 
@@ -57,7 +58,8 @@
                 <h2 class="slds-text-heading--medium">Upload Documents to {!v.customRecordName}</h2>
             </div>
             <aura:if isTrue="{!v.uploadView=='uploadView'}">
-                <div class="slds-modal__content slds-p-around--medium slds-grid slds-wrap ">
+                <div class="slds-modal__content slds-p-around--medium slds-grid slds-wrap "
+                    style="height: auto !important;">
                     <h3 style="font-size: 12px;width:100%;margin-bottom: 15px;">
                         Upload similar documents in groups of one or more, so that each group of similar documents has
                         the same tags applied to them.

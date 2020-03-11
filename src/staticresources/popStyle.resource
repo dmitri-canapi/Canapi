@@ -5,6 +5,6 @@ width:100% !important;
     padding-right: 10%;
 }
 .slds-modal__content{
-    height: 100% !important;
+    height: auto !important;
     /*overflow: hidden !important;*/
 }
