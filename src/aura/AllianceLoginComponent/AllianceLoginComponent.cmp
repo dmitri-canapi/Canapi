@@ -88,6 +88,9 @@ slds-p-vertical--medium login-heading">
             <!-- / CREATE NEW FORM -->
         </lightning:layoutItem>
     </lightning:layout>
+    <!--div class="tc mt24" style="display: block;text-align: center;margin:5px 0px;">Canapi employee? 
+        <a id="employee_login_link" style="text-decoration: underline;" href="https://canapi.my.salesforce.com//servlet/networks/session/create?url=%2Falliance%2Fs%2F&amp;site=0DM6A000000Mztr&amp;refURL=http%3A%2F%2Fcanapi.force.com%2Falliance%2Flogin&amp;inst=3u">Log In</a>
+    </div-->
     <div style="text-align: center;">{!v.today} All Rights Reserved. &nbsp;<a style="text-decoration: underline;"
             onclick="{!c.openModal}">Privacy and Terms</a></div>
     <!-- / NEW FORM -->

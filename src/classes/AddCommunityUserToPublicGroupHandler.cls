@@ -22,6 +22,17 @@ public class AddCommunityUserToPublicGroupHandler {
     }
 
     @future
+    public static void insertDefSharings(List<Id> usersIds){
+        String canapiInternalGroup = [select id, name from group where name = 'Canapi Internal' limit 1].Id;
+        List <Default_Sharing__c> defSharings = new List <Default_Sharing__c>();
+        for (Id uId: usersIds){
+            defSharings.add(new Default_Sharing__c(UserOrGroup__c = canapiInternalGroup, Access__c = 'Edit', CreatedBy__c = uId));
+        }
+        insert defSharings;
+
+    }
+
+    @future
     public static void updateUsers(List<Id> contactIds){
         List <User> users = [select id, ContactId, Phone, MobilePhone, Title, Email, FirstName, Lastname from User where ContactId in: contactIds];
         Map <Id, Contact> contactsMap = new Map <Id, Contact>([select id, Phone, MobilePhone, Title, Email, FirstName, Lastname from Contact where id in: contactIds]);

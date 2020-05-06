@@ -39,15 +39,23 @@ trigger AddCommunityUserToPublicGroup on User (before insert, after insert, afte
     if (Trigger.IsInsert && Trigger.IsAfter){
         List <id> userIds = new List <id>();
         ID canapiConnectProfileId = [select id,name from Profile where name ='Community: Alliance Portal' limit 1].Id;
+        List <id> intUsers = new List <id>();
         for(User u:Trigger.new) {
             system.debug(canapiConnectProfileId);
             system.debug(u.ProfileId);
             if (u.ProfileId == canapiConnectProfileId){
                 userIds.add(u.Id);
             }
+
+            if (u.ContactId == null){ // set default sharing for internal users
+                intUsers.add(u.Id);
+            }
         }
-        system.debug(userIds);
+        AddCommunityUserToPublicGroupHandler.insertDefSharings(intUsers);
+        
         AddCommunityUserToPublicGroupHandler.subscribe(userIds);
+
+        
     }
 
     if (Trigger.IsInsert && Trigger.IsBefore){

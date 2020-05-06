@@ -790,7 +790,7 @@ global with sharing class CustomDocumentController {
         }
         if (DocumentParentObjectId==FullaccId){
             if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
-                query+=' AND (Documents_Folder_Template__c != null)'; 
+                query+=' AND (Documents_Folder_Template__c != null and Account__c=:accId)'; 
             } else {
                 query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
             }
@@ -805,7 +805,7 @@ global with sharing class CustomDocumentController {
         } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
             query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
         } else if(DocumentParentObjectId=='Documents'){
-            query+= ' AND Documents_Folder_Template__c != null';
+            query+= ' AND (Documents_Folder_Template__c != null and Account__c=:accId)';
         } else {
             string objName = Id.valueOf(DocumentParentObjectId).getSObjectType().getDescribe().getName(); 
             system.debug(objName);
@@ -813,7 +813,7 @@ global with sharing class CustomDocumentController {
                 objName = objName + '__c';
             }
             if (objName == 'Documents_Folder_Template__c'){
-                query+=' AND (Documents_Folder_Template__c =: DocumentParentObjectId OR Documents_Folder_Template__r.Parent_Folder__c =: DocumentParentObjectId)';
+                query+=' AND ((Documents_Folder_Template__c =: DocumentParentObjectId OR Documents_Folder_Template__r.Parent_Folder__c =: DocumentParentObjectId) and (Account__c=:accId))';
             } else {
                 query+=' AND ' + objName + '=:DocumentParentObjectId';
             }
@@ -867,13 +867,8 @@ global with sharing class CustomDocumentController {
     }
    
     @RemoteAction
-    global static String getUsers(){
-        return CustomDocumentControllerWoutSharing.getUsers();
-    }
-    
-    @RemoteAction
-    global static String getGroups(){
-        return CustomDocumentControllerWoutSharing.getGroups();
+    global static CustomDocumentController.UsersSelectData getUsers(String profileName){
+        return CustomDocumentControllerWoutSharing.getUsers(profileName);
     }
 
     @RemoteAction
@@ -973,6 +968,9 @@ global with sharing class CustomDocumentController {
     
     @RemoteAction
     global static String GetAccountDocumentsFiltered(String tagId, String searchCondition, String accId, String AccRecordTypeName, String DocumentParentObjectId){
+        system.debug(accId);
+        system.debug(DocumentParentObjectId);
+        
         String FullaccId = accId;
         accId = accId.substring(0, 15);
 
@@ -1021,7 +1019,7 @@ global with sharing class CustomDocumentController {
         }
         if (DocumentParentObjectId==FullaccId){
             if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
-                query+=' AND (Documents_Folder_Template__c != null)'; 
+                query+=' AND (Documents_Folder_Template__c != null and Account__c=:accId)'; 
             } else {
                 query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
             }
@@ -1036,7 +1034,7 @@ global with sharing class CustomDocumentController {
         } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
             query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';  
         } else if(DocumentParentObjectId=='Documents'){
-            query+= ' AND Documents_Folder_Template__c != null';
+            query+= ' AND (Documents_Folder_Template__c != null AND Account__c=:accId)';
         } else {
             string objName = Id.valueOf(DocumentParentObjectId).getSObjectType().getDescribe().getName(); 
             system.debug(objName);
@@ -1044,7 +1042,7 @@ global with sharing class CustomDocumentController {
                 objName = objName + '__c';
             }
             if (objName == 'Documents_Folder_Template__c'){
-                query+=' AND (Documents_Folder_Template__c =: DocumentParentObjectId OR Documents_Folder_Template__r.Parent_Folder__c =: DocumentParentObjectId)';
+                query+=' AND ((Documents_Folder_Template__c =: DocumentParentObjectId OR Documents_Folder_Template__r.Parent_Folder__c =: DocumentParentObjectId) and (Account__c=:accId))';
             } else {
                 query+=' AND ' + objName + '=:DocumentParentObjectId';
             }
@@ -1408,7 +1406,8 @@ global with sharing class CustomDocumentController {
                 }
             } else if (id.valueOf(parentId).getSObjectType().getDescribe().getName() == 'Documents_Folder_Template__c'){
                 doc.Documents_Folder_Template__c=parentId;
-                List <Document__c> checkDocPermission = [select id, UserRecordAccess.HasEditAccess from Document__c where Documents_Folder_Template__c=:parentId and Name__c=:filename order by CreatedDate desc limit 1];
+                doc.Account__c = accId;
+                List <Document__c> checkDocPermission = [select id, UserRecordAccess.HasEditAccess from Document__c where Documents_Folder_Template__c=:parentId and Name__c=:filename and Account__c =: accId order by CreatedDate desc limit 1];
                 if (checkDocPermission.size() > 0 && checkDocPermission[0].UserRecordAccess.HasEditAccess!= true){
                     throw new applicationException('You can\'t edit ' + filename + '.');
                 }
@@ -1438,7 +1437,7 @@ global with sharing class CustomDocumentController {
         list <String> docs = docsids.split(',');
         List <Document__c> documents = [select id from Document__c where id in : docs];
         for (Document__c doc: documents){
-            doc.Account__c=null;
+            if (id.valueOf(targetId).getSObjectType().getDescribe().getName()!= 'Documents_Folder_Template__c') doc.Account__c = null;
             doc.Board_Meeting__c=null;
             doc.Contact__c=null;
             doc.Opportunity__c=null;
@@ -1535,6 +1534,18 @@ global with sharing class CustomDocumentController {
             insert tdaList;
         }
     }
+
+    @RemoteAction
+    global static void sendEmail(List <String> usersAndGroups, String AccId, String Range){
+        CustomDocumentControllerWoutSharing.sendEmail(usersAndGroups, AccId, Range);
+    }
+
+    @RemoteAction
+    global static List <User> getUsersWithAccessForDocs (String accId){
+        return CustomDocumentControllerWoutSharing.getUsersWithAccessForDocs (accId);
+    }
+
+
     
     @AuraEnabled
      global static string getCommunityAccId(){
@@ -1610,6 +1621,15 @@ global with sharing class CustomDocumentController {
             this.accID = accID;
             this.accName = accName;
             this.accDescription = accDescription;
+        }
+    }
+
+    global class UsersSelectData {
+        public String users { get; set; }
+        public String groups {get; set;}
+        public UsersSelectData(String users, String groups){
+            this.users = users;
+            this.groups = groups;
         }
     }
     

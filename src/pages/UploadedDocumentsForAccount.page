@@ -229,6 +229,11 @@
         td.cellselected {
             background: #d9eaff !important;
         }
+
+        .dhxwins_vp_dhx_terrace div.dhxwin_active div.dhx_cell_wins div.dhx_cell_cont_wins {
+            border: 2px solid #fff;
+            border-top: none;
+        }
     </style>
 
     <body>
@@ -239,11 +244,11 @@
                     />
                     <span style="height: 100%; vertical-align: middle;">Refresh</span>
                 </div>
-                <div class="btnDiv" onclick="openUploadWindow();openUploadWindow()">
+                <div class="btnDiv" id="uploadBtn" onclick="openUploadWindow();openUploadWindow()">
                     <img style="vertical-align: middle;width: 20px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/plus.png')}" />
                     <span style="height: 100%; vertical-align: middle;">Upload</span>
                 </div>
-                <div class="btnDiv" onclick="reApplyTags()">
+                <div class="btnDiv" id="reApplyTagsBtn" onclick="reApplyTags()">
                     <img style="vertical-align: middle;width: 20px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/bolt.png')}" />
                     <span style="height: 100%; vertical-align: middle;">Auto Tag</span>
                 </div>
@@ -259,12 +264,26 @@
                     <input type="text" id="SearchDocuments" style="display:none;width: 200px;height: 28px; text-indent: 5px;float:right;margin-right: 70px;"
                         placeHolder="Search by title" onkeyup="filterDocs(null)" />
                 </div>
+                <div id="mailUsersDiv" class="btnDiv" onclick="openMailUsers()">
+                    <img style="vertical-align: middle;width: 20px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/mail.png')}" />
+                    <span style="height: 100%; vertical-align: middle;margin-left:3px;">Email</span>
+                </div>
             </div>
             <div id="layoutObj"></div>
+            <div id="emailInfoBox" style="display:none;background: #d9eaff; height: 100%; padding: 5px;">
+                <div style="display: inline-block;">
+                    <img style="width: 20px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/info.png')}" />
+                </div>
+                <div style="display: inline-block; width:calc(100% - 35px);margin-left:3px;">
+                    <span style="height: 100%; line-height: 18px;">Alliance Users below have access to at least one file in this Account and will be notified about changes
+                        to files they are entitled access, updated within the Date Range below.</span>
+                </div>
+            </div>
             <br/>
             <br/>
             <br/>
         </div>
+
 
         <script type="text/javascript">
             var client = new forcetk.Client();
@@ -290,13 +309,16 @@
                     expire: -1
                 });*/
 
-                var files = evt.dataTransfer.files;
+                if (!readOnlyMode) {
 
-                if (files.length > 0) {
-                    try {
-                        uploadFiles(files);
-                    } catch (error) {
-                        alert('An error occured in sfdc-dragndrop.js: ' + error);
+                    var files = evt.dataTransfer.files;
+
+                    if (files.length > 0) {
+                        try {
+                            uploadFiles(files);
+                        } catch (error) {
+                            alert('An error occured in sfdc-dragndrop.js: ' + error);
+                        }
                     }
                 }
             }
@@ -403,6 +425,8 @@
             var communityName = vars["communityName"];
             var isCommunity = JSON.parse(vars["isCommunity"]);
             var componentHeight = vars["componentHeight"];
+            var readOnlyMode = JSON.parse(vars["readOnlyMode"]);
+            var highlightedDoc = vars["highlightedDoc"] ? vars["highlightedDoc"] : null;
             var childRecordId;
             var AccId;//accId
             var AccRecordTypeName;
@@ -410,9 +434,18 @@
             var myPop;
             var myPop2;
             var myForm;
+            var dhxWins2;
+
             console.log(communityName);
             if (isCommunity) {
                 $("#defaultSharingDiv").hide();
+                $("#mailUsersDiv").hide();
+            }
+            if (readOnlyMode) {
+                $("#defaultSharingDiv").hide();
+                $("#mailUsersDiv").hide();
+                $("#reApplyTagsBtn").hide();
+                $("#uploadBtn").hide();
             }
 
             var componentHeightInt = Number(componentHeight);
@@ -635,7 +668,7 @@
             });
 
             ObjectsTree.attachEvent("onDrag", function (sId, tId, id, sObject, tObject) {
-                if (sObject.fldSort) {
+                if (sObject.fldSort && (!readOnlyMode)) {
                     if (tId == 'Board_Meetings__r' || tId == 'Contacts' || tId == 'Opportunities' || tId == 'Investment__r' || tId == 'Investments__r' || tId == 'Documents') {
                         dhtmlx.message({
                             type: "error",
@@ -687,7 +720,7 @@
             function showBulkRestrictAccessWindow(ObjectsTreeId) {
                 var dhxWins = new dhtmlXWindows();
                 dhxWins.attachViewportTo("wrapper");
-
+                dhxWins.setSkin(lSkin);
                 docVersionsWindow = dhxWins.createWindow("w1", 10, 10, 950, 370);
                 if (ObjectsTreeId.includes(',')) {
                     docVersionsWindow.setText("Restrict access to " + ObjectsTreeId.split(',').length + " documents");
@@ -741,16 +774,18 @@
 
                 var dhxCombo = RestrictAccessWindowForm.getCombo("searchValue");
 
-                CustomDocumentController.getUsers(function (result, event) {
+                CustomDocumentController.getUsers('', function (result, event) {
                     if (event.type == 'exception') {
                         alert(event.message);
                     } else {
-                        var data = result;
-                        data = ($('<div>').html(data).text());
+                        var data = ($('<div>').html(result.users).text());
+                        groupsList = ($('<div>').html(result.groups).text());
                         usersList = data;
                         dhxCombo.load(data);
                     }
                 });
+
+                $("#AddPinsButtonDiv").remove();
 
                 var container = RestrictAccessWindowForm.getContainer("HTMLcontainer");
                 var pinsDiv = document.createElement('div');
@@ -800,20 +835,7 @@
                     if (name == 'Type') {
                         dhxCombo.unSelectOption();
                         if (value == 'Groups') {
-                            if (!groupsList) {
-                                CustomDocumentController.getGroups(function (result, event) {
-                                    if (event.type == 'exception') {
-                                        alert(event.message);
-                                    } else {
-                                        var data = result;
-                                        data = ($('<div>').html(data).text());
-                                        groupsList = data;
-                                        dhxCombo.load(data);
-                                    }
-                                });
-                            } else {
-                                dhxCombo.load(groupsList);
-                            }
+                            dhxCombo.load(groupsList);
                         } else {
                             dhxCombo.load(usersList);
                         }
@@ -1273,6 +1295,9 @@
                         data = ($('<div>').html(data).text());
                         myGrid.clearAll();
                         myGrid.parse(data, "json");
+                        if (highlightedDoc) {
+                            myGrid.selectRowById(highlightedDoc, false, true, true);
+                        }
                         /*myGrid.setColumnHidden(6,false);*/
 
                         setTimeout(function () {
@@ -1549,12 +1574,19 @@
 
 
             myGrid = myLayout.cells("b").attachGrid();
-            myGrid.setHeader("TYPE,DOCUMENT,portal-deprecated,CREATED DATE,OWNER,ACCESS,NOTES,RELEASE DATE-deprecated,TAGS,OWNER,ownerId,IsEditable,DATE");
-            if ($("#layoutObj").width() < 1000) {
-                myGrid.setInitWidths("46,240,0,100,0,80,0,100,340,60,0,0,100");
+
+            if ($("#layoutObj").width() < 1200) {
+
+                myGrid.setHeader("TYPE,DOCUMENT,portal-deprecated,DATE,OWNER,ACCESS,NOTES,RELEASE DATE-deprecated,TAGS,OWNER,ownerId,IsEditable,ACCESS");
+                myGrid.setInitWidths("46,350,0,8,0,80,0,100,300,60,0,0,100");
             } else {
+
+                myGrid.setHeader("TYPE,DOCUMENT,portal-deprecated,CREATED DATE,OWNER,ACCESS,NOTES,RELEASE DATE-deprecated,TAGS,OWNER,ownerId,IsEditable,ACCESS");
                 myGrid.setInitWidths("46,*,0,100,53,80,0,100,*,0,0,0,0");
             }
+            myGrid.setColumnMinWidth(350, 1);
+            myGrid.setColumnMinWidth(300, 8);
+
             myGrid.setColAlign("center,left,left,left,left,left,left,left,left,left,left,left,left");
             myGrid.setColTypes("img,link,rotxt,rotxt,rotxt,rotxt,sub_row,rotxt,tags,rotxt,rotxt,rotxt,rotxt");
             myGrid.setColSorting("str,str,str,str,str,str,str,str,str,str,str,str,str");
@@ -1579,12 +1611,13 @@
             //start grid
             myGrid.init();
 
-            if ($("#layoutObj").width() < 1000) {
-                myGrid.splitAt(2);
+            if ($("#layoutObj").width() < 1200) {
+                //myGrid.splitAt(2);
                 myGrid.setColumnHidden(4, true);
                 myGrid.setColumnHidden(5, true);
                 myGrid.setColumnHidden(9, false);
                 myGrid.setColumnHidden(12, false);
+
                 if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
                     myLayout.cells("c").expand();
                     myLayout.cells("c").collapse();
@@ -1630,7 +1663,14 @@
 
 
             myGrid.attachEvent("onBeforeContextMenu", function (id, ind) {
-                myGrid.selectRowById(id, true);
+
+                console.log(myGrid.getSelectedRowId());
+                if (myGrid.getSelectedRowId() != null && myGrid.getSelectedRowId().includes(id)) {
+                    myGrid.selectRowById(id, true);
+                } else {
+                    myGrid.selectRowById(id, false);
+                }
+
                 var data = myGrid.getSelectedRowId();
                 if (AccRecordTypeName != 'Limited Partner' && AccRecordTypeName != 'Bank') {
                     GridMenu.hideItem('OwnAccount');
@@ -1711,6 +1751,7 @@
                     } else {
                         dhxWins = new dhtmlXWindows();
                         dhxWins.attachViewportTo("layoutObj");
+                        dhxWins.setSkin(lSkin);
                         docVersionsWindow = dhxWins.createWindow("w1", 20, 30, 700, 300);
                         docVersionsWindow.setText("Manage Versions for " + myGrid.cells(data, 1).getValue().split("^")[0]);
                         dhxWins.window("w1").center();
@@ -1965,7 +2006,7 @@
             function showPropertiesWindow(currentDocId) {
                 var dhxWins = new dhtmlXWindows();
                 dhxWins.attachViewportTo("wrapper");
-
+                dhxWins.setSkin(lSkin);
                 docVersionsWindow = dhxWins.createWindow("w1", 10, 10, 400, 350);
                 docVersionsWindow.setText(myGrid.cells(currentDocId, 1).getValue().split("^")[0] + " Properties");
                 dhxWins.window("w1").center();
@@ -2018,7 +2059,7 @@
             function showRestrictAccessWindow(currentDocId) {
                 var dhxWins = new dhtmlXWindows();
                 dhxWins.attachViewportTo("wrapper");
-
+                dhxWins.setSkin(lSkin);
                 docVersionsWindow = dhxWins.createWindow("w1", 10, 10, 950, 370);
                 docVersionsWindow.setText("Restrict access to " + myGrid.cells(currentDocId, 1).getValue().split("^")[0]);
                 dhxWins.window("w1").center();
@@ -2073,17 +2114,18 @@
 
                 var dhxCombo = RestrictAccessWindowForm.getCombo("searchValue");
 
-                CustomDocumentController.getUsers(function (result, event) {
+                CustomDocumentController.getUsers('', function (result, event) {
                     if (event.type == 'exception') {
                         alert(event.message);
                     } else {
-                        var data = result;
-                        //console.log(result);
-                        data = ($('<div>').html(data).text());
+                        var data = ($('<div>').html(result.users).text());
+                        groupsList = ($('<div>').html(result.groups).text());
                         usersList = data;
                         dhxCombo.load(data);
                     }
                 });
+
+                $("#AddPinsButtonDiv").remove();
 
                 var container = RestrictAccessWindowForm.getContainer("HTMLcontainer");
                 var pinsDiv = document.createElement('div');
@@ -2137,25 +2179,9 @@
                     if (name == 'Type') {
                         dhxCombo.unSelectOption();
                         if (value == 'Groups') {
-                            if (!groupsList) {
-                                CustomDocumentController.getGroups(function (result, event) {
-                                    if (event.type == 'exception') {
-                                        alert(event.message);
-                                    } else {
-                                        var data = result;
-                                        data = ($('<div>').html(data).text());
-                                        groupsList = data;
-                                        dhxCombo.load(data);
-                                        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
-                                            dhxCombo.addOption("OwnAccount", "Finance Team - This account only", null, null);
-                                        }
-                                    }
-                                });
-                            } else {
-                                dhxCombo.load(groupsList);
-                                if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
-                                    dhxCombo.addOption("OwnAccount", "Finance Team - This account only", null, null);
-                                }
+                            dhxCombo.load(groupsList);
+                            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
+                                dhxCombo.addOption("OwnAccount", "Finance Team - This account only", null, null);
                             }
 
                         } else {
@@ -2233,7 +2259,7 @@
             function openDefaultSharing() {
                 var dhxWins = new dhtmlXWindows();
                 dhxWins.attachViewportTo("wrapper");
-
+                dhxWins.setSkin(lSkin);
                 docVersionsWindow = dhxWins.createWindow("w1", 10, 10, 950, 370);
                 docVersionsWindow.setText("Default Sharing");
                 dhxWins.window("w1").center();
@@ -2276,17 +2302,18 @@
 
                 var dhxCombo = RestrictAccessWindowForm.getCombo("searchValue");
 
-                CustomDocumentController.getUsers(function (result, event) {
+                CustomDocumentController.getUsers('', function (result, event) {
                     if (event.type == 'exception') {
                         alert(event.message);
                     } else {
-                        var data = result;
-                        console.log(result);
-                        data = ($('<div>').html(data).text());
+                        var data = ($('<div>').html(result.users).text());
+                        groupsList = ($('<div>').html(result.groups).text());
                         usersList = data;
                         dhxCombo.load(data);
                     }
                 });
+
+                $("#AddPinsButtonDiv").remove();
 
                 var container = RestrictAccessWindowForm.getContainer("HTMLcontainer");
                 var pinsDiv = document.createElement('div');
@@ -2327,21 +2354,7 @@
                     if (name == 'Type') {
                         dhxCombo.unSelectOption();
                         if (value == 'Groups') {
-                            if (!groupsList) {
-                                CustomDocumentController.getGroups(function (result, event) {
-                                    if (event.type == 'exception') {
-                                        alert(event.message);
-                                    } else {
-                                        var data = result;
-                                        console.log(result);
-                                        data = ($('<div>').html(data).text());
-                                        groupsList = data;
-                                        dhxCombo.load(data);
-                                    }
-                                });
-                            } else {
-                                dhxCombo.load(groupsList);
-                            }
+                            dhxCombo.load(groupsList);
                         } else {
                             dhxCombo.load(usersList);
                         }
@@ -2379,6 +2392,184 @@
 
             }
 
+            function openMailUsers() {
+                if (!dhxWins2) {
+                    var dhxWins2 = new dhtmlXWindows();
+                    dhxWins2.attachViewportTo("wrapper");
+                    dhxWins2.setSkin(lSkin);
+                }
+                if (!dhxWins2.window("w1")) {
+                    mailUsersWindow = dhxWins2.createWindow("w1", 10, 10, 530, 340);
+                    mailUsersWindow.setText("Email Updated Document Links to Alliance Users");
+                    dhxWins2.window("w1").center();
+                    dhxWins2.window("w1").setModal(true);
+                    dhxWins2.window("w1").button("park").hide();
+
+                    dhxWins2.window("w1").attachEvent("onClose", function (win) {
+                        $("#pinsDiv").remove();
+                        win.detachObject(false, "wrapper");
+                        return true;
+                    });
+
+                }
+
+                var MailWindowLayout = dhxWins2.window("w1").attachLayout("2E");
+                MailWindowLayout.setSkin(lSkin);
+                MailWindowLayout.cells("a").hideHeader();
+                MailWindowLayout.cells("a").setHeight(50);
+                MailWindowLayout.cells('b').setText("Add Members");
+                MailWindowLayout.cells("b").hideArrow();
+                MailWindowLayout.cells("a").fixSize(false, true);
+
+                MailWindowLayout.cells("a").attachObject("emailInfoBox");
+                //attachHTMLString
+
+                var MailWindowForm = MailWindowLayout.cells("b").attachForm([
+                    {
+                        type: "block", style: "margin: 0px 0px 0px 0px;", list: [
+                            { type: "settings", position: "label-left" },
+                            { type: "select", labelWidth: 28, inputWidth: 65, name: "Type", id: "Type", label: "Type", value: "", options: [{ value: "Users", text: "Users" }, { value: "Groups", text: "Groups" }] },
+                            { type: "newcolumn", offsetLeft: 20 },
+                            { type: "combo", label: "", className: "searchDropdown", inputWidth: 235, comboType: "image", name: "searchValue", filtering: true, offsetLeft: 0 },
+                        ]
+                    },
+                    {
+                        type: "block", style: "margin: 0px 0px 0px 0px;", list: [
+                            { type: "container", name: "HTMLcontainer2", id: "HTMLcontainer2", inputWidth: "auto", inputHeight: MailWindowLayout.cells("a").getHeight() - 100 }
+                        ]
+                    }
+                ]);
+
+
+
+                var dhxCombo = MailWindowForm.getCombo("searchValue");
+
+                var usersList;
+                var groupsList;
+
+
+
+                CustomDocumentController.getUsers('Community: Alliance Portal', function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        //var data = result;
+                        var data = ($('<div>').html(result.users).text());
+                        groupsList = ($('<div>').html(result.groups).text());
+                        usersList = data;
+                        dhxCombo.load(data);
+                    }
+                });
+
+                $("#AddPinsButtonDiv").remove();
+
+                var container = MailWindowForm.getContainer("HTMLcontainer2");
+                var pinsDiv = document.createElement('div');
+                pinsDiv.setAttribute("id", "pinsDiv");
+                var AddPinsButtonDiv = document.createElement('div');
+                AddPinsButtonDiv.setAttribute("id", "AddPinsButtonDiv");
+                container.appendChild(pinsDiv);
+                container.appendChild(AddPinsButtonDiv);
+
+
+
+
+                var MailActionWindowFormData = [
+                    {
+                        type: "block", style: "margin: 0px 0px 0px -23px;", list: [
+                            { type: "settings", position: "label-left" },
+                            { type: "select", labelWidth: 68, inputWidth: 165, name: "Range", id: "Range", label: "Date Range", value: "Today", options: [{ value: "Today", text: "Today" }, { value: "This Week", text: "This Week" }, { value: "7 Days", text: "7 Days" }, { value: "This Month", text: "This Month" }] },
+                            { type: "button", value: "Send", width: 134, disabled: true, name: "Send" }
+                        ]
+                    }
+                ];
+                var MailActionWindowForm = new dhtmlXForm("AddPinsButtonDiv", MailActionWindowFormData);
+
+                CustomDocumentController.getUsersWithAccessForDocs(AccId, function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        console.log(result);
+                        for (let a of result) {
+                            MailActionWindowForm.enableItem("Send");
+                            var UserOrGroup = document.createElement('span');
+                            UserOrGroup.setAttribute("id", a.Id);
+                            UserOrGroup.className = "UserOrGroupSelected";
+                            UserOrGroup.innerHTML = '<span>' + a.Name + '</span>' + '<a class="UserOrGroupSelected-Badge" onclick="$(this).parent().remove();">X</a>';
+                            pinsDiv.appendChild(UserOrGroup);
+                        }
+                    }
+                });
+
+                MailActionWindowForm.attachEvent("onButtonClick", function (name) {
+                    var members = pinsDiv.getElementsByTagName("SPAN");
+                    var usersAndGroups = [];
+                    for (var i = 0; i < members.length; i++) {
+                        if (members[i].id) {
+                            usersAndGroups.push(members[i].id);
+                        }
+                    }
+                    CustomDocumentController.sendEmail(usersAndGroups, AccId, MailActionWindowForm.getItemValue('Range'), function (result, event) {
+                        if (event.type == 'exception') {
+                            console.log();
+                        } else {
+                            dhtmlx.message({
+                                text: 'Sent Updated Document Links to Alliance Users'
+                            });
+                        }
+                    });
+
+                });
+
+
+
+                MailWindowForm.attachEvent("onChange", function (name, value, state) {
+                    if (name == 'Type') {
+                        dhxCombo.unSelectOption();
+                        if (value == 'Groups') {
+                            /*if (!groupsList) {
+                                CustomDocumentController.getGroups(function (result, event) {
+                                    if (event.type == 'exception') {
+                                        alert(event.message);
+                                    } else {
+                                        var data = result;
+
+                                        data = ($('<div>').html(data).text());
+                                        console.log(data);
+                                        groupsList = data;
+                                        dhxCombo.load(data);
+
+                                        
+
+                                    }
+                                });
+                            } else {
+                                dhxCombo.load(groupsList);
+                            }*/
+                            dhxCombo.load(groupsList);
+                        } else {
+                            dhxCombo.load(usersList);
+                        }
+
+                    } else if (name == 'searchValue') {
+                        if (dhxCombo.getSelectedText() != null && dhxCombo.getSelectedText() != '') {
+                            var isAlreadySelected = document.getElementById(MailWindowForm.getItemValue('searchValue'));
+                            if (!isAlreadySelected) {
+                                MailActionWindowForm.enableItem("Send");
+                                var UserOrGroup = document.createElement('span');
+                                UserOrGroup.setAttribute("id", MailWindowForm.getItemValue('searchValue'));
+                                UserOrGroup.className = "UserOrGroupSelected";
+                                UserOrGroup.innerHTML = '<span>' + dhxCombo.getSelectedText() + '</span>' + '<a class="UserOrGroupSelected-Badge" onclick="$(this).parent().remove();">X</a>';
+                                pinsDiv.appendChild(UserOrGroup);
+                            }
+                            dhxCombo.unSelectOption();
+                        }
+                    }
+                });
+
+
+            }
+
             $("#stext").on('keyup', function (e) {
                 if (e.keyCode == 13) {
                     TagTree.findItem(document.getElementById('stext').value);
@@ -2403,16 +2594,30 @@
 
             function optimizeScreenView(obj) {
                 console.log($("#layoutObj").width());
-                if ($("#layoutObj").width() > 1000) {
+                if ($("#layoutObj").width() > 1200) {
                     myLayout.cells("a").setWidth(230);
                     myLayout.cells("c").setWidth(290);
+
+
+
+
                     myGrid.setColWidth(3, "100");
+                    myGrid.setColWidth(1, "*");
+                    myGrid.setColWidth(8, "*");
                     myGrid.setColLabel(3, "CREATED DATE");
                     //myGrid.moveColumn(4, 8);
                 } else {
                     myLayout.cells("a").setWidth(180);
                     myLayout.cells("c").setWidth(200);
+
+                    /*myGrid.setColumnHidden(4, false);
+                    myGrid.setColumnHidden(5, false);
+                    myGrid.setColumnHidden(9, true);
+                    myGrid.setColumnHidden(12, true);*/
+
                     myGrid.setColWidth(3, "37");
+                    myGrid.setColWidth(1, "350");
+                    myGrid.setColWidth(8, "300");
                     myGrid.setColLabel(3, "DATE");
                     //myGrid.moveColumn(8, 6);
                     if (obj == "FirstLoad") {
@@ -2433,6 +2638,8 @@
                     }
                 });
             }
+
+
 
         </script>
 

@@ -2,8 +2,9 @@
 private class communityVerticalNavCtrlTest {
 	
 	@isTest static void test_method_one() {
-        communityVerticalNavCtrl.getGroups();
-        communityVerticalNavCtrl.hasTags();
+        Account a = new Account(Name = 'Canapi');
+        insert a;
+        communityVerticalNavCtrl.getSettings();
     }
 
 }

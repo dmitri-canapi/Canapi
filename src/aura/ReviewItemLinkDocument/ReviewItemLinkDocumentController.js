@@ -20,7 +20,8 @@
                 isCommunity: component.get("v.IsCommunity"),
                 skin: "terrace",
                 communityName: component.get("v.communityName"),
-                componentHeight: "400"
+                componentHeight: "400",
+                highlightedDoc: component.get("v.highlightedDoc")
             }, function (uplComp, status, errorMessage) {
                 //Add the new button to the body array
                 if (status === "SUCCESS") {

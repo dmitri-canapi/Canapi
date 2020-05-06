@@ -10,6 +10,16 @@
         <field>TITLE</field>
     </columns>
     <columns>
+        <field>Contact.Title_Tags__c</field>
+    </columns>
+    <columns>
+        <field>Contact.Function_Tags__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Contact.FTA__c</field>
+    </columns>
+    <columns>
         <field>PHONE3</field>
     </columns>
     <columns>

@@ -2,6 +2,8 @@
     extends="forceCommunity:navigationMenuBase" controller="communityVerticalNavCtrl">
     <aura:attribute name="menus" type="Object[]" />
     <aura:attribute name="showMenu" type="boolean" default="false" />
+    <aura:attribute name="UserHasTags" type="boolean" default="false" />
+    <aura:attribute name="CommunityName" type="String" default="" />
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
 
     <div class="slds-grid slds-grid--vertical slds-navigation-list--vertical customNav" onmouseover="{!c.showLabels}"

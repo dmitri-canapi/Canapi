@@ -37,7 +37,7 @@ trigger shareDocumentAttachment on Document__c (before update,after insert) {
                 }
             }
             List <TagDocumentAssociation__c> tdaList = new List <TagDocumentAssociation__c>();
-            List <Default_Sharing__c> defSharings = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where createdById=:userInfo.getUserId()];
+            List <Default_Sharing__c> defSharings = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where createdById=:userInfo.getUserId() or CreatedBy__c =:userInfo.getUserId()];
         	List <Document__Share> docShares = new List <Document__Share>();
             
             

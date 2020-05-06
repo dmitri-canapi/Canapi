@@ -9,6 +9,7 @@
     <aura:attribute name="IsCommunity" type="Boolean" />
     <aura:attribute name="skin" type="String" default="skyblue" />
     <aura:attribute name="communityName" type="String" />
+    <aura:attribute name="readOnlyMode" type="String" default="false" />
     <aura:attribute name="componentHeight" type="String" default="400" />
 
     <aura:attribute name="listOptions" type="List" default="[]" />
@@ -25,6 +26,7 @@
     <aura:attribute name="customRecordName" type="String" />
     <aura:attribute name="customRecordType" type="String" />
     <aura:attribute name="BaseUrl" type="String" />
+    <aura:attribute name="highlightedDoc" type="String" />
 
     <aura:attribute name="isOpen" type="boolean" default="false" />
     <aura:attribute name="currentFileId" type="String" default="" />
@@ -40,11 +42,11 @@
     <aura:if isTrue="{!v.IsCommunity}">
         <iframe id="vfFrame" aura:id="vfFrame"
             style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
-            src="{! '/' +v.communityName + '/apex/UploadedDocumentsForAccount?recordId=' + v.recordId + '&amp;isCommunity=' + v.IsCommunity + '&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight}" />
+            src="{! '/' +v.communityName + '/apex/UploadedDocumentsForAccount?recordId=' + v.recordId + '&amp;isCommunity=' + v.IsCommunity + '&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight + '&amp;readOnlyMode=' + v.readOnlyMode + '&amp;highlightedDoc=' + v.highlightedDoc}" />
         <aura:set attribute="else">
             <iframe id="vfFrame" aura:id="vfFrame"
                 style="{! 'border: none;min-height:' + v.componentHeight + 'px;width: 100%;'}"
-                src="{!'/apex/UploadedDocumentsForAccount?recordId=' + v.recordId + '&amp;isCommunity=' + v.IsCommunity + '&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight}" />
+                src="{!'/apex/UploadedDocumentsForAccount?recordId=' + v.recordId + '&amp;isCommunity=' + v.IsCommunity + '&amp;skin=' + v.skin + '&amp;communityName=' + v.communityName + '&amp;componentHeight=' + v.componentHeight + '&amp;readOnlyMode=' + v.readOnlyMode + '&amp;highlightedDoc=' + v.highlightedDoc}" />
         </aura:set>
     </aura:if>
 

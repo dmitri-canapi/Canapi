@@ -18,12 +18,14 @@
                             //console.log(cmp.get("v.ifrHeight"));
                             //console.log(String(pass_data.bodyHeight));
                             cmp.set("v.ifrHeight", String(pass_data.bodyHeight));
+
                             var reloadAttempts = cmp.get("v.reloadAttempts") + 1;
                             cmp.set("v.reloadAttempts", reloadAttempts);
 
                             window.setTimeout(
                                 $A.getCallback(function () {
                                     cmp.set("v.opacity", '1');
+                                    cmp.set("v.disableViewStyleSwitcher", false);
                                 }), 2000
                             );
                         }

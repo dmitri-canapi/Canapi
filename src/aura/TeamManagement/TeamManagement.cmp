@@ -27,7 +27,11 @@
         default="[{'label': 'Tiles', 'value': 'Tiles'},{'label': 'Grid', 'value': 'Grid'}]" />
     <aura:attribute name="viewStyle" type="String" default="Tiles" />
 
+    <aura:attribute name="disableViewStyleSwitcher" type="Boolean" default="true" />
+
     <aura:handler name="init" value="{! this }" action="{! c.init }" />
+    <aura:handler event="force:showToast" action="{!c.filterData}" />
+
     <lightning:layout horizontalAlign="end">
 
 
@@ -52,9 +56,10 @@
 
         <div class="slds-float_right slds-m-right_large">
             <ul class="slds-list_horizontal">
-                <li style="margin-right: 5px;display:none;">
+                <li style="margin-right: 5px;">
                     <lightning:radioGroup name="viewStyleFilter" label="" options="{! v.viewStyleOptions }"
-                        value="{! v.viewStyle }" type="button" onchange="{!c.changeViewStyle}" />
+                        value="{! v.viewStyle }" type="button" onchange="{!c.changeViewStyle}"
+                        disabled="{!v.disableViewStyleSwitcher}" />
                 </li>
                 <li>
                     <lightning:button label="New Contact" variant="brand" onclick="{!c.openmodal}" class="newButt" />

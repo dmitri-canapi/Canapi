@@ -18,7 +18,7 @@
 
         TeamManagementController.getTags();
 
-        contact c = new contact(LastName='test2');
+        contact c = new contact(LastName='test2',AccountId = a.Id);
         insert c;
 
 
@@ -31,14 +31,16 @@
         TeamManagementController.applyTag(UserInfo.getUserId(), tag.Id);
         TeamManagementController.applyTag(c.Id, tag.Id);
 
-        TeamManagementController.removeTagAssociation([select id from UserContactTagAssociation__c limit 1].Id);
+        
 
         TeamManagementController.sendIntro(c.Id);
         TeamManagementController.sendRemind(UserInfo.getUserId());
 
+        
+
+        TeamManagementController.getGridData(a.Id,'test3');
+        TeamManagementController.removeTagAssociation([select id from UserContactTagAssociation__c limit 1].Id);
         TeamManagementController.deleteSFobject(c.Id);
-
-        TeamManagementController.getGridData(a.Id,'test2');
-
+        
     }
 }

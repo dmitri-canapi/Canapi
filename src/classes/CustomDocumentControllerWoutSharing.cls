@@ -167,7 +167,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
         generator.writeStartObject(); 
         generator.writeFieldName('rows');
         generator.writeStartArray(); //Write the starting marker of a JSON object '['
-        List <Default_Sharing__c> dshares = [select id, UserOrGroup__c, Access__c, createdById  from Default_Sharing__c where createdById=:userInfo.getUserId()];
+        List <Default_Sharing__c> dshares = [select id, UserOrGroup__c, Access__c, createdById  from Default_Sharing__c where createdById =: userInfo.getUserId() or CreatedBy__c =: userInfo.getUserId() ];
         Map <id,Default_Sharing__c> UserOrGroupIds = new map <id,Default_Sharing__c>();
 
         for (Default_Sharing__c  ds: dshares){
@@ -237,10 +237,10 @@ public without sharing class CustomDocumentControllerWoutSharing {
         generator.writeEndObject();
 
         generator.writeEndArray();
-        return generator.getAsString();
+        return generator.getAsString(); 
     }
     
-    public static String getGroups(){
+    private static String getGroups(String profileName){
         list <Group> groups = [SELECT Id, Name, DeveloperName, Type FROM Group where type='Regular' Or type ='AllCustomerPortal' Or type ='Organization' order by Name asc,DeveloperName asc  limit 1000];
         JSONGenerator generator = JSON.createGenerator(true);
         generator.writeStartObject(); 
@@ -248,15 +248,17 @@ public without sharing class CustomDocumentControllerWoutSharing {
         generator.writeStartArray(); //Write the starting marker of a JSON object '['
         
         for (Group u: groups){
-            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
-            generator.writeStringField('value', u.Id);
-            generator.writeStringField('img', '');
-            if (u.Name == '' || u.Name == null){
-                generator.writeStringField('text', u.DeveloperName);
-            } else {
-                generator.writeStringField('text', u.Name);
+            if (profileName == '' || (profileName != '' && u.Name == 'Alliance Portal Users')){
+                generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+                generator.writeStringField('value', u.Id);
+                generator.writeStringField('img', '');
+                if (u.Name == '' || u.Name == null){
+                    generator.writeStringField('text', u.DeveloperName);
+                } else {
+                    generator.writeStringField('text', u.Name);
+                }
+                generator.writeEndObject(); //Write the end marker of a JSON object '}'
             }
-            generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
 
         generator.writeEndArray(); //Write the end marker of a JSON object ']'
@@ -264,26 +266,182 @@ public without sharing class CustomDocumentControllerWoutSharing {
         
         return generator.getAsString();
     }
-    public static String getUsers(){
-        list <User> usrs = [select id,name,SmallPhotoUrl from User where id!=:userInfo.getUserId() and isActive=true and name!='Automated Process' and (Profile.UserLicense.Name='Salesforce' or Profile.UserLicense.Name='Customer Community Plus') order By name ASC];
+    public static CustomDocumentController.UsersSelectData getUsers(String profileName){
+        list <User> usrs = [select id,name,SmallPhotoUrl,Profile.Name from User where id!=:userInfo.getUserId() and isActive=true and name!='Automated Process' and (Profile.UserLicense.Name='Salesforce' or Profile.UserLicense.Name='Customer Community Plus') order By name ASC];
         JSONGenerator generator = JSON.createGenerator(true);
         generator.writeStartObject(); 
         generator.writeFieldName('options');
         generator.writeStartArray(); //Write the starting marker of a JSON object '['
         
         for (User u: usrs){
-            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
-            generator.writeStringField('value', u.Id);
-            generator.writeStringField('img', u.SmallPhotoUrl);
-            generator.writeStringField('text', u.Name);
-            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+            if(u.Profile.Name == profileName || profileName == ''){
+                generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+                generator.writeStringField('value', u.Id);
+                generator.writeStringField('img', u.SmallPhotoUrl);
+                generator.writeStringField('text', u.Name);
+                generator.writeEndObject(); //Write the end marker of a JSON object '}'
+            }
         }
         generator.writeEndArray(); //Write the end marker of a JSON object ']'
         generator.writeEndObject();
         
-        return generator.getAsString();
+        return new CustomDocumentController.UsersSelectData (generator.getAsString(), getGroups(profileName));
         
     }
+
+    public static List <User> getUsersWithAccessForDocs (String accId){
+
+        Map<ID, Document__c> docs = new Map<ID, Document__c>((List <Document__c>)([select id from Document__c where (Account__c=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Opportunity__r.AccountId=:accId)]));
+
+
+        List <Document__share> dsList = getDocShares(docs.KeySet());
+
+        set <String> usersids = new set <String>();
+
+
+        Map<Id, Set <String>> groupWithUsers = new Map<Id, Set <String>>();
+        for (Document__share ds: dsList){
+            if (id.valueOf(ds.UserOrGroupId).getSObjectType().getDescribe().getName() == 'Group'){
+                groupWithUsers.put(ds.UserOrGroupId, new Set <String>());
+            } else {
+                usersids.add(ds.UserOrGroupId);
+            }
+        }
+
+        for (GroupMember gm: [SELECT UserOrGroupId, GroupId FROM GroupMember WHERE GroupId in: groupWithUsers.KeySet()]){
+            if (id.valueOf(gm.UserOrGroupId).getSObjectType().getDescribe().getName() == 'User'){
+                usersids.add(gm.UserOrGroupId);
+            }
+        }
+
+        return [select id, Name from User where id in: usersids];
+
+    }
+
+    public static void sendEmail(List <String> usersAndGroups, String accId, String Range){
+        String accName = [select Name from account where id =: accId].Name;
+        Set <String> allUsersIds = new set <string>();
+        Set <String> groupsIds = new set <string>();
+        for (String s: usersAndGroups){
+            if (id.valueOf(s).getSObjectType().getDescribe().getName() == 'User'){
+                allUsersIds.add(s);
+            } else {
+                groupsIds.add(s);
+            }
+        }
+        Set <String> usersFromGroups = new set <string>(); 
+        
+        for (GroupMember gm: [SELECT UserOrGroupId FROM GroupMember WHERE GroupId in: groupsIds]){
+            if (id.valueOf(gm.UserOrGroupId).getSObjectType().getDescribe().getName() == 'User'){
+                usersFromGroups.add(gm.UserOrGroupId);
+            }
+        }
+        for (User u: [select id from User where Profile.Name = 'Community: Alliance Portal' and id in: usersFromGroups]){
+            allUsersIds.add(u.Id);
+        }
+        system.debug(allUsersIds);
+
+        Map <String, Set<Id>> usersWithDocs = new Map <String, Set<Id>> ();
+
+        for(String uId: allUsersIds){
+            usersWithDocs.put(uId,New Set<Id>());
+        }
+
+        String todayDate = DateTime.now().format('yyyy-MM-dd\'T\'hh:mm:ss\'Z\'');
+
+
+        string query = 'select id, Name__c, CreatedDate from Document__c where (Account__c=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Opportunity__r.AccountId=:accId) and ';
+        if (Range == 'Today'){
+            query += '(CreatedDate >= ' + todayDate +  'OR LastModifiedDate >=  ' + todayDate + ')';
+        } else if (Range == 'This Week'){
+            query += '(CreatedDate >= THIS_WEEK OR LastModifiedDate >= THIS_WEEK)';
+        } else if (Range == '7 Days'){
+            query += '(CreatedDate >= LAST_N_DAYS:7 OR LastModifiedDate >= LAST_N_DAYS:7)';
+        } else if (Range == 'This Month'){
+            query += '(CreatedDate >= THIS_MONTH OR LastModifiedDate >= THIS_MONTH)';
+        }
+        query+=' order by Name__c asc';
+        system.debug(query);
+        
+        Map<ID, Document__c> docs = new Map<ID, Document__c>((List <Document__c>)(Database.query(query)));
+
+
+        List <Document__share> dsList = getDocShares(docs.KeySet());
+
+
+        Map<Id, Set <String>> groupWithUsers = new Map<Id, Set <String>>();
+        for (Document__share ds: dsList){
+            if (id.valueOf(ds.UserOrGroupId).getSObjectType().getDescribe().getName() == 'Group'){
+                groupWithUsers.put(ds.UserOrGroupId, new Set <String>());
+            }
+        }
+        for (GroupMember gm: [SELECT UserOrGroupId, GroupId FROM GroupMember WHERE GroupId in: groupWithUsers.KeySet()]){
+            if (id.valueOf(gm.UserOrGroupId).getSObjectType().getDescribe().getName() == 'User'){
+                Set<String> tempUsers =  groupWithUsers.get(gm.GroupId);
+                tempUsers.add(gm.UserOrGroupId);
+                groupWithUsers.put(gm.GroupId, tempUsers);
+            }
+        }
+
+        for (Document__share ds: dsList){
+            if (id.valueOf(ds.UserOrGroupId).getSObjectType().getDescribe().getName() == 'User'){
+                if (usersWithDocs.containsKey(ds.UserOrGroupId)){
+                    Set <Id> docsIds = usersWithDocs.get(ds.UserOrGroupId);
+                    docsIds.add(ds.ParentId);
+                    usersWithDocs.put(ds.UserOrGroupId, docsIds);
+                }
+            } else {
+                for (String uId: groupWithUsers.get(ds.UserOrGroupId)){
+                    if (usersWithDocs.containsKey(uId)){
+                        Set <Id> docsIds = usersWithDocs.get(uId);
+                        docsIds.add(ds.ParentId);
+                        usersWithDocs.put(uId, docsIds);
+                    }
+                }
+            } 
+        }
+
+        List <Messaging.SingleEmailMessage> messages = new List <Messaging.SingleEmailMessage>();
+
+        if (Test.IsRunningTest()){
+            usersWithDocs.put(userInfo.getUserId(), new Set <Id>());
+        }
+
+        for(String Uid: usersWithDocs.KeySet()){
+            if(usersWithDocs.get(Uid).size()>0 || Test.IsRunningTest()){
+                Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
+                message.setSubject('New Documents Available');
+                message.setTargetObjectId(Uid);
+                message.setSaveAsActivity(false);
+                message.setUseSignature(false);
+
+                String emailBody = '<H2>New Documents Available</H2><br/>';
+                emailBody += 'The following ' + accName + ' document(s) were recently updated on Alliance:<br/>';
+                emailBody += '<ul>';
+                for (String docId: usersWithDocs.get(Uid)){
+                    emailBody += '<li><a href="https://canapi.force.com/alliance/s/account/' + accId + '?tabset-35136=3">' + docs.get(docId).Name__c + '</a> - ' + docs.get(docId).CreatedDate +  '</li>';
+                }
+                emailBody += '</ul>';
+                message.setHTMLBody(emailBody);
+
+                messages.add(message);
+
+            }
+
+        }
+
+        if (messages.size() > 0){
+            Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
+        }
+
+        
+
+
+
+
+    }
+
+
     public static void addPermission (String userOrGroupId,String currentDocId, String AccessType){
         Document__Share ds = new Document__Share();
         ds.ParentId = currentDocId;
@@ -305,7 +463,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
     public static void addDefaultPermission (String userOrGroupId, String AccessType){
         Default_Sharing__c ds = new Default_Sharing__c();
         try {
-            ds = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where UserOrGroup__c= : userOrGroupId and createdById=:userInfo.getUserId()];
+            ds = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where UserOrGroup__c= : userOrGroupId and (createdById=:userInfo.getUserId() or CreatedBy__c =:userInfo.getUserId()) ];
         } catch(exception e){}
         ds.UserOrGroup__c = userOrGroupId;
         ds.Access__c = AccessType;

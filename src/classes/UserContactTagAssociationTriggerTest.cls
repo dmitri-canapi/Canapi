@@ -31,6 +31,9 @@
 
         TeamManagementController.applyTag(user.Id, tag.Id);
 
+        tag.Name = 'Fin2';
+        update tag;
+
         delete [select id from UserContactTagAssociation__c where User__c =: user.Id];
 
     }

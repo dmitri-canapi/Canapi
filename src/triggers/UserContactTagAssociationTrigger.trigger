@@ -1,5 +1,6 @@
-trigger UserContactTagAssociationTrigger on UserContactTagAssociation__c (after insert, before delete) {
+trigger UserContactTagAssociationTrigger on UserContactTagAssociation__c (after insert, before delete, after delete) {
 
+    Set <Id> contactIds = new Set <Id>();
     if (Trigger.IsInsert){
         Set <id> userIds = new Set <id>();
         Set <id> accIds = new Set <id>();
@@ -8,6 +9,9 @@ trigger UserContactTagAssociationTrigger on UserContactTagAssociation__c (after 
         for(UserContactTagAssociation__c assoc:Trigger.new) {
             if (assoc.User__c != null){
                 userIds.add(assoc.User__c);
+            }
+            if (assoc.Contact__c != null){
+                contactIds.add(assoc.Contact__c);
             }
         }
 
@@ -32,7 +36,7 @@ trigger UserContactTagAssociationTrigger on UserContactTagAssociation__c (after 
     }
 
 
-    if (Trigger.IsDelete){
+    if (Trigger.IsDelete && Trigger.IsBefore){
         Set <id> userIds = new Set <id>();
         Set <id> accIds = new Set <id>();
         list <id> docIds = new list <id>();
@@ -57,6 +61,33 @@ trigger UserContactTagAssociationTrigger on UserContactTagAssociation__c (after 
             }
         }
         delete [select id from Document__Share where ParentId in: docIds and RowCause='Manual' and UserOrGroupId in : userIds];
+    }
+
+    if (Trigger.IsDelete && Trigger.IsAfter){
+        for(UserContactTagAssociation__c assoc:Trigger.old) {
+            if (assoc.Contact__c != null){
+                contactIds.add(assoc.Contact__c);
+            }
+        }
+    }
+
+    if (contactIds.size() > 0){
+        List <Contact> conts = [select id, (select UserContactTag__r.Name, UserContactTag__r.Function__c from UserContactTagAssociations__r order by UserContactTag__r.Function__c desc, UserContactTag__r.name asc) from Contact where id in: contactIds];
+
+        for (Contact cont: conts){
+            Set <String> funcTags = new Set <String>();
+            Set <String> titleTags = new Set <String>();
+            for (UserContactTagAssociation__c ucta :cont.UserContactTagAssociations__r ){
+                if (ucta.UserContactTag__r.Function__c == 'Function'){
+                    funcTags.add(ucta.UserContactTag__r.Name);
+                } else {
+                    titleTags.add(ucta.UserContactTag__r.Name);
+                }
+            }
+            cont.Function_Tags__c = String.join(new List<String>(funcTags), ';');
+            cont.Title_Tags__c = String.join(new List<String>(titleTags), ';');
+        }
+        update conts;
     }
     
 }

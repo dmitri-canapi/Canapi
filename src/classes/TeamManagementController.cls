@@ -65,6 +65,12 @@ global  without sharing class TeamManagementController {
         for (User u: users){
             generator.writeStartObject(); //Write the starting marker of a JSON object '{'
             generator.writeStringField('id', u.Id);
+
+            generator.writeFieldName('userdata');
+            generator.writeStartObject();
+            generator.writeStringField('Tags', JSON.serialize(u.UserContactTagAssociations__r));
+            generator.writeEndObject();
+
             List<String> strlist = new List<String>();
             if (u.FirstName != null){
                 String link = 'javascript:navigateTo("' + u.Id + '")^_self';
@@ -77,13 +83,18 @@ global  without sharing class TeamManagementController {
             strlist.add(u.Title);
             strlist.add(string.valueOfGmt(u.LastLoginDate));
             strlist.add('Portal User');
-            strlist.add('');
+            strlist.add(u.Id);
+            strlist.add('arrDownSingle.png');
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }
         for (Contact c: contacts){
             generator.writeStartObject(); //Write the starting marker of a JSON object '{'
             generator.writeStringField('id', c.Id);
+            generator.writeFieldName('userdata');
+            generator.writeStartObject();
+            generator.writeStringField('Tags', JSON.serialize(c.UserContactTagAssociations__r));
+            generator.writeEndObject();
             List<String> strlist = new List<String>();
             if (c.FirstName != null){
                 String link = 'javascript:navigateTo("' + c.Id + '")^_self';
@@ -96,7 +107,8 @@ global  without sharing class TeamManagementController {
             strlist.add(c.Title);
             strlist.add('');
             strlist.add('Contact');
-            strlist.add('');
+            strlist.add(c.Id);
+            strlist.add('arrDownSingle.png');
             generator.writeObjectField('data', strlist);
             generator.writeEndObject(); //Write the end marker of a JSON object '}'
         }

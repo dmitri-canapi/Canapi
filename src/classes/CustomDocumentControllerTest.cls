@@ -323,15 +323,22 @@ public class CustomDocumentControllerTest {
         system.debug(CustomDocumentController.getCurrentPermissionsForObject(acc.Id,'Contacts'));
         system.debug(CustomDocumentController.getCurrentPermissionsForObject(acc.Id,'Board_Meetings__r'));
         
-        system.debug(CustomDocumentController.getGroups());
-        system.debug(CustomDocumentController.getUsers());
+        system.debug(CustomDocumentController.getUsers('System Administrator'));
+        system.debug(CustomDocumentController.getUsers(''));
         /*system.debug(CustomDocumentController.getCommunityPageHeaderInitValues2(c.Id));*/
         
         CustomDocumentController.getFavoriteGroups();
         CustomDocumentController.shareForFavGroups('ShareWithGroup' + gp.Id,doc.Id);
 
+        CustomDocumentController.getUsersWithAccessForDocs(acc.Id);
+
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'Today');
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'This Week');
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, '7 Days');
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'This Month');
+
         Default_Sharing__c ds = new Default_Sharing__c();
-        
+        ds.CreatedBy__c = userInfo.getUserId();
         ds.UserOrGroup__c = userInfo.getUserId();
         ds.Access__c = 'Read';
         insert ds;

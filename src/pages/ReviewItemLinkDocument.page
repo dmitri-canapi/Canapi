@@ -2,6 +2,7 @@
     <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" />
     <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}" />
     <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.css')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/terrace/dhtmlx.css')}" />
 
     <style type="text/css" media="screen">
         html,
@@ -32,58 +33,6 @@
             -->
         }
 
-        .slds-button {
-            position: relative;
-            display: inline-block;
-            line-height: 1.875rem;
-            color: rgb(172, 28, 44);
-            -webkit-appearance: none;
-            white-space: normal;
-            user-select: none;
-            padding: 0px;
-            background: border-box transparent;
-            border-width: 1px;
-            border-style: solid;
-            border-color: transparent;
-            border-image: initial;
-            border-radius: 0.25rem;
-            text-decoration: none;
-        }
-
-        .slds-button_brand,
-        .slds-button--brand {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            text-align: center;
-            vertical-align: middle;
-            background-color: rgb(172, 28, 44);
-            color: rgb(255, 255, 255);
-            border-width: 1px;
-            border-style: solid;
-            border-image: initial;
-            transition: border 0.15s linear 0s;
-            border-color: rgb(172, 28, 44);
-        }
-
-        .slds-button_neutral {
-            padding-left: 1rem;
-            padding-right: 1rem;
-            text-align: center;
-            vertical-align: middle;
-            background-color: rgb(255, 255, 255);
-            border-width: 1px;
-            border-style: solid;
-            border-image: initial;
-            transition: border 0.15s linear 0s;
-            border-color: rgb(205, 202, 202);
-            color: rgb(172, 28, 44);
-            border-width: 1px;
-            border-style: solid;
-            border-image: initial;
-            transition: border 0.15s linear 0s;
-            border-color: rgb(205, 202, 202);
-        }
-
         .dhtmlx-NotifyMessage>div {
             background-color: #76fbb6 !important;
         }
@@ -104,10 +53,6 @@
             border-bottom: 1px solid rgb(205, 202, 202);
         }
 
-        .disabled {
-            background: rgb(201, 199, 197);
-        }
-
         div.gridbox_material.gridbox table.obj tr td,
         .dhx_grid_adjust,
         .standartTreeRow {
@@ -124,6 +69,35 @@
             line-height: 34px;
             font-size: 16px;
         }
+
+        .dhxtree_dhx_terrace span.selectedTreeRow_lor,
+        .dhxtree_dhx_terrace span.selectedTreeRow {
+            background-color: #d9eaff !important;
+        }
+
+        div.gridbox_dhx_terrace.gridbox table.obj tr.rowselected,
+        div.gridbox_dhx_terrace.gridbox table.obj tr.rowselected td,
+        div.gridbox_dhx_terrace.gridbox table.obj tr td.cellselected,
+        div.gridbox_dhx_terrace.gridbox table.obj.row20px tr.rowselected,
+        td.cellselected {
+            background: #d9eaff !important;
+        }
+
+        #submitFormDiv .dhxform_base {
+            float: right;
+            margin: 3px;
+        }
+
+        #linkInfo {
+            background: #eeeeee;
+            font-weight: bold;
+            height: 100%;
+        }
+
+        .linkInfoText {
+            padding: 5px;
+            line-height: 1.15rem;
+        }
     </style>
 
     <body>
@@ -131,11 +105,31 @@
             Add Notes
         </div>
         <div id="layoutObj"></div>
+        <div id="submitFormDiv" style="height:40px; width:100%"></div>
 
-        <button class="slds-button slds-button_brand disabled" id="LinkButton" style=" float: right;  margin: 5px; border-color: white;"
-            type="button" title="Link" onclick="LinkDocToRI();">Link</button>
-        <button class="slds-button slds-button_neutral" style=" float: right;  margin: 5px;" type="button" title="Close" onclick="closeParentPopup();">Close</button>
-
+        <div id="linkInfo">
+            <div id="docLinked" style="display:none;">
+                <div style="background: #93c47d; height: 30px; line-height: 30px; font-size: 14px;">
+                    <img style="vertical-align: middle;width: 20px; vertical-align: middle;width: 20px;margin: 5px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/link.png')}"
+                    /> Linked
+                </div>
+                <div class="linkInfoText">
+                    Document(s) linked to Review Item.
+                    <br/>Update Link Notes to the right and click "Update Note" button below to apply
+                </div>
+            </div>
+            <div id="docNotLinked">
+                <div style="background:#cccccc; height: 30px; line-height: 30px; font-size: 14px;">
+                    <img style="vertical-align: middle;width: 20px; vertical-align: middle;width: 20px;margin: 5px;transform: rotate(90deg);"
+                        border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/broken-link.png')}" /> Not Linked
+                </div>
+                <div class="linkInfoText">
+                    Document(s) are not linked to this Review Item.
+                    <br/> Update Link Notes to the right and click "Link" button below to link selected document(s) to Review
+                    Item
+                </div>
+            </div>
+        </div>
 
         <script type="text/javascript">
             var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
@@ -170,23 +164,51 @@
 
             var myLayout = new dhtmlXLayoutObject({
                 parent: "layoutObj",
-                pattern: '1C'
+                pattern: '2U'
             });
             myLayout.cells("a").hideHeader();
-            //myLayout.cells("a").setText("Add Notes");
-            //myLayout.cells("a").fixSize(true, false);
+            myLayout.cells("b").hideHeader();
+            myLayout.cells("a").hideArrow();
+            myLayout.cells("b").hideArrow();
+            if ($("#layoutObj").width() > 1200) {
+                myLayout.cells("a").setWidth(230);
+            } else {
+                myLayout.cells("a").setWidth(180);
+            }
+            myLayout.cells("a").fixSize(true, true);
+            myLayout.cells("a").attachObject("linkInfo");
 
-            myEditor = myLayout.cells("a").attachEditor();
+            myEditor = myLayout.cells("b").attachEditor();
             myEditor.setReadonly(true);
             myEditor.attachEvent("onAccess", function (eventName, evObj) {
                 if (eventName == "keyup") {
                     if (myEditor.getContent() == '' || myEditor.getContent() == null) {
-                        $("#LinkButton").addClass("disabled");
+                        Form.disableItem("link");
+                        Form.disableItem("updateNote");
                     } else {
-                        $("#LinkButton").removeClass("disabled");
+                        Form.enableItem("link");
+                        Form.enableItem("updateNote");
                     }
                 }
             });
+
+            var formData = [
+                { type: "button", value: 'Link', name: 'link', disabled: true },
+                { type: "newcolumn" },
+                { type: "button", value: 'Update Note', name: 'updateNote', hidden: true, disabled: true },
+                { type: "newcolumn" },
+                { type: "button", value: 'Close', name: 'close' }
+            ];
+            var Form = new dhtmlXForm("submitFormDiv", formData);
+            Form.setSkin('dhx_terrace');
+            Form.attachEvent("onButtonClick", function (name) {
+                if (name == 'link' || name == 'updateNote') {
+                    LinkDocToRI(name);
+                } else if (name == 'close') {
+                    closeParentPopup();
+                }
+            });
+
 
             function getNotes(docId) {
                 myEditor.setReadonly(false);
@@ -197,17 +219,23 @@
                         myEditor.setContent(($('<div>').html(result).text()));
                         console.log(result);
                         if (result == '' || result == null) {
-                            $("#LinkButton").addClass("disabled");
-                            $("#LinkButton").html('Link');
+                            $("#docLinked").hide();
+                            $("#docNotLinked").show();
+                            Form.hideItem("updateNote");
+                            Form.showItem("link");
+                            Form.disableItem("link");
                         } else {
-                            $("#LinkButton").removeClass("disabled");
-                            $("#LinkButton").html('Update Note');
+                            $("#docNotLinked").hide();
+                            $("#docLinked").show();
+                            Form.showItem("updateNote");
+                            Form.hideItem("link");
+                            Form.enableItem("updateNote");
                         }
                     }
                 });
             }
 
-            function LinkDocToRI() {
+            function LinkDocToRI(name) {
 
                 var content = myEditor.getContent();
                 console.log(content);
@@ -225,14 +253,19 @@
                             alert(event.message);
                         } else {
                             var text = '';
-                            if ($("#LinkButton").html() == 'Link') {
+                            if (name == 'link') {
                                 text = 'Document Linked to Review Item.';
+                                Form.showItem("updateNote");
+                                Form.hideItem("link");
+                                Form.enableItem("updateNote");
+                                $("#docNotLinked").hide();
+                                $("#docLinked").show();
                             } else {
                                 text = 'Note successfully updated.';
                             }
                             dhtmlx.message({
                                 expire: 3500,
-                                type: "NotifyMessage",
+                                //type: "NotifyMessage",
                                 text: text
                             })
                         }
@@ -247,6 +280,7 @@
 
 
         </script>
+
 
     </body>
 

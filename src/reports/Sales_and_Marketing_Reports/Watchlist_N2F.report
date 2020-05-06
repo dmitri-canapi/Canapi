@@ -4,10 +4,16 @@
         <field>ACCOUNT_NAME</field>
     </columns>
     <columns>
-        <field>OPPORTUNITY_NAME</field>
+        <field>ACCOUNT_TYPE</field>
     </columns>
     <columns>
-        <field>DESCRIPTION</field>
+        <field>ACCOUNT_DESCRIPTION</field>
+    </columns>
+    <columns>
+        <field>Account.Theme__c</field>
+    </columns>
+    <columns>
+        <field>OPPORTUNITY_NAME</field>
     </columns>
     <columns>
         <field>LEAD_SOURCE</field>
@@ -16,13 +22,10 @@
         <field>Opportunity.Lead_Company__c</field>
     </columns>
     <columns>
-        <field>Opportunity.Lead_Contact__c</field>
+        <field>ADDRESS2_CITY</field>
     </columns>
     <columns>
-        <field>ADDRESS1_CITY</field>
-    </columns>
-    <columns>
-        <field>ADDRESS1_STATE</field>
+        <field>ADDRESS2_STATE</field>
     </columns>
     <columns>
         <field>NEXT_STEP</field>
@@ -31,16 +34,16 @@
         <criteriaItems>
             <column>Account.Heat__c</column>
             <operator>equals</operator>
-            <value>Warm,Hot,On Fire</value>
+            <value>Hot</value>
         </criteriaItems>
     </filter>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
-        <field>Account.Heat__c</field>
+        <field>ACCOUNT_OWNER</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>Fintech Hotlist</name>
+    <name>Partner Watchlist</name>
     <params>
         <name>open</name>
         <value>all</value>

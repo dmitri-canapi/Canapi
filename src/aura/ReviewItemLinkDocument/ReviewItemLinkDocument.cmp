@@ -5,6 +5,7 @@
     <aura:attribute name="IsCommunity" type="Boolean" />
     <aura:attribute name="communityName" type="String" />
     <aura:attribute name="BaseUrl" type="String" />
+    <aura:attribute name="highlightedDoc" type="String" />
     <ltng:require styles="{!$Resource.popStyle }" />
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
     <lightning:overlayLibrary aura:id="overlayLib" />

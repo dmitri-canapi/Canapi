@@ -20,7 +20,7 @@ public class FinancialsFeatureDHTMLXControllerTest {
     @IsTest
     private static void test1() {
         /*Account acc = [select id from account];*/
-        Account acc = new Account(Name = 'Test Account');
+        Account acc = new Account(Name = 'Canapi');
         insert acc;
         
         Report_Period__c rp = new Report_Period__c();
@@ -42,7 +42,15 @@ public class FinancialsFeatureDHTMLXControllerTest {
         
         FinancialsFeatureDHTMLXController.AllowEditingUpdate (acc.Id, true);
         
-        FinancialsFeatureDHTMLXController.getCapTableData(acc.Id);
+        FinancialsFeatureDHTMLXController.getCapTableData('');
+
+        FinancialsFeatureDHTMLXController.createTemplate('test', acc.Id);
+        FinancialsFeatureDHTMLXController.createTemplate('test', acc.Id);
+        String templId = [select id from Chart_of_Accounts_Template__c limit 1].Id;
+        FinancialsFeatureDHTMLXController.applyTemplate(templId, acc.Id);
+        FinancialsFeatureDHTMLXController.getTemplatesData();
+        FinancialsFeatureDHTMLXController.getTemplatesPreview(templId);
+        FinancialsFeatureDHTMLXController.deleteTemplate(templId);
         
         FinancialsFeatureDHTMLXController.deleteChartOfAccounts(chart.Id);
         FinancialsFeatureDHTMLXController.deleteReportPeriod(rp.Id);
