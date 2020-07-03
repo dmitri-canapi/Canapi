@@ -9,6 +9,13 @@
         VCTemplate.Type__c = 'test';
         
         VC_MainCatalogController.getCatalogMap(a.Id);
+
+        Vendor_Catalog__c vcUpd = [select id from Vendor_Catalog__c limit 1];
+        vcUpd.Priority_category__c = 2;
+        vcUpd.Priority_item__c = 2;
+        update vcUpd;
+
+        VC_MainCatalogController.getCatalogMap(a.Id);
         
         Vendor_Catalog__c vc = new Vendor_Catalog__c(Name__c ='test', Type__c = 'test', Account__c = a.id);
         insert vc;

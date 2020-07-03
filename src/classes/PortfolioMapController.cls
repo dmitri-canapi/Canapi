@@ -15,7 +15,7 @@ public with sharing class PortfolioMapController {
     public List <String> accountTypeVal {get {
         if (accountTypeVal == null) {
             accountTypeVal = new List <String>() ;
-        	accountTypeVal.add('prospect');
+        	accountTypeVal.add('Portfolio_Company');
         }
             return accountTypeVal;
         }

@@ -62,6 +62,23 @@
 
             });*/
     },
+    showDD: function (component) {
+        var createRecordEvent = $A.get("e.force:createRecord");
+        createRecordEvent.setParams({
+            "entityApiName": "Assessment__c",
+            "defaultFieldValues": {
+                "Account__c": component.get("v.accId")
+            },
+            "navigationLocation": "RELATED_LIST"
+        });
+        /*createRecordEvent.setParams({
+            "entityApiName": "review_item__c",
+            "defaultFieldValues": {
+                "Assessment__c": component.get("v.recordId")
+            }
+        });*/
+        createRecordEvent.fire();
+    },
     fakeCall: function (component, event) {
 
     }

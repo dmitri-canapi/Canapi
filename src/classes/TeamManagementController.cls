@@ -16,6 +16,32 @@ global  without sharing class TeamManagementController {
         return new UsersData(users, contacts);
     }
 
+    @AuraEnabled
+    public static List < sObject > fetchLookUpValues(String searchKeyWord, String ObjectName, String objectAPIField, String accId) {
+        system.debug('ObjectName-->' + ObjectName);
+
+        accId = accId != null ? accId :TeamManagementController.getCommunityAccId();
+
+        String searchKey = '%' + searchKeyWord + '%';
+        
+        List < sObject > returnList = new List < sObject > ();
+        String sQuery;
+        if (objectAPIField != 'Title'){
+            // Create a Dynamic SOQL Query For Fetch Record List with LIMIT 5   
+            sQuery =  'select id, Name, FirstName, LastName,Email, Title from ' +ObjectName + ' where (Name LIKE: searchKey or Email LIKE: searchKey or Title LIKE: searchKey) and AccountId=:accId  order by createdDate DESC limit 10';
+        } else {
+            sQuery =  'select id, Label from Org_Builder_Title__mdt ';
+            if (searchKeyWord != null) sQuery += 'where Label LIKE: searchKey';
+            sQuery += ' order by Label asc';
+        }
+        List < sObject > lstOfRecords = Database.query(sQuery);
+        
+        for (sObject obj: lstOfRecords) {
+            returnList.add(obj);
+        }
+        return returnList;
+    }
+
     public void dummyMethod(){}
     public UsersData getData(){
         String recordId = apexpages.currentpage().getparameters().get('recordId');
@@ -157,6 +183,10 @@ global  without sharing class TeamManagementController {
         
     }
 
+    @AuraEnabled
+     public static Contact getContact(String cId){
+         return [select FirstName, LastName, Title, Phone, Email from contact where id =: cId];
+     }
 
     
     @AuraEnabled

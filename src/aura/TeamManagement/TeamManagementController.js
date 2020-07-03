@@ -106,11 +106,14 @@
         //$A.get('e.force:refreshView').fire();
     },
     openmodal: function (component, event, helper) {
+        var appEvent = $A.get("e.c:clearCustomLookupValue");
+        appEvent.fire();
 
         var cmpTarget = component.find('Modalbox');
         var cmpBack = component.find('Modalbackdrop');
         $A.util.addClass(cmpTarget, 'slds-fade-in-open');
         $A.util.addClass(cmpBack, 'slds-backdrop--open');
+
 
         var user = component.get("v.newUser");
         user.FirstName = '';
@@ -125,8 +128,20 @@
         component.set("v.newUser", user);
         component.set("v.ContactInviteType", "New Contact");
 
+
+
     },
     createUser: function (component, event, helper) {
         helper.createUser(component, event, helper);
+    },
+
+    handleComponentEvent: function (component, event, helper) {
+        if (event.getParam("objectTitle") != 'Title' || event.getParam("recordByEvent").Id.startsWith('003')) {
+            console.log('edit acc:');
+            var selectedAccountGetFromEvent = event.getParam("recordByEvent");
+            console.log(selectedAccountGetFromEvent.Id);
+            component.set("v.ContactInviteType", "Edit Contact");
+            helper.openEditContactModal(component, selectedAccountGetFromEvent.Id);
+        }
     }
 })

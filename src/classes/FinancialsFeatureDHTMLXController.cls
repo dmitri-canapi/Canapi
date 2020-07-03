@@ -28,10 +28,35 @@ global class FinancialsFeatureDHTMLXController {
     }
      
     @RemoteAction
-    global static void createReportPeriod(String body, String accountId){
+    global static void createReportPeriod(String body, String accountId, String rpId){
         Report_Period__c repPeriod  = (Report_Period__c)JSON.deserialize(body, Report_Period__c.class);
         repPeriod.Account__c = accountId;
-        insert repPeriod;
+        if (rpId != ''){
+            repPeriod.Id = rpId;
+        }
+        upsert repPeriod;
+    }
+
+    @RemoteAction
+    global static String getSavedTemplates(){
+        JSONGenerator generator = JSON.createGenerator(true);
+        generator.writeStartObject(); 
+        generator.writeFieldName('options');
+        generator.writeStartArray(); //Write the starting marker of a JSON object '['
+        
+        for (Chart_of_Accounts_Template__c ch: [select id, Name__c from Chart_of_Accounts_Template__c order by Name__c asc]){
+            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+            
+            generator.writeStringField('value', ch.Id);
+            generator.writeStringField('text', ch.Name__c);
+            
+            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+        }
+
+        generator.writeEndArray(); //Write the end marker of a JSON object ']'
+        generator.writeEndObject();
+        
+        return generator.getAsString();
     }
 
     @RemoteAction
@@ -55,23 +80,31 @@ global class FinancialsFeatureDHTMLXController {
 
     @RemoteAction
     global static void createTemplate(String name, String accountId){
-        String duplName = name + ' (%';
-        Set <String> dupl = new Set <String>();
-        for(Chart_of_Accounts_Template__c cht: [select id, Name__c from Chart_of_Accounts_Template__c where Name__c like: duplName or Name__c =: name]){
-            dupl.add(cht.name__c);
-        }
-        if(dupl.contains(name)){
-            for (Integer i=1; i<100; i++){
-                if (!dupl.contains(name + ' (' + i + ')')){
-                    name = name + ' (' + i + ')';
-                    break;
+        String templId;
+
+        if(name instanceof Id)  {
+            templId = name;
+            delete [select id from Chart_of_Accounts_Template_Item__c where Chart_of_Accounts_Template__c =: templId];
+        } else {
+
+            String duplName = name + ' (%';
+            Set <String> dupl = new Set <String>();
+            for(Chart_of_Accounts_Template__c cht: [select id, Name__c from Chart_of_Accounts_Template__c where Name__c like: duplName or Name__c =: name]){
+                dupl.add(cht.name__c);
+            }
+            if(dupl.contains(name)){
+                for (Integer i=1; i<100; i++){
+                    if (!dupl.contains(name + ' (' + i + ')')){
+                        name = name + ' (' + i + ')';
+                        break;
+                    }
                 }
             }
-        }
 
-        //name = checkDupl.size() > 0 ? ( name + ' (' + checkDupl.size() + ')' ) : name;
-        Chart_of_Accounts_Template__c templ = new Chart_of_Accounts_Template__c (Name__c = name);
-        insert templ;
+            Chart_of_Accounts_Template__c templ = new Chart_of_Accounts_Template__c (Name__c = name);
+            insert templ;
+            templId = templ.Id;
+        }
 
         List <Chart_of_Accounts_Template_Item__c> templItemsList = new List <Chart_of_Accounts_Template_Item__c>();
         for (Chart_of_Accounts__c ch: [select Name, Category__c, Formula__c from Chart_of_Accounts__c where Account__c =:accountId]){
@@ -79,7 +112,7 @@ global class FinancialsFeatureDHTMLXController {
             templItem.Name = ch.Name;
             templItem.Category__c = ch.Category__c;
             templItem.Formula__c = ch.Formula__c;
-            templItem.Chart_of_Accounts_Template__c = templ.id;
+            templItem.Chart_of_Accounts_Template__c = templId;
             templItemsList.add(templItem);
         }
         insert templItemsList;

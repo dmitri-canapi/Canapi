@@ -34,13 +34,25 @@ global class GetCompanyLogoBatch implements Database.Batchable<sObject>,   Datab
                                 records[i].External_Logo2__c = resString.subString(131072,resString.length());
                             } else {
                                 records[i].External_Logo2__c = resString.subString(131072,262144);
-                                records[i].External_Logo3__c = resString.subString(262144,resString.length());
+                                integer maxLengnth = resString.length();
+                                if (resString.length() > 393216){
+                                    maxLengnth = 393216;
+                                }
+                                records[i].External_Logo3__c = resString.subString(262144, maxLengnth);
                             }
                         }
                         
                     }
                 }  else {
                     integer j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
                     j = 0;
                     j = 0;
                     j = 0;

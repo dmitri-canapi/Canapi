@@ -26,7 +26,7 @@ public class FinancialsFeatureDHTMLXControllerTest {
         Report_Period__c rp = new Report_Period__c();
         rp.Date__c = system.today();
         rp.Account__c = acc.Id;
-        FinancialsFeatureDHTMLXController.createReportPeriod(JSON.serialize(rp), acc.Id);
+        FinancialsFeatureDHTMLXController.createReportPeriod(JSON.serialize(rp), acc.Id, '');
         insert rp;
         
         
@@ -50,6 +50,7 @@ public class FinancialsFeatureDHTMLXControllerTest {
         FinancialsFeatureDHTMLXController.applyTemplate(templId, acc.Id);
         FinancialsFeatureDHTMLXController.getTemplatesData();
         FinancialsFeatureDHTMLXController.getTemplatesPreview(templId);
+        FinancialsFeatureDHTMLXController.getSavedTemplates();
         FinancialsFeatureDHTMLXController.deleteTemplate(templId);
         
         FinancialsFeatureDHTMLXController.deleteChartOfAccounts(chart.Id);

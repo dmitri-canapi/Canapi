@@ -26,6 +26,6 @@ private class NewTechnicalReviewTest {
         System.assertNotEquals(reviews, null);
  
 
-    }
+        }
     }
 }

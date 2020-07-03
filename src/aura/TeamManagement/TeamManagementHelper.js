@@ -38,8 +38,25 @@
         user.ContactId = null;
         user.Manager__c = null;
         component.set("v.newUser", user);
+        console.log(rowId);
 
         if (rowId) {
+            var action = component.get("c.getContact");
+            action.setParams({ cId: rowId });
+            action.setCallback(this, function (response) {
+                var state = response.getState();
+                if (component.isValid() && state == 'SUCCESS') {
+                    var record = response.getReturnValue();
+                    component.set("v.newUser.FirstName", record.FirstName);
+                    component.set("v.newUser.LastName", record.LastName);
+                    component.set("v.newUser.Phone", record.Phone);
+                    component.set("v.newUser.Email", record.Email);
+                    component.set("v.newUser.Title", record.Title);
+                    component.set("v.newUser.ContactId", rowId);
+                }
+            });
+            $A.enqueueAction(action);
+            /*
             var data = component.get("v.contactsData");
             data.forEach(function (record) {
                 if (record.Id == rowId) {
@@ -51,7 +68,7 @@
                     component.set("v.newUser.ContactId", rowId);
                     return;
                 }
-            });
+            });*/
         }
     },
     resetPass: function (component, rowId) {
@@ -155,6 +172,7 @@
                 }
             }
             if (!isDupl) {
+                console.log(JSON.stringify(component.get("v.newUser")));
                 var action = component.get("c.saveRecordContr");
                 action.setParams({ UserRec: JSON.stringify(component.get("v.newUser")), InviteType: component.get("v.ContactInviteType"), recordId: component.get("v.recordId") });
                 action.setCallback(this, function (response) {

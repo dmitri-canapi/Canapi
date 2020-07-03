@@ -6,11 +6,17 @@ trigger ChartOfAccountTrigger on Chart_of_Accounts__c (after insert, after updat
 
     if(Trigger.IsBefore){
         Map<id, Set <String>> accsWithChartNames = new Map<id, Set <String>>();
+        Set <String> chIds = new Set <String>();
         for (Chart_of_Accounts__c ch: trigger.new){
             accsWithChartNames.put(ch.Account__c, New Set<String> ());
+            if (Trigger.IsUpdate){
+                chIds.add(ch.Id);
+            }
         }
+        
+        
 
-        for (Chart_of_Accounts__c ch: [select Name,Account__c from Chart_of_Accounts__c where Account__c in: accsWithChartNames.keySet()]){
+        for (Chart_of_Accounts__c ch: [select Name,Account__c from Chart_of_Accounts__c where Account__c in: accsWithChartNames.keySet() and Id NOT in : chIds]){
             Set <String> temp = accsWithChartNames.get(ch.Account__c);
             temp.add(ch.Name);
             accsWithChartNames.put(ch.Account__c, temp);

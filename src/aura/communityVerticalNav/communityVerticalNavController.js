@@ -61,7 +61,7 @@
 
             } else if (component.get("v.CommunityName") == 'fintech') {
                 menus.push(helper.createObj(component, 'Home', '18-Canapi-Icons-28.svg', 'https://canapi.force.com/fintech/s/', null, 0));
-                menus.push(helper.createObj(component, 'Deals', '18-Canapi-Icons-05.svg', 'deals'));
+               
                 childmmenus = [];
                 for (let gr of groups) {
                     childmmenus.push(helper.createObj(component, gr.Name, '18-Canapi-Icons-08.svg', 'group/' + gr.Id));
@@ -70,6 +70,7 @@
                 if (response.getReturnValue().recTypeName == 'Fintech' || response.getReturnValue().recTypeName == 'Portfolio Company') {
                     menus.push(helper.createObj(component, 'DD Checklists', '18-Canapi-Icons-37.svg', 'dd-checklists'));
                 }
+                 menus.push(helper.createObj(component, 'Documents', '18-Canapi-Icons-05.svg', 'deals'));
                 if (response.getReturnValue().recTypeName != 'Fintech') {
                     menus.push(helper.createObj(component, 'Milestones', '18-Canapi-Icons-25.svg', 'milestone/milestone__c/00B6A0000074msgUAA'));
                     menus.push(helper.createObj(component, 'Cap Table', '18-Canapi-Icons-15.svg', 'cap-table'));

@@ -19,6 +19,9 @@
     <columns>
         <field>Account.Notes__c</field>
     </columns>
+    <columns>
+        <field>Account.Categories__c</field>
+    </columns>
     <filter>
         <criteriaItems>
             <column>RECORDTYPE</column>

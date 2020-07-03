@@ -25,11 +25,15 @@
         TeamManagementController.updateRecord(c.Id, 'name', 'test3');
         TeamManagementController.updateRecord(UserInfo.getUserId(), 'phone', '555555');
 
+        TeamManagementController.fetchLookUpValues('test','Contact','FirstName', a.Id);
+        TeamManagementController.fetchLookUpValues('test','Contact','Title', a.Id);
+
         UserContactTag__c tag = new UserContactTag__c(name = 'test');
         insert tag;
 
         TeamManagementController.applyTag(UserInfo.getUserId(), tag.Id);
         TeamManagementController.applyTag(c.Id, tag.Id);
+        TeamManagementController.getContact(c.Id);
 
         
 

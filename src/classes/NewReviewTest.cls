@@ -8,6 +8,8 @@ private class NewReviewTest {
         amd.name = 'test';
         amd.Review_Type__c = 'Other';
         insert amd;
+        
+        
         Account a = new account ();
         a.name='test';
         insert a;
@@ -15,14 +17,15 @@ private class NewReviewTest {
         asm.Review_Type__c='Other';
         asm.Account__c=a.Id;
         insert asm;
-        List<Assessment__c> reviews = [select id, Name, Review_Date__c, Review_Status__c, Review_Summary__c, Review_Type__c, Total_Grade__c from Assessment__c LIMIT 1];
-        List<Assessment_Meta_Data__c> reviewItems = [select id, Name , Review_Type__c, Review_Category__c, Item_Assets__c, Item_Description__c from Assessment_Meta_Data__c];
+        
+        List<Assessment__c> reviews = [select id, Name, Review_Date__c, Review_Status__c, Review_Summary__c,  Total_Grade__c from Assessment__c LIMIT 1];
+        List<Assessment_Meta_Data__c> reviewItems = [select id, Name , Review_Type__c, Review_Category__c, Item_Assets__c from Assessment_Meta_Data__c];
          
          
         Test.startTest();
       
        	for (Assessment__c review : reviews) {
-              for (Assessment_Meta_Data__c r:reviewItems) {
+              /*for (Assessment_Meta_Data__c r:reviewItems) {
                   if (review.Review_Type__c == r.Review_Type__c) {
                 	review_item__c ri = new review_item__c();
                     ri.Assessment__c = review.Id;
@@ -32,8 +35,9 @@ private class NewReviewTest {
                     ri.Review_Item_Name__c = r.Name;
                     insert ri;
                     }
-              }
+              }*/
             NewReview.insertReviewItems(l);
+            NewTechnicalReview.insertTechReviewItems(l);
             Test.stopTest();
                   
         System.assertNotEquals(reviews, null);

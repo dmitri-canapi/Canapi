@@ -37,10 +37,6 @@
         <field>CLOSE_DATE</field>
     </columns>
     <columns>
-        <aggregateTypes>Sum</aggregateTypes>
-        <field>Opportunity.Priority_1__c</field>
-    </columns>
-    <columns>
         <field>LEAD_SOURCE</field>
     </columns>
     <columns>
@@ -69,11 +65,6 @@
             <operator>equals</operator>
             <value>Initiate,Evaluate,Dilligence,Recommend,Close</value>
         </criteriaItems>
-        <criteriaItems>
-            <column>PARENT_NAME</column>
-            <operator>notEqual</operator>
-            <value>Live Oak Ventures</value>
-        </criteriaItems>
     </filter>
     <format>Summary</format>
     <groupingsDown>
@@ -97,8 +88,6 @@
     <reportType>Opportunity</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
-    <sortColumn>Opportunity.Priority_1__c</sortColumn>
-    <sortOrder>Desc</sortOrder>
     <timeFrameFilter>
         <dateColumn>CLOSE_DATE</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>

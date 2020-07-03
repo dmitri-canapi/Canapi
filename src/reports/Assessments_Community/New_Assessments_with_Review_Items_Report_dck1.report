@@ -44,6 +44,11 @@
         <field>review_item__c.Review_Item_Status__c</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Assessment__c.Account__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
     <name>Review Item Status chart</name>
     <params>
         <name>co</name>

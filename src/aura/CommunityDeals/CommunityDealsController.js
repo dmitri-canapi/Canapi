@@ -26,6 +26,15 @@
                     record.AccountId = '/fintech/'+ record.AccountId;
                     record.AccName = record.Account.Name;
             		record.OwnerAlias = record.Owner.Alias;
+                    if (record.StageName && !record.StageName.includes('Closed')) {
+                        var address = '/dealdetail?id=' + record.Id;
+                        var urlEvent = $A.get("e.force:navigateToURL");
+                        urlEvent.setParams({
+                        "url": address,
+                        "isredirect": false
+                        });
+                        urlEvent.fire();
+            		}
                 });
                 component.set('v.Opportunities', rows);
             }

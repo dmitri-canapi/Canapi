@@ -9,7 +9,9 @@ trigger AccountTrigger on Account (after insert, after update) {
         integer i = 0;
         for (Account account : Trigger.new) {
             if((Trigger.isInsert && account.Website != null) || (Trigger.isUpdate &&  account.Website != null &&  account.Website != Trigger.oldMap.get(account.Id).Website) && i < 50){
-                AccountTriggerHandler.updateLogo(account.Id, account.Website);
+                try{
+                    AccountTriggerHandler.updateLogo(account.Id, account.Website);
+                } catch(exception e){}
                 i++;
             }
         }

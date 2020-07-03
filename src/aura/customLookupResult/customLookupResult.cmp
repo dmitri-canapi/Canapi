@@ -1,0 +1,40 @@
+<aura:component
+    implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
+    access="global">
+    <aura:attribute name="oRecord" type="sObject" />
+    <aura:attribute name="IconName" type="string" />
+    <aura:attribute name="objectAPIField" type="string" default="" />
+
+    <!--Register the component level event-->
+    <aura:registerEvent name="oSelectedRecordEvent" type="c:selectedsObjectRecordEvent" />
+
+    <li role="presentation" class="slds-listbox__item" onclick="{!c.selectRecord}">
+        <span id="listbox-option-unique-id-01"
+            class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+            role="option">
+            <aura:if isTrue="{!v.oRecord.Label == null}">
+                <span class="slds-media__figure">
+                    <span class="slds-icon_container" title="Description of icon when needed">
+                        <lightning:icon iconName="{!v.IconName}" class="slds-icon slds-icon_small" size="small"
+                            alternativeText="icon" />
+                        <span class="slds-assistive-text">Description of icon</span>
+                    </span>
+                </span>
+            </aura:if>
+            <span class="slds-media__body" onclick="{!c.selectRecord}">
+                <aura:if isTrue="{!v.oRecord.Label != null}">
+                    <span class="slds-listbox__option-text slds-listbox__option-text_entity"
+                        onclick="{!c.selectRecord}">{!v.oRecord.Label}</span>
+                    <aura:set attribute="else">
+                        <span class="slds-listbox__option-text slds-listbox__option-text_entity"
+                            style="margin-top: 7px;">Edit Contact:
+                            {!v.oRecord.Name}<aura:if isTrue="{!v.oRecord.Email.length>0}">&nbsp;({!v.oRecord.Email})
+                            </aura:if>,
+                            {!v.oRecord.Title}</span>
+                    </aura:set>
+                </aura:if>
+
+            </span>
+        </span>
+    </li>
+</aura:component>

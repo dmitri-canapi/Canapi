@@ -234,9 +234,31 @@
             border: 2px solid #fff;
             border-top: none;
         }
+
+        #innerBanner {
+            height: 25px;
+            z-index: 9999;
+            position: fixed;
+            background: #d9eaff;
+            margin-top: -4px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .objbox {
+            margin-top: 20px;
+        }
     </style>
 
     <body>
+        <div id="innerBanner">
+            <img style="vertical-align: middle;width: 17px;margin: 4px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/info.png')}"
+            /> Drag and drop items here to upload
+            <div style="display:inline; float: right; margin: 5px;">
+                <a onclick="closeBanner();">X</a>
+            </div>
+        </div>
+
         <div id="wrapper">
             <div id="toolbarDiv">
                 <div class="btnDiv" onclick="setObjectsTree()">
@@ -1295,6 +1317,17 @@
                         data = ($('<div>').html(data).text());
                         myGrid.clearAll();
                         myGrid.parse(data, "json");
+                        if (!$(".xhdr #innerBanner").length) {
+                            $('#innerBanner').appendTo(".xhdr");
+                            $("#innerBanner").css("width", $(".objbox").width());
+                            $('#innerBanner').show();
+                            setTimeout(function () {
+                                //console.log($(".objbox").height());
+                                $(".objbox").css("height", ($(".objbox").height() - 20));
+                                //$(".objbox").css("height", 20);
+                            }, 500);
+                        }
+
                         if (highlightedDoc) {
                             myGrid.selectRowById(highlightedDoc, false, true, true);
                         }
@@ -2516,6 +2549,7 @@
                             dhtmlx.message({
                                 text: 'Sent Updated Document Links to Alliance Users'
                             });
+                            dhxWins2.window("w1").close();
                         }
                     });
 
@@ -2628,6 +2662,12 @@
 
                 }
 
+            }
+
+            function closeBanner() {
+                $('#innerBanner').remove();
+                $('.objbox').css('margin-top', '0px');
+                $('.objbox').css('height', ($('.objbox').height() + 20));
             }
 
             function reAlignNotes() {

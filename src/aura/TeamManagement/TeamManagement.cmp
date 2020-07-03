@@ -29,8 +29,13 @@
 
     <aura:attribute name="disableViewStyleSwitcher" type="Boolean" default="true" />
 
+    <aura:attribute name="selectedLookUpRecord" type="sObject" default="{}" />
+
     <aura:handler name="init" value="{! this }" action="{! c.init }" />
     <aura:handler event="force:showToast" action="{!c.filterData}" />
+
+    <aura:handler name="oSelectedRecordEvent" event="c:selectedsObjectRecordEvent" action="{!c.handleComponentEvent}" />
+    <aura:registerEvent name="appEvent" type="c:clearCustomLookupValue" />
 
     <lightning:layout horizontalAlign="end">
 
@@ -118,18 +123,46 @@
                 <lightning:recordEditForm aura:id="recordCreateForm" objectApiName="User" class="recForm">
                     <lightning:messages />
                     <lightning:layout multipleRows="true">
-                        <lightning:inputField fieldName="Title" value="{!v.newUser.Title}" />
+                        <aura:if isTrue="{!v.ContactInviteType == 'New Contact'}">
+                            <c:customLookup objectAPIName="contact" objectAPIField="Title" IconName="standard:contact"
+                                label="Title" accId="{!v.recordId}" selectedRecordLabel="{!v.newUser.Title}" />
+                            <aura:set attribute="else">
+                                <lightning:inputField fieldName="Title" value="{!v.newUser.Title}" />
+                            </aura:set>
+                        </aura:if>
 
-                        <lightning:layoutItem size="6">
-                            <lightning:inputField fieldName="FirstName" value="{!v.newUser.FirstName}" />
+                        <lightning:layoutItem size="12">
+                            <aura:if isTrue="{!v.ContactInviteType == 'New Contact'}">
+                                <c:customLookup objectAPIName="contact" objectAPIField="FirstName"
+                                    IconName="standard:contact" label="First Name" accId="{!v.recordId}"
+                                    selectedRecordLabel="{!v.newUser.FirstName}" />
+                                <aura:set attribute="else">
+                                    <lightning:inputField fieldName="FirstName" value="{!v.newUser.FirstName}" />
+                                </aura:set>
+                            </aura:if>
+
                         </lightning:layoutItem>
-                        <lightning:layoutItem size="6">
-                            <lightning:inputField fieldName="LastName" value="{!v.newUser.LastName}" />
+                        <lightning:layoutItem size="12">
+                            <aura:if isTrue="{!v.ContactInviteType == 'New Contact'}">
+                                <c:customLookup objectAPIName="contact" objectAPIField="LastName"
+                                    IconName="standard:contact" label="Last Name" accId="{!v.recordId}" required="true"
+                                    selectedRecordLabel="{!v.newUser.LastName}" />
+                                <aura:set attribute="else">
+                                    <lightning:inputField fieldName="LastName" value="{!v.newUser.LastName}" />
+                                </aura:set>
+                            </aura:if>
                         </lightning:layoutItem>
                     </lightning:layout>
 
+                    <aura:if isTrue="{!v.ContactInviteType == 'New Contact'}">
+                        <c:customLookup objectAPIName="contact" objectAPIField="Email" IconName="standard:contact"
+                            label="Email" accId="{!v.recordId}" required="true"
+                            selectedRecordLabel="{!v.newUser.Email}" />
+                        <aura:set attribute="else">
+                            <lightning:inputField fieldName="Email" value="{!v.newUser.Email}" />
+                        </aura:set>
+                    </aura:if>
 
-                    <lightning:inputField fieldName="Email" value="{!v.newUser.Email}" />
                     <lightning:inputField fieldName="Phone" value="{!v.newUser.Phone}" />
                     <lightning:inputField fieldName="MobilePhone" value="{!v.newUser.MobilePhone}" />
                     <lightning:inputField fieldName="Department" value="{!v.newUser.Department}" />

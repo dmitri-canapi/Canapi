@@ -145,8 +145,12 @@
                         getNotes(selectedId);
                         if (selectedId == 'null') {
                             myEditor.setReadonly(true);
+                            Form.disableItem("updateNote");
+                            Form.disableItem("link");
                         } else {
                             myEditor.setReadonly(false);
+                            Form.enableItem("updateNote");
+                            Form.enableItem("link");
                         }
 
                     }
@@ -180,7 +184,7 @@
 
             myEditor = myLayout.cells("b").attachEditor();
             myEditor.setReadonly(true);
-            myEditor.attachEvent("onAccess", function (eventName, evObj) {
+            /*myEditor.attachEvent("onAccess", function (eventName, evObj) {
                 if (eventName == "keyup") {
                     if (myEditor.getContent() == '' || myEditor.getContent() == null) {
                         Form.disableItem("link");
@@ -190,7 +194,7 @@
                         Form.enableItem("updateNote");
                     }
                 }
-            });
+            });*/
 
             var formData = [
                 { type: "button", value: 'Link', name: 'link', disabled: true },
@@ -223,7 +227,7 @@
                             $("#docNotLinked").show();
                             Form.hideItem("updateNote");
                             Form.showItem("link");
-                            Form.disableItem("link");
+                            //Form.disableItem("link");
                         } else {
                             $("#docNotLinked").hide();
                             $("#docLinked").show();
@@ -240,7 +244,7 @@
                 var content = myEditor.getContent();
                 console.log(content);
                 console.log(selectedId);
-                if (selectedId == 'null' || content == '' || content == null) {
+                if (selectedId == 'null') {
                     /*dhtmlx.message({
                         type: "error",
                         text: "Please, select a document."
