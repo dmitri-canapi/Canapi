@@ -248,6 +248,10 @@
         .objbox {
             margin-top: 20px;
         }
+
+        .dhxwin_active .objbox {
+            margin-top: 0px;
+        }
     </style>
 
     <body>
@@ -375,6 +379,7 @@
                                                 filesIds.push(result);
                                                 if (!--count) {
                                                     uploadComplete();
+                                                    shareWithUsers(filesIds);
                                                     if (!isCommunity) {
                                                         dhtmlx.message.hide("AllUploadMessage");
                                                         dhtmlx.message({
@@ -402,6 +407,12 @@
 
                     reader.readAsDataURL(file);
                 }
+            }
+
+            function shareWithUsers(fileIds) {
+                console.log(fileIds);
+                CustomDocumentController.shareWithUsers(fileIds, function (result, event) {
+                });
             }
 
             function uploadComplete() {
@@ -907,6 +918,21 @@
                 });
             }
 
+            function removeDefaultSharing(dsId) {
+                CustomDocumentController.removeDefaultSharing(dsId, function (result, event) {
+                    if (event.type == 'exception') {
+
+                        dhtmlx.message({
+                            type: "error",
+                            text: event.message
+                        });
+
+                    } else {
+                        CurrentRestrictAccessGrid.deleteRow(dsId);
+                    }
+                });
+            }
+
             function removeBulkAccess(dsId) {
                 CustomDocumentController.removeBulkAccess(dsId, function (result, event) {
                     if (event.type == 'exception') {
@@ -998,6 +1024,7 @@
             }
 
             ObjectsTree.attachEvent("onBeforeContextMenu", function (itemId) {
+                ObjectsTree.selectItem(itemId, true);
                 if (ObjectsTree.hasChildren(itemId) > 0) {
                     HirrMenu.setItemEnabled("exp_collapse");
                     var rootsAr = ObjectsTree.getSubItems(itemId).split(",");
@@ -1317,15 +1344,20 @@
                         data = ($('<div>').html(data).text());
                         myGrid.clearAll();
                         myGrid.parse(data, "json");
-                        if (!$(".xhdr #innerBanner").length) {
-                            $('#innerBanner').appendTo(".xhdr");
-                            $("#innerBanner").css("width", $(".objbox").width());
-                            $('#innerBanner').show();
-                            setTimeout(function () {
-                                //console.log($(".objbox").height());
-                                $(".objbox").css("height", ($(".objbox").height() - 20));
-                                //$(".objbox").css("height", 20);
-                            }, 500);
+
+                        if (!readOnlyMode) {
+                            if (!$(".xhdr #innerBanner").length) {
+                                $('#innerBanner').appendTo(".xhdr");
+                                $("#innerBanner").css("width", $(".objbox").width());
+                                $('#innerBanner').show();
+                                setTimeout(function () {
+                                    //console.log($(".objbox").height());
+                                    $(".objbox").css("height", ($(".objbox").height() - 20));
+                                    //$(".objbox").css("height", 20);
+                                }, 500);
+                            }
+                        } else {
+                            $(".objbox").css("margin-top", "0px");
                         }
 
                         if (highlightedDoc) {
@@ -2017,7 +2049,7 @@
             }
 
             function removeDSAccess(dsID) {
-                CustomDocumentController.removeDSAccess(dsID, function (result, event) {
+                CustomDocumentController.removeDefaultSharing(dsID, function (result, event) {
                     if (event.type == 'exception') {
                         var errText = '';
                         if (event.message.includes('cannot delete owner, rule or ar implicit share rows')) {

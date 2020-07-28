@@ -41,6 +41,8 @@ public class CustomDocumentControllerTest {
         cdl.ContentDocumentId = documents[0].Id;
         cdl.shareType = 'V';
         insert cdl;
+
+        CustomDocumentController.shareWithUsers(new List <String> {docH.id});
         
         system.debug(CustomDocumentController.getFileRecords(docH.id));
         
@@ -102,6 +104,10 @@ public class CustomDocumentControllerTest {
         system.debug(CustomDocumentController.GetDocuments());
         system.debug(CustomDocumentController.GetDocumentsHomePage());
         system.debug(CustomDocumentController.GetDocumentsRI());
+        
+
+        Test.startTest();
+
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Opportunities'));
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Contacts'));
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Board_Meetings__r'));
@@ -124,7 +130,8 @@ public class CustomDocumentControllerTest {
         system.debug(CustomDocumentController.GetAccountsRelatedLists(acc.id));
         system.debug(CustomDocumentController.getAccNameById(acc.id));
 
-        Test.startTest();
+        
+
         CustomDocumentController.setAccountShareOnly(doc.Id,true,acc.Id,'Read');
         system.debug(CustomDocumentController.getAccNameById(c.id));
         system.debug(CustomDocumentController.getAccNameById(o.id));
@@ -342,7 +349,7 @@ public class CustomDocumentControllerTest {
         ds.UserOrGroup__c = userInfo.getUserId();
         ds.Access__c = 'Read';
         insert ds;
-        CustomDocumentController.removeDSAccess(ds.Id);
+        CustomDocumentController.removeDefaultSharing(ds.Id);
 
         Test.stopTest();
         

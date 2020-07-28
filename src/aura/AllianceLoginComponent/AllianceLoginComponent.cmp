@@ -12,9 +12,14 @@
     <!--create a component attributs -->
 
     <aura:attribute name="isVisible" type="boolean" default="true" />
-    <aura:attribute name="terms" type="String" default="" />
+    <aura:attribute name="terms" type="Object" />
     <aura:attribute name="showTerms" type="boolean" default="false" />
     <aura:attribute name="today" type="Date" />
+    <aura:attribute name="isIE" type="boolean" default="false" />
+
+    <aura:attribute name="showElectronicConsent" type="boolean" default="false" />
+    <aura:attribute name="firstCheckbox" type="boolean" default="false" />
+    <aura:attribute name="secondCheckbox" type="boolean" default="false" />
 
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
 
@@ -25,72 +30,123 @@
 
     <!-- / PAGE HEADER -->
     <!-- NEW FORM -->
-    <lightning:layout>
-        <lightning:layoutItem padding="around-small" size="12" class="main-wrapper">
-            <div aria-labelledby="newform">
-                <!-- BOXED AREA -->
-                <fieldset class="slds-box slds-theme--default slds-container--medium">
-                    <legend id="newform" class="slds-text-heading--small
+    <aura:if isTrue="{!v.isIE}">
+        <div style="padding:30px; background-color:white;margin: 60px 0px;">
+            <div style="font-size: 60px;font-weight: 100;line-height: 3.5rem;">
+                Your browser is<br />currentlly
+                not<br />supported.
+            </div>
+            <br /><br />
+            <div style="font-size: 16px;">
+                Apologies for inconvenience. Canapi Connect no longer supports Internet Explorer. Please use Chrome,
+                Firefox or Safari to access Canapi Connect.
+            </div>
+
+            <div class="WMi4p" style="text-align: center;">
+                <div style="display: inline-block;">
+                    <div class="VfPpkd-EScbFb-JIbuQc" tabindex="0">
+                        <a href="https://www.google.com/chrome/?hl=uk" class="Q1Cuab"><img class="BrowserImage"
+                                src="https://ssl.gstatic.com/subscriptions/browsers/chrome_f134d00a78d7682ffb1785393257310f.jpg"
+                                alt="" aria-hidden="true" data-atf="false" data-iml="1709.2600000323728" />
+                        </a>
+                    </div>
+                    <span class="VfPpkd-BFbNVe-bF1uUb NZp2ef" aria-hidden="true"></span>
+                </div>
+
+                <div style="display: inline-block;">
+                    <div tabindex="0">
+                        <a href="https://www.mozilla.com/firefox/" class="Q1Cuab"><img class="BrowserImage"
+                                src="https://ssl.gstatic.com/subscriptions/browsers/firefox_78b439ab8c80ef87116e9ff3b6d19b68.jpg"
+                                alt="" aria-hidden="true" data-atf="false" data-iml="1923.4050000086427" />
+                        </a>
+                    </div>
+                    <span class="VfPpkd-BFbNVe-bF1uUb NZp2ef" aria-hidden="true"></span>
+                </div>
+                <div style="display: inline-block;">
+                    <div tabindex="0">
+                        <a href="https://www.apple.com/safari/" class="Q1Cuab"><img class="BrowserImage"
+                                src="https://ssl.gstatic.com/subscriptions/browsers/safari_b21829d905d67f790ae3d77c10381b5a.jpg"
+                                alt="" aria-hidden="true" data-atf="false" data-iml="1924.7100000502542" />
+                        </a>
+                    </div>
+                    <span class="VfPpkd-BFbNVe-bF1uUb NZp2ef" aria-hidden="true"></span>
+                </div>
+            </div>
+
+        </div>
+
+
+        <aura:set attribute="else">
+            <lightning:layout>
+                <lightning:layoutItem padding="around-small" size="12" class="main-wrapper">
+                    <div aria-labelledby="newform">
+                        <!-- BOXED AREA -->
+                        <fieldset class="slds-box slds-theme--default slds-container--medium">
+                            <legend id="newform" class="slds-text-heading--small
 slds-p-vertical--medium login-heading">
-                    </legend>
-                    <!-- IF Condition -->
-                    <aura:if isTrue="{!v.isVisible}">
-                        <div id="error">
-                            <ui:outputRichText value="{!v.mylabel}" />
-                        </div>
-                        <!-- CREATE NEW FORM -->
-                        <div style="color: #F3714F;">To access this page, you have to log in to Canapi Connect</div>
-                        <form class="slds-form--stacked">
-                            <lightning:input aura:id="FormVal" label="Username" name="Username" type="text"
-                                value="{!v.Username}" required="true"
-                                messageWhenPatternMismatch="User name you entered is invalid. Please check your user name and try again"
-                                pattern="^[a-zA-Z0-9.!#$%'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$" />
-                            <lightning:input aura:id="FormVal" label="Password" name="password" type="password"
-                                value="{!v.Password}" required="true" />
-                            <lightning:button label="Login" class="slds-m-top--medium loginButt" variant="brand"
-                                onclick="{!c.getInput}" />
-                            <p class="formItem">
-                                <lightning:input label="Remember me" type="checkbox" />
-                            </p>
-                            <p class="formItem">
-                                <a href="javascript:void(0)" onclick="{!c.resetPass}">Forgot Your Password?</a>
-                            </p>
-
-                        </form>
-
-                        <!-- / CREATE NEW FORM -->
-                        <aura:set attribute="else">
-                            <!-- Else Part Start-->
-                            <!-- CREATE NEW FORM -->
-                            <form class="slds-form--stacked">
-                                <!-- Reset Password code -->
-                                <div id="error1">
-                                    <ui:outputRichText value="{!v.mylabel1}" />
-                                </div>
+                            </legend>
+                            <!-- IF Condition -->
+                            <aura:if isTrue="{!v.isVisible}">
                                 <div id="error">
                                     <ui:outputRichText value="{!v.mylabel}" />
                                 </div>
-                                <lightning:input aura:id="FormReset" label="Username" name="Username" type="text"
-                                    placeholder="Enter your Username" value="{!v.ResetUsername}" required="true"
-                                    messageWhenPatternMismatch="User name you entered is invalid. Please check your user name and try again"
-                                    pattern="^[a-zA-Z0-9.!#$%'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$" />
-                                <lightning:button label="Reset" class="slds-m-top--medium" variant="brand"
-                                    onclick="{!c.submitresetPass}" />
-                                <lightning:button label="Cancel" class="slds-m-top--medium" variant="brand"
-                                    onclick="{!c.CancelReset}" />
-                            </form>
-                        </aura:set>
-                        <!-- Else Part End -->
-                    </aura:if>
-                </fieldset>
-                <!-- / BOXED AREA -->
-            </div>
-            <!-- / CREATE NEW FORM -->
-        </lightning:layoutItem>
-    </lightning:layout>
-    <!--div class="tc mt24" style="display: block;text-align: center;margin:5px 0px;">Canapi employee? 
-        <a id="employee_login_link" style="text-decoration: underline;" href="https://canapi.my.salesforce.com//servlet/networks/session/create?url=%2Falliance%2Fs%2F&amp;site=0DM6A000000Mztr&amp;refURL=http%3A%2F%2Fcanapi.force.com%2Falliance%2Flogin&amp;inst=3u">Log In</a>
-    </div-->
+                                <!-- CREATE NEW FORM -->
+                                <div style="color: #F3714F;">To access this page, you have to log in to Canapi
+                                    Connect
+                                </div>
+                                <form class="slds-form--stacked">
+                                    <lightning:input aura:id="FormVal" label="Username" name="Username" type="text"
+                                        value="{!v.Username}" required="true"
+                                        messageWhenPatternMismatch="User name you entered is invalid. Please check your user name and try again"
+                                        pattern="^[a-zA-Z0-9.!#$%'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$" />
+                                    <lightning:input aura:id="FormVal" label="Password" name="password" type="password"
+                                        value="{!v.Password}" required="true" />
+                                    <lightning:button label="Login" class="slds-m-top--medium loginButt" variant="brand"
+                                        onclick="{!c.getInput}" />
+                                    <p class="formItem">
+                                        <lightning:input label="Remember me" type="checkbox" />
+                                    </p>
+                                    <p class="formItem">
+                                        <a href="javascript:void(0)" onclick="{!c.resetPass}">Forgot Your
+                                            Password?</a>
+                                    </p>
+
+                                </form>
+
+                                <!-- / CREATE NEW FORM -->
+                                <aura:set attribute="else">
+                                    <!-- Else Part Start-->
+                                    <!-- CREATE NEW FORM -->
+                                    <form class="slds-form--stacked">
+                                        <!-- Reset Password code -->
+                                        <div id="error1">
+                                            <ui:outputRichText value="{!v.mylabel1}" />
+                                        </div>
+                                        <div id="error">
+                                            <ui:outputRichText value="{!v.mylabel}" />
+                                        </div>
+                                        <lightning:input aura:id="FormReset" label="Username" name="Username"
+                                            type="text" placeholder="Enter your Username" value="{!v.ResetUsername}"
+                                            required="true"
+                                            messageWhenPatternMismatch="User name you entered is invalid. Please check your user name and try again"
+                                            pattern="^[a-zA-Z0-9.!#$%'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$" />
+                                        <lightning:button label="Reset" class="slds-m-top--medium" variant="brand"
+                                            onclick="{!c.submitresetPass}" />
+                                        <lightning:button label="Cancel" class="slds-m-top--medium" variant="brand"
+                                            onclick="{!c.CancelReset}" />
+                                    </form>
+                                </aura:set>
+                                <!-- Else Part End -->
+                            </aura:if>
+                        </fieldset>
+                        <!-- / BOXED AREA -->
+                    </div>
+                    <!-- / CREATE NEW FORM -->
+                </lightning:layoutItem>
+            </lightning:layout>
+        </aura:set>
+    </aura:if>
+
     <div style="text-align: center;">{!v.today} All Rights Reserved. &nbsp;<a style="text-decoration: underline;"
             onclick="{!c.openModal}">Privacy and Terms</a></div>
     <!-- / NEW FORM -->
@@ -107,7 +163,48 @@ slds-p-vertical--medium login-heading">
                     <p>Terms of Service</p>
                 </div>
                 <div class="slds-modal__content slds-p-around--medium">
-                    <aura:unescapedHtml value="{!v.terms}" />
+                    <aura:unescapedHtml value="{!v.terms.HTML_code__c}" />
+                </div>
+            </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if>
+
+    <aura:if isTrue="{!v.showElectronicConsent}">
+        <div role="dialog" tabindex="-1" aria-labelledby="header43" aura:id="Modalbox2"
+            class="slds-modal slds-modal_large slds-fade-in-open ">
+            <div class="slds-modal__container" style="width: 90%;line-height: 2rem;margin: 0 auto;max-width:680px">
+                <div class="slds-modal__header" style="font-size: 18px; font-weight:bold;">
+                    <p>Electronic Consent</p>
+                </div>
+                <div class="slds-modal__content slds-p-around--large">
+                    <div class="slds-grid slds-wrap">
+                        <div class="">
+                            <lightning:input type="checkbox" name="ProofDisclaimer" label="" aura:id="ProofDisclaimer"
+                                class="slds-p-vertical_small" checked="{!v.firstCheckbox}" />
+                        </div>
+                        <div class="slds-size_11-of-12">
+                            <div class="slds-p-vertical_small" style="line-height: 1.4rem;">
+                                <aura:unescapedHtml value="{!v.terms.Electronic_Consent_Box_1_Text__c}" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-grid slds-wrap">
+                        <div class="">
+                            <lightning:input type="checkbox" name="ProofDisclaimer2" label="" aura:id="ProofDisclaimer2"
+                                class="slds-p-vertical_small" checked="{!v.secondCheckbox}" />
+                        </div>
+                        <div class="slds-size_11-of-12">
+                            <div class="slds-p-vertical_small" style="line-height: 1.4rem;">
+                                <aura:unescapedHtml value="{!v.terms.Electronic_Consent_Box_2_Text__c}" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <lightning:button label="Submit" class="slds-float_right"
+                        disabled="{!!and(v.firstCheckbox, v.secondCheckbox)}"
+                        onclick="{! c.closeElectronicConsentModal}" />
+
                 </div>
             </div>
         </div>

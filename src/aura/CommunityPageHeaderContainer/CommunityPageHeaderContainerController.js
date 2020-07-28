@@ -1,8 +1,8 @@
 ({
     doInit: function (component, event, helper) {
-        if (window.location.href.includes('https://canapi.force.com/alliance')){
+        if (window.location.href.includes('https://canapi.force.com/alliance')) {
             component.set("v.CommunityName", 'alliance');
-        } else {	
+        } else {
             component.set("v.CommunityName", 'fintech');
         }
         if (component.get("v.objectName").includes('Latest Activity')) {
@@ -42,6 +42,10 @@
                     console.log(ow);
                     component.set("v.objectName", ow.recordName);
                     component.set("v.sobjName", ow.sobjName);
+                    if (ow.obj) {
+                        if (!ow.obj.External_Logo__c)
+                            ow.obj.External_Logo__c = null;
+                    }
                     component.set("v.accObj", ow.obj);
                     component.set("v.breadcrumb2", ow.recordName);
                     component.set("v.breadcrumb2Link", "/alliance/s/detail/" + component.get("v.recordId"));
@@ -50,6 +54,7 @@
                         component.set("v.imageName", objToImageMap.get(ow.sobjName));
                         component.set("v.breadcrumb1", objToPluralMap.get(ow.sobjName));
                         if (ow.sobjName == 'Account') {
+
                             component.set("v.breadcrumb1Link", "/alliance/s/" + objToLinkMap.get(ow.sobjName));
                             if (ow.RecordType != 'Fintech') {
                                 component.set("v.breadcrumb1", ow.RecordType);
@@ -63,6 +68,25 @@
                             } else {
                                 component.set("v.accLink", 'https://canapi.force.com/alliance/s/fintech-companies');
                             }
+                        }
+
+                        if ((ow.sobjName == 'Account' || ow.sobjName == 'Contact') && ow.UserAccountRT) {
+                            if (
+                                (ow.UserAccountRT == 'Bank' && (ow.RecordType == "Limited Partner" || ow.recordName.includes('(individual)'))) ||
+                                (ow.RecordType == "Bank" && (ow.UserAccountRT == 'Limited Partner' || ow.UserAccountName.includes('(individual)')))
+                            ) {
+                                window.history.back();
+                                var toastEvent = $A.get("e.force:showToast");
+                                toastEvent.setParams({
+                                    title: 'Error',
+                                    message: 'You don\'t have access to this record.',
+                                    duration: ' 5000',
+                                    type: 'error',
+                                    mode: 'pester'
+                                });
+                                toastEvent.fire();
+                            }
+
                         }
 
                     }

@@ -19,6 +19,9 @@ public class AddCommunityUserToPublicGroupHandler {
         insert listEntitySubscription;
         //system.debug(userToUpdate);
         //update userToUpdate;
+
+        
+
     }
 
     @future
@@ -71,15 +74,42 @@ public class AddCommunityUserToPublicGroupHandler {
     @future
     public static void updateContacts(List<Id> usersIds){
         List <Contact> conts = new List <Contact> ();
-        for (User u : [select ContactId, FirstName, LastName, Title, Phone, Email from User where id in: usersIds]){
+        for (User u : [select Id, ContactId, FirstName, LastName, Title, Phone, Email from User where id in: usersIds]){
             Contact c = new Contact(FirstName = u.FirstName,
             LastName = u.LastName,
             Title = u.Title,
             Phone = u.Phone,
             Email = u.Email,
-            Id = u.ContactId);
+            Id = u.ContactId,
+            Portal_User__c = u.Id);
             conts.add(c);
         }
         update conts;
+    }
+
+    @future
+    public static void addToGroups(List<Id> usersIds){
+        Map <String, String> publGroups = new Map <String, String>();
+        List<GroupMember> listGroupMember = new List<GroupMember>(); 
+
+        for (Group gr: [select Id, Name from Group Where Name='Non-LP-Users' or name = 'Bank LP Users' or name = 'Individual LP Users' ]){
+            publGroups.put(gr.Name, gr.Id);
+        }
+
+        for(User u: [select id, Account_RT_name__c from user where id in: usersIds and Profile.Name = 'Community: Alliance Portal']) {
+                GroupMember gm = new GroupMember(); 
+                gm.UserOrGroupId = u.id;
+                
+                if (u.Account_RT_name__c == 'Bank'){
+                    gm.GroupId = publGroups.get('Bank LP Users');
+                } else if(u.Account_RT_name__c == 'Person Account' || u.Account_RT_name__c == 'LP (Individuals)' || u.Account_RT_name__c == 'Limited Partner'){
+                    gm.GroupId = publGroups.get('Individual LP Users');
+                } else {
+                    gm.GroupId = publGroups.get('Non-LP-Users');
+                }
+                listGroupMember.add(gm);
+        }
+        
+        insert listGroupMember;
     }
 }

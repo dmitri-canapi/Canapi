@@ -186,7 +186,7 @@
                 component.set("v.Document.Documents_Folder_Template__c", component.get("v.customRecordId"));
                 component.set("v.Document.Board_Meeting__c", null);
                 component.set("v.Document.Contact__c", null);
-                component.set("v.Document.Account__c", null);
+                component.set("v.Document.Account__c", component.get("v.AccRecordId"));
                 component.set("v.Document.Opportunity__c", null);
             }
 

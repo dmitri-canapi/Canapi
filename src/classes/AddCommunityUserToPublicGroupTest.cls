@@ -47,6 +47,8 @@ public class AddCommunityUserToPublicGroupTest {
         insert u;
 
         test.starttest();
+        
+
         AddCommunityUserToPublicGroupScheduler sch = new AddCommunityUserToPublicGroupScheduler ();   
         String chron = '0 0 23 * * ?';        
         system.schedule('Test Sched' + String.valueOf(Datetime.now()), chron, sch);

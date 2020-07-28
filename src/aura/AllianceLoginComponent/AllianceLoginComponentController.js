@@ -2,11 +2,22 @@
     doInit: function (component, event, helper) {
         var action = component.get("c.getTerms");
         action.setCallback(this, function (response) {
+            var mtd = {};
+            mtd = response.getReturnValue();
+            console.log(mtd);
             component.set("v.terms", response.getReturnValue());
         });
         $A.enqueueAction(action);
         var today = $A.localizationService.formatDate(new Date(), "YYYY");
         component.set('v.today', today);
+        if (localStorage.getItem('acceptedElectronicConsent') == null) {
+            component.set("v.showElectronicConsent", true);
+        }
+        var device = JSON.parse(JSON.stringify($A.get("$Browser")));
+        if (device.isIE6 || device.isIE7 || device.isIE8 || device.isIE9 || device.isIE10 || device.isIE11) {
+            component.set("v.isIE", true);
+        }
+
     },
     openModal: function (component, event, helper) {
         component.set("v.showTerms", true);
@@ -14,6 +25,11 @@
     closeModal: function (component, event, helper) {
         component.set("v.showTerms", false);
     },
+    closeElectronicConsentModal: function (component, event, helper) {
+        component.set("v.showElectronicConsent", false);
+        localStorage.setItem('acceptedElectronicConsent', 'true');
+    },
+
     getInput: function (component,
         event, helper) {
 
@@ -71,14 +87,14 @@
     },
     resetPass: function (cmp) {
         cmp.set("v.mylabel1", "");
-		cmp.set("v.mylabel", "");
+        cmp.set("v.mylabel", "");
         cmp.set("v.isVisible",
             false);
     },
 
     CancelReset: function (cmp) {
         cmp.set("v.mylabel", "");
-		cmp.set("v.mylabel1", "");
+        cmp.set("v.mylabel1", "");
         cmp.set("v.isVisible", true);
     },
     submitresetPass: function (

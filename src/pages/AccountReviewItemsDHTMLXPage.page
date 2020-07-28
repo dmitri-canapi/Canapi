@@ -629,25 +629,31 @@
         });
 
         //var ldGrid = myTabbar.tabs("docs").attachGrid();
-        descEditor = myTabbar.tabs("itemDescription").attachEditor();
+        descEditor = myTabbar.tabs("itemDescription").attachEditor({ toolbar: true, iconsPath: "{!URLFOR($Resource.DHTMLX, '/skins/terrace/imgs')}" });
         descEditor.setSkin(lSkin);
         descEditor.attachEvent("onAccess", function (eventName, evObj) {
             if (eventName == "keydown") {
                 hasChanges = true;
             }
         });
+        descEditor.attachEvent("onToolbarClick", function (name) {
+            hasChanges = true;
+        });
 
         //hasChanges
 
-        catEditor = myTabbar.tabs("categoryDescription").attachEditor();
+        catEditor = myTabbar.tabs("categoryDescription").attachEditor({ toolbar: true, iconsPath: "{!URLFOR($Resource.DHTMLX, '/skins/terrace/imgs')}" });
         catEditor.setSkin(lSkin);
         catEditor.attachEvent("onAccess", function (eventName, evObj) {
             if (eventName == "keydown") {
                 hasChanges = true;
             }
         });
+        catEditor.attachEvent("onToolbarClick", function (name) {
+            hasChanges = true;
+        });
 
-        submitterCommentsEditor = myTabbar.tabs("submComments").attachEditor();
+        submitterCommentsEditor = myTabbar.tabs("submComments").attachEditor({ toolbar: true, iconsPath: "{!URLFOR($Resource.DHTMLX, '/skins/terrace/imgs')}" });
         submitterCommentsEditor.setSkin(lSkin);
         /*if (communityName == '') {
             submitterCommentsEditor.setReadonly(true);
@@ -657,13 +663,19 @@
                 hasChanges = true;
             }
         });
+        submitterCommentsEditor.attachEvent("onToolbarClick", function (name) {
+            hasChanges = true;
+        });
 
-        assetsNeededEditor = myTabbar.tabs("assets").attachEditor();
+        assetsNeededEditor = myTabbar.tabs("assets").attachEditor({ toolbar: true, iconsPath: "{!URLFOR($Resource.DHTMLX, '/skins/terrace/imgs')}" });
         assetsNeededEditor.setSkin(lSkin);
         assetsNeededEditor.attachEvent("onAccess", function (eventName, evObj) {
             if (eventName == "keydown") {
                 hasChanges = true;
             }
+        });
+        assetsNeededEditor.attachEvent("onToolbarClick", function (name) {
+            hasChanges = true;
         });
 
 
@@ -680,9 +692,9 @@
             {
                 type: "block", style: "margin: 0px 0px 0px 0px;", list: [
                     { type: "settings", position: "label-left" },
-                    { type: "select", offsetLeft: 5, labelWidth: 80, inputWidth: 100, name: "ItemGrading", id: "ItemGrading", label: "Item Grading", value: "", options: [{ value: "", text: "" }, { value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }] },
+                    { type: "select", offsetLeft: 5, labelWidth: 95, inputWidth: 110, name: "ItemGrading", id: "ItemGrading", label: "Item Grading", value: "", options: [{ value: "", text: "" }, { value: "1", text: "1" }, { value: "2", text: "2" }, { value: "3", text: "3" }] },
                     { type: "newcolumn", offsetLeft: 40 },
-                    { type: "select", offsetLeft: 20, labelWidth: 45, inputWidth: 100, name: "Status", id: "Status", label: "Status", value: "", options: [{ value: "", text: "" }, { value: "Pending", text: "Pending" }, { value: "In File", text: "In File" }, { value: "In Process", text: "In Process" }, { value: "Complete", text: "Complete" }, { value: "Deferred", text: "Deferred" }] },
+                    { type: "select", offsetLeft: 40, labelWidth: 55, inputWidth: 110, name: "Status", id: "Status", label: "Status", value: "", options: [{ value: "", text: "" }, { value: "Pending", text: "Pending" }, { value: "In File", text: "In File" }, { value: "In Process", text: "In Process" }, { value: "Complete", text: "Complete" }, { value: "Deferred", text: "Deferred" }] },
                 ]
             }
         ]);
@@ -692,12 +704,16 @@
             return true;
         });
 
-        ReviewerCommentsEditor = intReviewLayout.cells("b").attachEditor();
+        ReviewerCommentsEditor = intReviewLayout.cells("b").attachEditor({ toolbar: true, iconsPath: "{!URLFOR($Resource.DHTMLX, '/skins/terrace/imgs')}" });
         ReviewerCommentsEditor.setSkin(lSkin);
         ReviewerCommentsEditor.attachEvent("onAccess", function (eventName, evObj) {
             if (eventName == "keydown") {
                 hasChanges = true;
             }
+        });
+
+        ReviewerCommentsEditor.attachEvent("onToolbarClick", function (name) {
+            hasChanges = true;
         });
 
 
@@ -1071,7 +1087,7 @@
                                 }
                             }
 
-                            if (c.Review_Item_Status__c && c.Review_Item_Status__c == 'Complete') {
+                            if (c.Review_Item_Status__c && (c.Review_Item_Status__c == 'Complete' || c.Review_Item_Status__c == 'Deferred')) {
                                 completedRI.add(c.Id);
                             }
                             if (c.Review_Item_Status__c && c.Review_Item_Status__c == 'Pending') {

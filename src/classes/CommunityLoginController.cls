@@ -27,7 +27,7 @@ global without sharing class CommunityLoginController {
         }
 
         @AuraEnabled
-        public static String getTerms (){
-           return [select HTML_code__c from Terms_of_Service__mdt limit 1].HTML_code__c;
+        public static Terms_of_Service__mdt getTerms (){
+           return [select HTML_code__c,Electronic_Consent_Box_1_Text__c,Electronic_Consent_Box_2_Text__c from Terms_of_Service__mdt limit 1];
         }
     }

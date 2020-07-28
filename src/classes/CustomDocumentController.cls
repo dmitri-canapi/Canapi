@@ -876,19 +876,20 @@ global with sharing class CustomDocumentController {
         return CustomDocumentControllerWoutSharing.getFavoriteGroups();
     }
 
-    @RemoteAction
-    global static void removeDSAccess (String dsID){
-       delete [select id from Default_Sharing__c where id=:dsID];
-    }
-    
+        
     @RemoteAction
     global static void removeAccess (String userOrGroupId, String currentDocId){
         CustomDocumentControllerWoutSharing.removeAccess (userOrGroupId, currentDocId);
     }
     
-     @RemoteAction
+    @RemoteAction
     global static void removeBulkAccess (String dsId){
         CustomDocumentControllerWoutSharing.removeBulkAccess (dsId);
+    }
+
+    @RemoteAction
+    global static void removeDefaultSharing (String dsId){
+        CustomDocumentControllerWoutSharing.removeDefaultSharing (dsId);
     }
         
     @RemoteAction
@@ -1490,7 +1491,15 @@ global with sharing class CustomDocumentController {
     global static void reApplyTags(String AccId){
         
         map <id, List <String>> tagKeywords = new map <id, List <String>>();
-        for (Tag__c tag: [select id, name, (select id,Tag__c,Tag__r.Name, Keywords__c from Keywords__r where IsKeywordEnabled__c = true) from Tag__c where Account__c =: AccId limit 50000]){
+        String AccRecordTypeName = accId != null ? [select recordType.Name from account where id=: AccId].recordType.Name : null;
+        List <Tag__c> tags = new List <Tag__c>();
+        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank'){
+            tags = [select id, name, (select id,Tag__c,Tag__r.Name, Keywords__c from Keywords__r where IsKeywordEnabled__c = true)  from Tag__c where Type__c = 'Bank Or LP' order by name asc];
+        } else {
+            tags = [select id, name, (select id,Tag__c,Tag__r.Name, Keywords__c from Keywords__r where IsKeywordEnabled__c = true) from Tag__c where Account__c =: AccId limit 50000];
+        }
+
+        for (Tag__c tag: tags){
             tagKeywords.put(tag.id,new list <String>{tag.name});
             for (Keyword__c kw: tag.Keywords__r){
                 system.debug(kw.Keywords__c);
@@ -1545,7 +1554,10 @@ global with sharing class CustomDocumentController {
         return CustomDocumentControllerWoutSharing.getUsersWithAccessForDocs (accId);
     }
 
-
+    @RemoteAction
+    global static void shareWithUsers (List <String> fileids){
+        CustomDocumentControllerWoutSharing.shareWithUsers(fileids);
+    }
     
     @AuraEnabled
      global static string getCommunityAccId(){

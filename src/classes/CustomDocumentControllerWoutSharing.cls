@@ -73,31 +73,63 @@ public without sharing class CustomDocumentControllerWoutSharing {
         Profile p = [Select Name from Profile where Id =: userinfo.getProfileid()];
         String FullaccId = accId;
         accId = accId.substring(0, 15);
-        List <Document__c> docList = new List <Document__c>();    
+        List <Document__c> docList = new List <Document__c>();   
         
+        List <Default_Sharing__c> folderSharings = new List <Default_Sharing__c>();
+
+        String dsQuery = 'select id, UserOrGroup__c, Access__c, Account__r.Name,Board_Meeting__r.Name, Contact__r.Name, Documents_Folder_Template__r.Name,Investment__r.name, Object_For_Share__c,Opportunity__r.name from Default_Sharing__c where Account__c=: accId';
+        Set <String> dsQueryTemplFolderidSet = new Set <String>();
         string query = 'select id, Name__c,UserRecordAccess.HasEditAccess, Owner.Name, OwnerId from Document__c where id!=null';
         if (DocumentParentObjectId==FullaccId){
             query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
+            dsQuery+=' AND Board_Meeting__c=null AND Contact__c=null AND Documents_Folder_Template__c=null AND Investment__c=null AND Object_For_Share__c=null AND Opportunity__c=null';
         } else if(DocumentParentObjectId=='Opportunities'){
             query+=' AND Opportunity__r.AccountId=:accId'; 
+            dsQuery+=' AND Object_For_Share__c =: DocumentParentObjectId';
         } else if(DocumentParentObjectId=='Contacts'){
             query+=' AND Contact__r.AccountId=:accId'; 
+            dsQuery+=' AND Object_For_Share__c =: DocumentParentObjectId';
         } else if(DocumentParentObjectId=='Board_Meetings__r'){
             query+=' AND Board_Meeting__r.Account__c=:accId'; 
+            dsQuery+=' AND Object_For_Share__c =: DocumentParentObjectId';
         } else if(DocumentParentObjectId=='Investment__r'){// round Relationship name
             query+=' AND Round__r.Target_Company__c=:accId'; 
+            dsQuery+=' AND Object_For_Share__c =: DocumentParentObjectId';
         } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
-            query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';      
+            query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';     
+            dsQuery+=' AND Object_For_Share__c =: DocumentParentObjectId'; 
         } else if(DocumentParentObjectId.contains(',')){
             List <String> docIds = DocumentParentObjectId.split(',');
             query+=' AND Id in:docIds';
+        } else if(DocumentParentObjectId=='Documents'){
+            query+= ' AND (Documents_Folder_Template__c != null AND Account__c=:accId)';
+            dsQuery+=' AND Object_For_Share__c =: DocumentParentObjectId ';
         } else {
             string objName = Id.valueOf(DocumentParentObjectId).getSObjectType().getDescribe().getName(); 
             system.debug(objName);
             if(!objName.contains('__c')){
                 objName = objName + '__c';
             }
-            query+=' AND ' + objName + '=:DocumentParentObjectId';
+            if (objName == 'Documents_Folder_Template__c'){
+                query+=' AND ((Documents_Folder_Template__c =: DocumentParentObjectId OR Documents_Folder_Template__r.Parent_Folder__c =: DocumentParentObjectId) and (Account__c=:accId))';
+
+                for (Documents_Folder_Template__c dft: [select id,(select id from Documents_Folder_Templates__r where id=: DocumentParentObjectId) from Documents_Folder_Template__c]){
+                    if (dft.Documents_Folder_Templates__r.size()>0)
+                    dsQueryTemplFolderidSet.add(dft.Id);
+                }
+
+                dsQuery+=' AND (Documents_Folder_Template__c =: DocumentParentObjectId OR Documents_Folder_Template__c in: dsQueryTemplFolderidSet or (Object_For_Share__c = \'Documents\'))';
+            } else {
+                query+=' AND ' + objName + '=:DocumentParentObjectId';
+                if (objName == 'Opportunity__c'){
+                    dsQuery += (' AND  (' + objName + ' =: DocumentParentObjectId or Object_For_Share__c = \'Opportunities\')');
+                } else if (objName == 'Board_Meeting__c'){
+                    dsQuery += (' AND  (' + objName + ' =: DocumentParentObjectId or Object_For_Share__c = \'Board_Meetings__r\')');
+                } else {
+                    dsQuery += (' AND  ' + objName + ' =: DocumentParentObjectId');
+                }
+                
+            }
         }
         
         if (p.Name!='System Administrator' && p.Name != 'Canapi System Admin'){
@@ -105,6 +137,9 @@ public without sharing class CustomDocumentControllerWoutSharing {
              query+=' AND OwnerId =: Uid';
         }
         query+=' order by Name__c desc';
+
+        dsQuery+=' order by Object_For_Share__c asc nulls last';
+        system.debug(dsQuery);
         
 		map <Id,Document__c> docsIds = new  map <Id,Document__c>();
 		for (Document__c doc:Database.query(query)){
@@ -114,6 +149,25 @@ public without sharing class CustomDocumentControllerWoutSharing {
         List <Document__Share> dshares = [select id,UserOrGroupId,AccessLevel,RowCause,ParentId from Document__Share where ParentId in: docsIds.keySet() and RowCause!= 'Owner'];
         Set <id> UserOrGroupIds = new Set <id>();
         map <id,string> UserOrGroupIdstonameMap = new map <id,string>();
+
+        List <Default_Sharing__c> userDefSharings = [select id, UserOrGroup__c, Access__c from Default_Sharing__c where CreatedBy__c =: userInfo.getUserId() and Account__c =: null];
+        List <Default_Sharing__c> accDefSharings = [select id, UserOrGroup__c, Access__c,Account__r.Name from Default_Sharing__c where Board_Meeting__c=null AND Contact__c=null AND Documents_Folder_Template__c=null AND Investment__c=null AND Object_For_Share__c=null AND Opportunity__c=null and Account__c =: accId];
+
+        
+        folderSharings = Database.query(dsQuery);
+        
+        for(Default_Sharing__c ds: userDefSharings){
+            UserOrGroupIds.add(ds.UserOrGroup__c);
+        }
+
+        for(Default_Sharing__c ds: accDefSharings){
+            UserOrGroupIds.add(ds.UserOrGroup__c);
+        }
+
+        for(Default_Sharing__c ds: folderSharings){
+            UserOrGroupIds.add(ds.UserOrGroup__c);
+        }
+
         for (Document__Share  ds: dshares){
             UserOrGroupIds.add(ds.UserOrGroupId);
         }
@@ -135,6 +189,91 @@ public without sharing class CustomDocumentControllerWoutSharing {
         generator.writeStartObject(); 
         generator.writeFieldName('rows');
         generator.writeStartArray(); //Write the starting marker of a JSON object '['
+
+        for (Default_Sharing__c ds : userDefSharings){
+            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+            generator.writeStringField('id', ds.Id);
+            List<String> strlist = new List<String>();
+            
+            strlist.add('[U] User Default');
+                        
+            if (String.ValueOf(ds.UserOrGroup__c).startsWithIgnoreCase('005')){
+            	strlist.add( 'User' );
+            } else {
+                strlist.add( 'Group' );
+            }
+            strlist.add( UserOrGroupIdstonameMap.get(ds.UserOrGroup__c) );
+            strlist.add(ds.Access__c);
+            String link='';
+            link = 'javascript:removeDefaultSharing("' + ds.Id + '")';
+            strlist.add( 'X'  + '^' + link + '^_self');
+            generator.writeObjectField('data', strlist);
+            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+        }
+
+        for (Default_Sharing__c ds : accDefSharings){
+            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+            generator.writeStringField('id', ds.Id);
+            List<String> strlist = new List<String>();
+            
+            strlist.add('[F] ' + ds.Account__r.Name + ' (Account)');
+                        
+            if (String.ValueOf(ds.UserOrGroup__c).startsWithIgnoreCase('005')){
+            	strlist.add( 'User' );
+            } else {
+                strlist.add( 'Group' );
+            }
+            strlist.add( UserOrGroupIdstonameMap.get(ds.UserOrGroup__c) );
+            strlist.add(ds.Access__c);
+            String link='';
+            link = 'javascript:removeDefaultSharing("' + ds.Id + '")';
+            strlist.add( 'X'  + '^' + link + '^_self');
+            generator.writeObjectField('data', strlist);
+            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+        }
+
+        for (Default_Sharing__c ds : folderSharings){
+            generator.writeStartObject(); //Write the starting marker of a JSON object '{'
+            generator.writeStringField('id', ds.Id);
+            List<String> strlist = new List<String>();
+            
+            String shareLabel = '[F] ';
+            if (ds.Opportunity__c != null){
+                shareLabel += ds.Opportunity__r.Name;
+            } else if (ds.Object_For_Share__c != null){
+                if (ds.Object_For_Share__c == 'Opportunities'){
+                    ds.Object_For_Share__c = 'Deals';
+                } else if (ds.Object_For_Share__c == 'Board_Meetings__r'){
+                    ds.Object_For_Share__c = 'Board Meetings';
+                }
+                shareLabel += ds.Object_For_Share__c;
+            } else if (ds.Investment__c != null){
+                shareLabel += ds.Investment__r.name;
+            } else if (ds.Documents_Folder_Template__c != null){
+                shareLabel += ds.Documents_Folder_Template__r.Name;
+            } else if (ds.Contact__c != null){
+                shareLabel += ds.Contact__r.Name;
+            } else if (ds.Board_Meeting__c != null){
+                shareLabel += ds.Board_Meeting__r.Name;
+            } else {
+                shareLabel += ds.Account__r.Name;
+            } 
+            strlist.add(shareLabel);
+            
+            
+            if (String.ValueOf(ds.UserOrGroup__c).startsWithIgnoreCase('005')){
+            	strlist.add( 'User' );
+            } else {
+                strlist.add( 'Group' );
+            }
+            strlist.add( UserOrGroupIdstonameMap.get(ds.UserOrGroup__c) );
+            strlist.add(ds.Access__c);
+            String link='';
+            link = 'javascript:removeDefaultSharing("' + ds.Id + '")';
+            strlist.add( 'X'  + '^' + link + '^_self');
+            generator.writeObjectField('data', strlist);
+            generator.writeEndObject(); //Write the end marker of a JSON object '}'
+        }
 
         for (Document__Share ds : dshares){
             generator.writeStartObject(); //Write the starting marker of a JSON object '{'
@@ -167,7 +306,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
         generator.writeStartObject(); 
         generator.writeFieldName('rows');
         generator.writeStartArray(); //Write the starting marker of a JSON object '['
-        List <Default_Sharing__c> dshares = [select id, UserOrGroup__c, Access__c, createdById  from Default_Sharing__c where createdById =: userInfo.getUserId() or CreatedBy__c =: userInfo.getUserId() ];
+        List <Default_Sharing__c> dshares = [select id, UserOrGroup__c, Access__c, createdById  from Default_Sharing__c where CreatedBy__c =: userInfo.getUserId() and Account__c = null];
         Map <id,Default_Sharing__c> UserOrGroupIds = new map <id,Default_Sharing__c>();
 
         for (Default_Sharing__c  ds: dshares){
@@ -463,8 +602,9 @@ public without sharing class CustomDocumentControllerWoutSharing {
     public static void addDefaultPermission (String userOrGroupId, String AccessType){
         Default_Sharing__c ds = new Default_Sharing__c();
         try {
-            ds = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where UserOrGroup__c= : userOrGroupId and (createdById=:userInfo.getUserId() or CreatedBy__c =:userInfo.getUserId()) ];
+            ds = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where UserOrGroup__c= : userOrGroupId and CreatedBy__c =:userInfo.getUserId() ];
         } catch(exception e){}
+        ds.CreatedBy__c = userInfo.getUserId();
         ds.UserOrGroup__c = userOrGroupId;
         ds.Access__c = AccessType;
         upsert ds;
@@ -539,31 +679,55 @@ public without sharing class CustomDocumentControllerWoutSharing {
         Profile p = [Select Name from Profile where Id =: userinfo.getProfileid()];
         String FullaccId = accId;
         accId = accId.substring(0, 15);
-        List <Document__c> docList = new List <Document__c>();    
+        List <Document__c> docList = new List <Document__c>();   
+        Default_Sharing__c ds = new Default_Sharing__c (Account__c = accId,UserOrGroup__c = userOrGroupId, Access__c = AccessType);
+        String dsQuery = 'select id from Default_Sharing__c where Account__c =: accId and UserOrGroup__c=: userOrGroupId';
         
         string query = 'select id, Name__c,UserRecordAccess.HasEditAccess, Owner.Name, OwnerId from Document__c where id!=null';
         if (DocumentParentObjectId==FullaccId){
             query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
+            dsQuery+=' AND Board_Meeting__c=null AND Contact__c=null AND Documents_Folder_Template__c=null AND Investment__c=null AND Object_For_Share__c=null AND Opportunity__c=null';
         } else if(DocumentParentObjectId=='Opportunities'){
-            query+=' AND Opportunity__r.AccountId=:accId'; 
+            query+=' AND Opportunity__r.AccountId=:accId';
+            ds.Object_For_Share__c = 'Opportunities';
+            dsQuery += 'Object_For_Share__c =: ds.Object_For_Share__c';
         } else if(DocumentParentObjectId=='Contacts'){
             query+=' AND Contact__r.AccountId=:accId'; 
+            ds.Object_For_Share__c = DocumentParentObjectId;
+            dsQuery += 'Object_For_Share__c =: ds.Object_For_Share__c';
         } else if(DocumentParentObjectId=='Board_Meetings__r'){
             query+=' AND Board_Meeting__r.Account__c=:accId'; 
+            ds.Object_For_Share__c = DocumentParentObjectId;
+            dsQuery += 'Object_For_Share__c =: ds.Object_For_Share__c';
         } else if(DocumentParentObjectId=='Investment__r'){// round Relationship name
             query+=' AND Round__r.Target_Company__c=:accId'; 
+            ds.Object_For_Share__c = DocumentParentObjectId;
+            dsQuery += 'Object_For_Share__c =: ds.Object_For_Share__c';
         } else if(DocumentParentObjectId=='Investments__r'){// investment Relationship name
             query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)';  
+            ds.Object_For_Share__c = DocumentParentObjectId;
+            dsQuery += 'Object_For_Share__c =: ds.Object_For_Share__c';
         } else if(DocumentParentObjectId.contains(',')){
             List <String> docIds = DocumentParentObjectId.split(',');
             query+=' AND Id in:docIds';
+        } else if(DocumentParentObjectId=='Documents'){
+            query+= ' AND (Documents_Folder_Template__c != null AND Account__c=:accId)';
+            ds.Object_For_Share__c = DocumentParentObjectId;
+            dsQuery += 'Object_For_Share__c =: ds.Object_For_Share__c';
         } else {
             string objName = Id.valueOf(DocumentParentObjectId).getSObjectType().getDescribe().getName(); 
             system.debug(objName);
             if(!objName.contains('__c')){
                 objName = objName + '__c';
             }
-            query+=' AND ' + objName + '=:DocumentParentObjectId';
+            if (objName == 'Documents_Folder_Template__c'){
+                query+=' AND ((Documents_Folder_Template__c =: DocumentParentObjectId OR Documents_Folder_Template__r.Parent_Folder__c =: DocumentParentObjectId) and (Account__c=:accId))';
+            } else {
+                query+=' AND ' + objName + '=:DocumentParentObjectId';
+            }
+
+            ds.put(objName,DocumentParentObjectId);
+            dsQuery += (' and  ' + objName + ' =: DocumentParentObjectId');
         }
         
         if (p.Name!='System Administrator' && p.Name != 'Canapi System Admin'){
@@ -580,11 +744,11 @@ public without sharing class CustomDocumentControllerWoutSharing {
 		Set<Id> docIds = new Set<Id>();
         
         for (Document__c doc:Database.query(query)){
-            Document__Share ds = new Document__Share();
-            ds.ParentId = doc.Id;
-            ds.UserOrGroupId = userOrGroupId;
-            ds.AccessLevel = AccessType;
-            dsList.add(ds);
+            Document__Share dshare = new Document__Share();
+            dshare.ParentId = doc.Id;
+            dshare.UserOrGroupId = userOrGroupId;
+            dshare.AccessLevel = AccessType;
+            dsList.add(dshare);
             docIds.add(doc.Id);
         }
         
@@ -602,6 +766,16 @@ public without sharing class CustomDocumentControllerWoutSharing {
                 update cdlList;
             }
         }
+
+        try{
+            dsQuery += ' limit 1';
+            system.debug(dsQuery);
+            Default_Sharing__c existingDS = Database.query(dsQuery);
+            ds.Id = existingDS.Id;
+        } catch(exception e){
+            system.debug(e);
+        }
+        upsert ds;
     }
     
     public static void removeAccess (String userOrGroupId, String currentDocId){
@@ -611,10 +785,23 @@ public without sharing class CustomDocumentControllerWoutSharing {
     public static void removeBulkAccess (String dsId){
         delete [select id from Document__Share where id=:dsId];
     }
+
+    public static void removeDefaultSharing (String dsId){
+        delete [select id from Default_Sharing__c where id=:dsId];
+    }
     
     public static List <Document__share> getDocShares (Set <Id> docsIds){
         List <Document__share> dsList = new List <Document__share>();
         dsList = [select id, ParentId, AccessLevel,UserOrGroupId,RowCause from Document__share where ParentId in:docsIds and RowCause='Manual'];
         return dsList;
+    }
+
+    public static void shareWithUsers (List <String> fileids){
+        List <ContentDocumentLink> cdlList =  [SELECT ContentDocumentId,LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId  in: fileids];
+        for(ContentDocumentLink l:cdlList) {
+            l.Visibility='AllUsers';
+        } 
+        update cdlList;
+        
     }
 }

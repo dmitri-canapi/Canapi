@@ -58,6 +58,12 @@ global without sharing class CommunityPageHeaderCtrl{
         public SObject obj {get; set;}
         @AuraEnabled
         public String RecordType {get; set;}
+        @AuraEnabled
+        public String UserAccountRT {get; set;}
+        @AuraEnabled
+        public String UserAccountName {get; set;}
+
+
         public objWrapper(String sobjName, String recordName, String accID, String accName, String accDescription, SObject obj, String RecordType){
             this.sobjName = sobjName;
             this.recordName = recordName;
@@ -66,6 +72,13 @@ global without sharing class CommunityPageHeaderCtrl{
             this.accDescription = accDescription;
             this.obj = obj;
             this.RecordType = RecordType;
+            try {
+                String userAccId = [select Account_Id__c from user where id =: userinfo.getuserid()].Account_Id__c;
+                Account acc = [select Name,RecordType.Name from Account where id=: userAccId];
+                this.UserAccountRT = acc.RecordType.Name;
+                this.UserAccountName = acc.Name;
+            } catch(exception e){}
+            
         }
     }
 }
