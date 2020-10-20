@@ -52,7 +52,7 @@
 
 
     <div style="margin-right: 350px;margin-bottom: 10px;">
-        <div style="/*display:inline-block;*/    float: left;">
+        <div style="/*display:inline-block;*/    float: left;min-width: 50px;">
             <aura:if isTrue="{!and(v.sobjName=='Account', v.accObj.External_Logo__c!=null)}">
                 <img style="width:70px; margin-right:5px"
                     src="{! 'data:image/png;base64,' + v.accObj.External_Logo__c + v.accObj.External_Logo2__c + v.accObj.External_Logo3__c}" />

@@ -143,7 +143,7 @@ global with sharing class CustomDocumentController {
         if (AccRecordTypeName =='') {
             AccRecordTypeName = [select recordType.Name from account where id=: AccId].recordType.Name;
         }
-        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank'){
+        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)'){
             return tags = [select id, name, ParentTag__c  from Tag__c where Type__c = 'Bank Or LP' order by name asc];
         } else {
             tags = [select id, name, ParentTag__c  from Tag__c where Account__c=:AccId order by name asc];
@@ -221,7 +221,7 @@ global with sharing class CustomDocumentController {
         if (AccRecordTypeName =='') {
             AccRecordTypeName = [select recordType.Name from account where id=: AccId].recordType.Name;
         }
-        tag.Type__c = (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') ? 'Bank Or LP' :null;
+        tag.Type__c = (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') ? 'Bank Or LP' :null;
         insert tag;
         return tag.Id;
      }
@@ -788,8 +788,12 @@ global with sharing class CustomDocumentController {
             string tagName = [select name from Tag__c where id=:tagId limit 1].name;
             query+=' AND id in (SELECT Document__c FROM TagDocumentAssociation__c WHERE Tag__r.name = \'' + tagName +'\' or Tag__r.ParentTag__r.name = \'' + tagName +'\' or  Tag__r.ParentTag__r.ParentTag__r.name = \'' + tagName +'\')';
         }
+
+        if ((AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') && Site.getSiteId()!=null) {
+                query+=' AND Unverified__c = false'; 
+        }
         if (DocumentParentObjectId==FullaccId){
-            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
+            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') {
                 query+=' AND (Documents_Folder_Template__c != null and Account__c=:accId)'; 
             } else {
                 query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
@@ -977,7 +981,7 @@ global with sharing class CustomDocumentController {
 
         List <Document__c> docList = new List <Document__c>();
         
-        string query = 'select id, Name__c,UserRecordAccess.HasEditAccess, Sensitivity__c, CreatedDate, Owner.Name, OwnerId, Notes__c, Release_date__c, Shared_with_Users_from_this_account__c from Document__c where id!=null';
+        string query = 'select id, Name__c,UserRecordAccess.HasEditAccess, Unverified__c, Sensitivity__c, CreatedDate, Owner.Name, OwnerId, Notes__c, Release_date__c, Shared_with_Users_from_this_account__c from Document__c where id!=null';
             
        if (searchCondition!=null && searchCondition!=''){
            string searchConditionFiltered = '*' +  String.escapeSingleQuotes(searchCondition) + '*';
@@ -1018,8 +1022,13 @@ global with sharing class CustomDocumentController {
             string tagName = [select name from Tag__c where id=:tagId limit 1].name;
             query+=' AND id in (SELECT Document__c FROM TagDocumentAssociation__c WHERE Tag__r.name = \'' + tagName +'\' or Tag__r.ParentTag__r.name = \'' + tagName +'\' or  Tag__r.ParentTag__r.ParentTag__r.name = \'' + tagName +'\')';
         }
+
+        if ((AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') && Site.getSiteId()!=null) {
+                query+=' AND Unverified__c = false'; 
+        }
+
         if (DocumentParentObjectId==FullaccId){
-            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') {
+            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') {
                 query+=' AND (Documents_Folder_Template__c != null and Account__c=:accId)'; 
             } else {
                 query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
@@ -1125,6 +1134,8 @@ global with sharing class CustomDocumentController {
                     generator.writeStartObject();
                     generator.writeStringField('ReleaseDate', d.Release_date__c != null ? String.ValueOf(d.Release_date__c) : '');
                     generator.writeBooleanField('SharedWithAccountOnly', d.Shared_with_Users_from_this_account__c);
+                    generator.writeBooleanField('Unverified', d.Unverified__c);
+                    generator.writeStringField('attachmentId', docAttachmentMap.get(d.Id));
                     
                     // end object (})
                     generator.writeEndObject();
@@ -1147,7 +1158,7 @@ global with sharing class CustomDocumentController {
                         link = 'javascript:openModal("' + docAttachmentMap.get(d.Id) + '","public"' + ',' + isCommunity + ')^_self';
                     //}
                     
-                    String docName = (docsVersionMap.get(d.Name__c)[1]!='1' ? d.Name__c + ' <span class="docVersion">V.' + docsVersionMap.get(d.Name__c)[1] + '</span>' : d.Name__c );
+                    String docName = (docsVersionMap.get(d.Name__c)[1]!='1' ? d.Name__c + ' <span class="docVersion">V.' + docsVersionMap.get(d.Name__c)[1] + '</span>' : (d.Unverified__c ? '[Unverified] ': '') + d.Name__c );
                     strlist.add( docName  + '^' + link );
                     
                     strlist.add('');
@@ -1367,7 +1378,7 @@ global with sharing class CustomDocumentController {
         if (parentId InstanceOf Id){
             if(id.valueOf(parentId).getSObjectType().getDescribe().getName()=='Account'){
                 String AccRecordTypeName = [select recordType.Name from account where id=: parentId].recordType.Name;
-                if ((AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank') && !Test.isRunningTest()){
+                if ((AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') && !Test.isRunningTest()){
                     throw new applicationException('Please, select one of the folders.');
                 }
                 doc.Account__c=parentId;
@@ -1493,7 +1504,7 @@ global with sharing class CustomDocumentController {
         map <id, List <String>> tagKeywords = new map <id, List <String>>();
         String AccRecordTypeName = accId != null ? [select recordType.Name from account where id=: AccId].recordType.Name : null;
         List <Tag__c> tags = new List <Tag__c>();
-        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank'){
+        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)'){
             tags = [select id, name, (select id,Tag__c,Tag__r.Name, Keywords__c from Keywords__r where IsKeywordEnabled__c = true)  from Tag__c where Type__c = 'Bank Or LP' order by name asc];
         } else {
             tags = [select id, name, (select id,Tag__c,Tag__r.Name, Keywords__c from Keywords__r where IsKeywordEnabled__c = true) from Tag__c where Account__c =: AccId limit 50000];
@@ -1545,8 +1556,8 @@ global with sharing class CustomDocumentController {
     }
 
     @RemoteAction
-    global static void sendEmail(List <String> usersAndGroups, String AccId, String Range){
-        CustomDocumentControllerWoutSharing.sendEmail(usersAndGroups, AccId, Range);
+    global static void sendEmail(List <String> usersAndGroups, String AccId, String Range, String folder, String folderName){
+        CustomDocumentControllerWoutSharing.sendEmail(usersAndGroups, AccId, Range, folder, folderName);
     }
 
     @RemoteAction

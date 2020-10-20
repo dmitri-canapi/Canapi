@@ -46,12 +46,13 @@ trigger AddCommunityUserToPublicGroup on User (before insert, after insert, afte
         ID canapiConnectProfileId = [select id,name from Profile where name ='Community: Alliance Portal' limit 1].Id;
         List <id> intUsers = new List <id>();
 
-        
+        Map <id,id> contactUserMap = new Map <id,id>();
 
 
         for(User u:Trigger.new) {
             if (u.ProfileId == canapiConnectProfileId){
                 userIds.add(u.Id);
+                contactUserMap.put(u.contactId, u.id);
             }
 
             if (u.ContactId == null){ // set default sharing for internal users
@@ -63,6 +64,13 @@ trigger AddCommunityUserToPublicGroup on User (before insert, after insert, afte
         AddCommunityUserToPublicGroupHandler.insertDefSharings(intUsers);
         
         AddCommunityUserToPublicGroupHandler.subscribe(userIds);
+
+        List <UserContactTagAssociation__c> uctaList = [select id,Contact__c from UserContactTagAssociation__c where Contact__c in: contactUserMap.keySet()];
+
+        for(UserContactTagAssociation__c ucta: uctaList){
+            ucta.User__c = contactUserMap.get(ucta.Contact__c);
+        }
+        update uctaList;
 
         
 

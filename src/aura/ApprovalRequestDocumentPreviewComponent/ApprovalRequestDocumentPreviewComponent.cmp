@@ -1,0 +1,16 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" access="global"
+    controller="ApprovalRequestDocPreviewController">
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="fileId" type="String" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <aura:if isTrue="{!v.fileId!=null}">
+        <div class="slds-float_right slds-m-right_large">
+
+            <lightning:button label="Preview Document" variant="Neutral" onclick="{!c.openmodal}" />
+        </div>
+        <div class=" slds-clearfix"></div>
+    </aura:if>
+
+</aura:component>

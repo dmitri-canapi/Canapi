@@ -7,6 +7,7 @@
     <aura:attribute name="data" type="Object" />
     <aura:attribute name="usersData" type="Object" />
     <aura:attribute name="contactsData" type="Object" />
+    <aura:attribute name="RTname" type="String" />
     <aura:attribute name="newUser" type="User" default="{ 'sobjectType': 'User',
               'Title': '','FirstName':'','LastName':'',
               'Email':'','Phone':'','MobilePhone':'',
@@ -66,9 +67,12 @@
                         value="{! v.viewStyle }" type="button" onchange="{!c.changeViewStyle}"
                         disabled="{!v.disableViewStyleSwitcher}" />
                 </li>
-                <li>
-                    <lightning:button label="New Contact" variant="brand" onclick="{!c.openmodal}" class="newButt" />
-                </li>
+                <aura:if isTrue="{!v.RTname != 'LP (Individuals)'}">
+                    <li>
+                        <lightning:button label="New Contact" variant="brand" onclick="{!c.openmodal}"
+                            class="newButt" />
+                    </li>
+                </aura:if>
             </ul>
 
 

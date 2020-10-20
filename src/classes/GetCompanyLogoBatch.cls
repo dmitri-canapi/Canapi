@@ -42,9 +42,109 @@ global class GetCompanyLogoBatch implements Database.Batchable<sObject>,   Datab
                             }
                         }
                         
+                    } else {
+                        endpoint = System.URL.getSalesforceBaseURL().toExternalForm() + '/services/images/photo/' + records[i].Id;
+                        req.setEndpoint(endpoint);
+                        req.setHeader('Authorization', 'OAuth '+UserInfo.getSessionID());
+                        req.setMethod('GET');
+                        res = http.send(req);
+                        system.debug(res.getHeader('Location'));
+                        if (!res.getHeader('Location').contains('profilephoto/005/T')){
+                            req.setEndpoint(res.getHeader('Location'));
+                            res = new Http().send(req);
+                            if (res.getStatusCode() == 200){
+                                blob image = res.getBodyAsBlob();
+                                String resString = EncodingUtil.base64Encode(image);
+                                
+                                if (resString.length() <= 131072){
+                                    records[i].External_Logo__c = resString;
+                                } else {
+                                    records[i].External_Logo__c = resString.subString(0,131072);
+                                    
+                                    if (resString.length() <= 262144){
+                                        records[i].External_Logo2__c = resString.subString(131072,resString.length());
+                                    } else {
+                                        records[i].External_Logo2__c = resString.subString(131072,262144);
+                                        integer maxLengnth = resString.length();
+                                        if (resString.length() > 393216){
+                                            maxLengnth = 393216;
+                                        }
+                                        records[i].External_Logo3__c = resString.subString(262144, maxLengnth);
+                                    }
+                                }
+                                
+                            }
+                    }
+
                     }
                 }  else {
                     integer j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
+                    j = 0;
                     j = 0;
                     j = 0;
                     j = 0;

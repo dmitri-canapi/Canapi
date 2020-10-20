@@ -457,8 +457,9 @@ public without sharing class CustomDocumentControllerWoutSharing {
 
     }
 
-    public static void sendEmail(List <String> usersAndGroups, String accId, String Range){
+    public static void sendEmail(List <String> usersAndGroups, String accId, String Range, String folder, String folderName){
         String accName = [select Name from account where id =: accId].Name;
+        EmailTemplate template;
         Set <String> allUsersIds = new set <string>();
         Set <String> groupsIds = new set <string>();
         for (String s: usersAndGroups){
@@ -489,7 +490,17 @@ public without sharing class CustomDocumentControllerWoutSharing {
         String todayDate = DateTime.now().format('yyyy-MM-dd\'T\'hh:mm:ss\'Z\'');
 
 
-        string query = 'select id, Name__c, CreatedDate from Document__c where (Account__c=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Opportunity__r.AccountId=:accId) and ';
+        string query = 'select id, Name__c, CreatedDate from Document__c where ';
+        if (folder == 'All'){
+            query += '(Account__c=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Opportunity__r.AccountId=:accId) and ';
+        } else if (folder == 'Opportunities'){
+            query += '(Opportunity__r.AccountId=:accId) and ';
+        } else if (folder == 'Board_Meetings__r'){
+            query += '(Board_Meeting__r.Account__c=:accId) and ';
+        } else {
+            query += '(Account__c=:accId and (Documents_Folder_Template__c =: folder OR Documents_Folder_Template__r.Parent_Folder__c =: folder)) and '; 
+        }
+        
         if (Range == 'Today'){
             query += '(CreatedDate >= ' + todayDate +  'OR LastModifiedDate >=  ' + todayDate + ')';
         } else if (Range == 'This Week'){
@@ -501,11 +512,28 @@ public without sharing class CustomDocumentControllerWoutSharing {
         }
         query+=' order by Name__c asc';
         system.debug(query);
+
+        try {
+
+            string templName = 'DocMan_Email_' + folderName.replaceAll(' ', '_');
+            system.debug(templName);
+            template = [SELECT HtmlValue,Subject FROM EmailTemplate WHERE DeveloperName =: templName];       
+        } catch (exception e){
+            template = [SELECT HtmlValue,Subject FROM EmailTemplate WHERE DeveloperName = 'DocMan_Email_All'];  
+        }
         
         Map<ID, Document__c> docs = new Map<ID, Document__c>((List <Document__c>)(Database.query(query)));
 
 
         List <Document__share> dsList = getDocShares(docs.KeySet());
+
+        map <Id, String> docAttachmentMap = new map <Id, String>();
+        if (docs.size()>0){
+            for (ContentDocumentLink cdl: [SELECT ContentDocumentId,LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId in:docs.KeySet()]){
+                docAttachmentMap.put(cdl.LinkedEntityId, cdl.ContentDocumentId);
+            }
+
+        }
 
 
         Map<Id, Set <String>> groupWithUsers = new Map<Id, Set <String>>();
@@ -546,21 +574,31 @@ public without sharing class CustomDocumentControllerWoutSharing {
             usersWithDocs.put(userInfo.getUserId(), new Set <Id>());
         }
 
+
+
         for(String Uid: usersWithDocs.KeySet()){
             if(usersWithDocs.get(Uid).size()>0 || Test.IsRunningTest()){
                 Messaging.SingleEmailMessage message = new Messaging.SingleEmailMessage();
-                message.setSubject('New Documents Available');
+                message.setSubject(template.Subject);
                 message.setTargetObjectId(Uid);
                 message.setSaveAsActivity(false);
                 message.setUseSignature(false);
 
-                String emailBody = '<H2>New Documents Available</H2><br/>';
-                emailBody += 'The following ' + accName + ' document(s) were recently updated on Alliance:<br/>';
-                emailBody += '<ul>';
+                String emailBody = template.HtmlValue;
+
+                emailBody = emailBody.replace('{account}', accName);
+
+                string links = '<ul>';
                 for (String docId: usersWithDocs.get(Uid)){
-                    emailBody += '<li><a href="https://canapi.force.com/alliance/s/account/' + accId + '?tabset-35136=3">' + docs.get(docId).Name__c + '</a> - ' + docs.get(docId).CreatedDate +  '</li>';
+                    if (docAttachmentMap.containsKey(docId))
+                    links += '<li><a href="https://canapi.force.com/alliance/s/contentdocument/' + docAttachmentMap.get(docId) + '">' + docs.get(docId).Name__c + '</a> - ' + docs.get(docId).CreatedDate +  '</li>';
+                    //links += '<li><a href="https://canapi.force.com/alliance/s/account/' + accId + '?tabset-35136=3">' + docs.get(docId).Name__c + '</a> - ' + docs.get(docId).CreatedDate +  '</li>';
                 }
-                emailBody += '</ul>';
+                links += '</ul>';
+
+                emailBody = emailBody.replace('{links}', links);
+                emailBody = emailBody.replace(']]>', '');
+                emailBody+='<br/>';
                 message.setHTMLBody(emailBody);
 
                 messages.add(message);

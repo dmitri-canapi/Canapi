@@ -35,7 +35,7 @@
             <value>Closed Pass</value>
         </criteriaItems>
     </filter>
-    <format>Summary</format>
+    <format>Tabular</format>
     <name>Closed Pass Report</name>
     <params>
         <name>open</name>

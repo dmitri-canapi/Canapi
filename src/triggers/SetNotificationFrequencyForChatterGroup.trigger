@@ -14,15 +14,18 @@ trigger SetNotificationFrequencyForChatterGroup on CollaborationGroupMember (bef
                     cgm.NotificationFrequency = 'D';
                 }
             }
-        }
-        List <id> grIds = new List <id>();
-        for (CollaborationGroupMember cgm : Trigger.new) {
-            grIds.add(cgm.CollaborationGroupId);
-        }
-        if (!System.isFuture()){
-            SetNotificationFrequencyForChatterGroup.updateNotification(grIds);
         } else {
-            SetNotificationFrequencyForChatterGroup.updateNotificationNonFuture(grIds);
+            List <id> grIds = new List <id>();
+            for (CollaborationGroupMember cgm : Trigger.new) {
+                grIds.add(cgm.CollaborationGroupId);
+            }
+            if (!System.isFuture()){
+                try{
+                    SetNotificationFrequencyForChatterGroup.updateNotification(grIds);
+                } catch(exception e){}
+            } else {
+                SetNotificationFrequencyForChatterGroup.updateNotificationNonFuture(grIds);
+            }
         }
     }
 

@@ -39,7 +39,12 @@ global class AddCommunityUserToPublicGroupScheduler implements Schedulable {
                 }
             }
         }
-        insert listGroupMember;
+        
+        try{
+            insert listGroupMember;
+        } catch(exception e){
+            system.debug(e);
+        }
 
         AddCommunityUserToPublicGroupHandler.finishSubscribing();
     }

@@ -55,12 +55,12 @@
      position:relative;
  }
  .THIS .slds-nubbin_left::before, .THIS .slds-nubbin--left::before, .THIS .slds-nubbin_left::after, .THIS .slds-nubbin--left::after {
-     top: 25px !important;
+     top: 45px !important;
  }
  .THIS .main-menu .slds-popover{
      position: absolute; 
      left: 57px; 
-     top: 0px;
+     top: -15px
  }
  .THIS .menuExpanded .main-menu  .slds-popover{
      left: 196px !important; 

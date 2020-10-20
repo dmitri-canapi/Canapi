@@ -56,17 +56,40 @@
         action.setCallback(this, function (response) {
             var state = response.getState();
             if (state === "SUCCESS") {
-                component.set("v.isCreateable", response.getReturnValue().isCreateable);
+                if (component.get("v.communityName") != null) {
+                    component.set("v.isCreateable", false);
+                } else {
+                    component.set("v.isCreateable", response.getReturnValue().isCreateable);
+                }
                 component.set("v.accId", response.getReturnValue().accId);
                 component.set("v.ddId", response.getReturnValue().ddId);
+                component.set("v.acctList", response.getReturnValue().availableAccs);
+                component.set("v.IsExternalGrader", response.getReturnValue().IsExternalGrader);
+
                 console.log(response.getReturnValue());
             }
         });
         $A.enqueueAction(action);
 
+        component.set('v.selectAccsColumns', [
+            { label: 'Account Name', fieldName: 'Name', type: 'text' },
+            { label: 'Website', fieldName: 'Website', type: 'url ' },
+            { label: 'Phone', fieldName: 'Phone', type: 'Phone' }
+        ]);
 
 
 
+
+    },
+
+    updateRecId: function (component, event) {
+        var selectedRows = event.getParam('selectedRows');
+        // Display that fieldName of the selected rows
+        for (var i = 0; i < selectedRows.length; i++) {
+            //alert("You selected: " + selectedRows[i].Id);
+            component.set("v.accId", selectedRows[i].Id);
+            component.set("v.ddId", '');
+        }
     },
 
     handleFiles: function (component, event, helper) {

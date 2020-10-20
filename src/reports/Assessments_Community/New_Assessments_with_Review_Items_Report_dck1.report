@@ -31,11 +31,24 @@
     <columns>
         <field>CHILD_NAME</field>
     </columns>
+    <columns>
+        <field>review_item__c.Item_Category__c</field>
+    </columns>
+    <columns>
+        <field>review_item__c.Review_Item_Name__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>review_item__c.Grade_Number__c</field>
+    </columns>
+    <columns>
+        <field>review_item__c.Reviewer_Comments__c</field>
+    </columns>
     <filter>
         <criteriaItems>
             <column>Assessment__c.Review_Status__c</column>
-            <operator>notEqual</operator>
-            <value>Complete,Deferred</value>
+            <operator>equals</operator>
+            <value>Complete</value>
         </criteriaItems>
     </filter>
     <format>Summary</format>

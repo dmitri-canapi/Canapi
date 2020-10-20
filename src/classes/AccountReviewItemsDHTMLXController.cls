@@ -493,6 +493,23 @@ global without sharing class AccountReviewItemsDHTMLXController {
         Boolean isCreateable = new CheckObjectPermissionsInVisualForce('review_item__c').isCreateable();
         String AccId = '';
         String ddId = '';
+
+        String Contactid = [select ContactId from user where id=:UserInfo.getUserId()].ContactId;
+        Boolean IsExternalGrader = false;
+        List <Account> availableAccs = new List <Account>();
+        if(ContactId != null){
+            IsExternalGrader = [select Is_External_Grader__c from contact where id =: ContactId].Is_External_Grader__c;
+            Set <String> accids = new set <String>();
+            for(AccountContactRelation acr: [select AccountId from AccountContactRelation where ContactId =: ContactId and Roles ='Fintech External Grader']){
+                accids.add(acr.AccountId);
+                
+            }
+            availableAccs = [SELECT Id, Name, Website, Phone from Account where id in: accids];
+            if(recId == null && IsExternalGrader){
+                return new initValuesWrapper(null, null, isCreateable, IsExternalGrader, availableAccs); 
+            }
+        }
+
         if (recId == null){
             AccId = [select Account_Id__c from user where id=:UserInfo.getUserId()].Account_Id__c;
             if (AccId == null){
@@ -513,8 +530,9 @@ global without sharing class AccountReviewItemsDHTMLXController {
             }
         }
 
+        
 
-        return new initValuesWrapper(AccId, ddId, isCreateable);
+        return new initValuesWrapper(AccId, ddId, isCreateable, IsExternalGrader, availableAccs); 
     }
 
     @AuraEnabled
@@ -551,10 +569,16 @@ global without sharing class AccountReviewItemsDHTMLXController {
         public String ddId {get; set;}
         @AuraEnabled
         public Boolean isCreateable {get; set;}
-        public initValuesWrapper(String accId, String ddId, boolean isCreateable){
+        @AuraEnabled
+        public Boolean IsExternalGrader {get; set;}
+        @AuraEnabled
+        public List <Account> availableAccs {get; set;}
+        public initValuesWrapper(String accId, String ddId, boolean isCreateable, boolean IsExternalGrader, List <Account> availableAccs){
             this.accId = accId;
             this.ddId = ddId;
             this.isCreateable = isCreateable;
+            this.IsExternalGrader = IsExternalGrader;
+            this.availableAccs = availableAccs;
         }
     }
 

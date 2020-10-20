@@ -12,8 +12,10 @@ global  without sharing class TeamManagementController {
             users = [Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl from User where Account_Id__c =: canapiAccId and IsActive = true]; 
             contacts = [Select id, Name, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c from Contact where Account.Id =: canapiAccId and id not in (select  ContactID from User) order by name asc limit 100];
         }*/
+
+        String RTname = [select Recordtype.Name from account where id=:accId].Recordtype.Name;
                 
-        return new UsersData(users, contacts);
+        return new UsersData(users, contacts, RTname);
     }
 
     @AuraEnabled
@@ -64,8 +66,9 @@ global  without sharing class TeamManagementController {
         q+= ' order by ' + order + ' asc nulls last limit 100';
         contacts = Database.query(q);
         //contacts = [Select id, Name, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from Contact where Account.Id =: accId and id not in (select  ContactID from User) order by name asc limit 100];
-            
-        return new UsersData(users, contacts);
+        String RTname = [select Recordtype.Name from account where id=:accId].Recordtype.Name;
+
+        return new UsersData(users, contacts, RTname);
     }
 
     @RemoteAction
@@ -169,7 +172,7 @@ global  without sharing class TeamManagementController {
         cont.Phone = u.Phone;
         cont.MobilePhone = u.MobilePhone;
         cont.Title = u.Title;
-        cont.AccountId = cont.Id == null ?  accountId : cont.AccountId;
+        if (cont.AccountId == null) cont.AccountId = accountId;
         
         Database.DMLOptions dml = new Database.DMLOptions(); 
         dml.DuplicateRuleHeader.AllowSave = true; 
@@ -207,9 +210,9 @@ global  without sharing class TeamManagementController {
                 throw new MyException ('Unable to create contact. Contact ' + u.FirstName + ' ' + u.LastName + ' already exists.');
             } else {
 
-                Id ContactId = createContact(u, recordId); 
+                
                 if(/*Site.getSiteId()!=null &&*/ u.ContactId == null){
-                    
+                    Id ContactId = createContact(u, recordId); 
                     u.ContactId = ContactId;
                 } 
 
@@ -433,10 +436,12 @@ global  without sharing class TeamManagementController {
     public class UsersData {
     @AuraEnabled public List <User> users { get; set;}
     @AuraEnabled public List <Contact> contacts { get; set;}
+    @AuraEnabled public String RTname { get; set;}
     @AuraEnabled public boolean isCommunity { get; set;}
-        public UsersData (List <User> users, List <Contact> contacts){
+        public UsersData (List <User> users, List <Contact> contacts, String RTname){
             this.users = users;
             this.contacts = contacts;
+            this.RTname = RTname;
             this.isCommunity = Site.getSiteId() != null? true : false;            
         }
     }   

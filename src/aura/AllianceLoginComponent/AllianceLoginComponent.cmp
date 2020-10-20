@@ -179,7 +179,7 @@ slds-p-vertical--medium login-heading">
                 </div>
                 <div class="slds-modal__content slds-p-around--large">
                     <div class="slds-grid slds-wrap">
-                        <div class="">
+                        <div class="slds-size_1-of-12">
                             <lightning:input type="checkbox" name="ProofDisclaimer" label="" aura:id="ProofDisclaimer"
                                 class="slds-p-vertical_small" checked="{!v.firstCheckbox}" />
                         </div>
@@ -190,7 +190,7 @@ slds-p-vertical--medium login-heading">
                         </div>
                     </div>
                     <div class="slds-grid slds-wrap">
-                        <div class="">
+                        <div class="slds-size_1-of-12">
                             <lightning:input type="checkbox" name="ProofDisclaimer2" label="" aura:id="ProofDisclaimer2"
                                 class="slds-p-vertical_small" checked="{!v.secondCheckbox}" />
                         </div>

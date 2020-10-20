@@ -79,35 +79,32 @@ public class CustomDocumentControllerTest {
         contr.uploadAttachment();
         contr.parentId = c.Id;
         contr.uploadAttachment();
-        //CustomDocumentController.prepareDocumentForUpload('text',c.Id,acc.Id,tag1Id);
         contr.parentId = o.Id;
         contr.uploadAttachment();
-        //CustomDocumentController.prepareDocumentForUpload('text',o.Id,acc.Id,tag1Id);
         contr.parentId = b.Id;
         contr.uploadAttachment();
-        //CustomDocumentController.prepareDocumentForUpload('text',b.Id,acc.Id,tag1Id);
         contr.parentId = 'notId';
         contr.filename = 'verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext';
         contr.uploadAttachment();
-        //CustomDocumentController.prepareDocumentForUpload('text','notId',acc.Id,tag1Id);
         
-        //CustomDocumentController.prepareDocumentForUpload('verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext',acc.Id,acc.Id,tag1Id);
+
         
-        /*CustomDocumentController.uploadAttachment('test','test','txt',acc.Id, acc.Id, tag1Id);
-        CustomDocumentController.uploadAttachment('test','test','txt',c.Id, acc.Id, tag1Id);
-        CustomDocumentController.uploadAttachment('test','test','txt',o.Id, acc.Id, tag1Id);
-        CustomDocumentController.uploadAttachment('test','test','txt',b.Id, acc.Id, tag1Id);
-        CustomDocumentController.uploadAttachment('test','test','txt','notId', acc.Id, tag1Id);*/
+        
+
+        Test.startTest();
 
         system.debug(CustomDocumentController.GetDocumentsAccPage(acc.Id));
         
         system.debug(CustomDocumentController.GetDocuments());
         system.debug(CustomDocumentController.GetDocumentsHomePage());
         system.debug(CustomDocumentController.GetDocumentsRI());
-        
 
-        Test.startTest();
-
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,'test',acc.id,'Limited Partner',acc.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Opportunities'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Contacts'));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Board_Meetings__r'));
+        //system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,acc.id));
+        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner',c.id));
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Opportunities'));
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Contacts'));
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'test',acc.id,'Limited Partner','Board_Meetings__r'));
@@ -119,12 +116,8 @@ public class CustomDocumentControllerTest {
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Limited Partner','Board_Meetings__r'));
         system.debug(CustomDocumentController.GetAccountDocumentsFiltered(null,'',acc.id,'Limited Partner',acc.id));
         
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,'test',acc.id,'Limited Partner',acc.id));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Opportunities'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Contacts'));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner','Board_Meetings__r'));
-        //system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,acc.id));
-        system.debug(CustomDocumentController.GetAccountDocumentsFilteredCount(null,null,acc.id,'Limited Partner',c.id));
+        
+        
 
         
         system.debug(CustomDocumentController.GetAccountsRelatedLists(acc.id));
@@ -154,39 +147,16 @@ public class CustomDocumentControllerTest {
         
         
 
-        Assessment__c assess = new Assessment__c(Account__c = acc.id);
-        insert assess;
-
-        review_item__c reviewItem = 
-            new review_item__c(
-                Assessment__c = assess.Id, 
-                Review_Item_Name__c = 'Bronze 1',
-                Item_Category__c = 'Bronze',
-                Item_Category_Description__c = 'Bronze items');
-        insert reviewItem;
         
-        
-        
-        system.debug(CustomDocumentController.GetDocNotes(doc.Id,reviewItem.id));
-        CustomDocumentController.LinkDocToRI(reviewItem.id,doc.Id,'test');
-        CustomDocumentController.LinkDocToRI(reviewItem.id,doc.Id,'test');
-        
-        
-        system.debug(CustomDocumentController.GetDocumentsFilteredRI(null,null));
-        system.debug(CustomDocumentController.GetDocumentsFilteredRI(doc.Id,'test'));
-        
-        system.debug(CustomDocumentController.GetDocNotes(doc.Id,reviewItem.id));
+       
         
         CustomDocumentController.saveRecordContr (JSON.serialize(docH));
         system.debug(CustomDocumentController.getFileRecords(docH.id));
         
             system.debug(CustomDocumentController.getCommunityAccId());
-        	CustomDocumentController.updateDocument(doc.Id, 'test', '2019-09-11 05:21:00', 'test2');
-            system.debug(Review_Items_Controller.getLinkedDocuments(reviewItem.id,''));
+        	
             
-            string extId = String.valueOf(reviewItem.id) + String.valueOf(doc.id);
-            Junction_Document_ReviewItem__c obj = [ select id from Junction_Document_ReviewItem__c where External_Id__c=:extId][0];
-            Review_Items_Controller.removeJunctionObjectById(obj.id);
+            
         Group gp = new Group(Name = 'Test');
         insert gp;  
         CustomDocumentController.removeAccess(gp.Id,doc.Id);
@@ -202,9 +172,11 @@ public class CustomDocumentControllerTest {
         CustomDocumentController.saveKeywords(tag1Id,true, 'test');
         CustomDocumentController.saveKeywords(tag1Id,true, 'test');
         Keyword__c kw = CustomDocumentController.getKeywordByTag(tag1Id);
-            CustomDocumentController.deleteDocument (doc.id);
+        
+
+        CustomDocumentController.deleteDocument (doc.id);
                 
-            delete documents;         
+        delete documents;         
         Test.stopTest();
             
                
@@ -265,11 +237,7 @@ public class CustomDocumentControllerTest {
         
         Document__c doc = new Document__c (Name__c='test',Account__c=acc.Id);
         insert doc;
-        Document__c doc2 = new Document__c (Name__c='test.pdf',Account__c=acc.Id);
-        insert doc2;
-        Document__c doc3 = new Document__c (Name__c='test.unknown',Account__c=acc.Id);
-        insert doc3;
-        
+                
         Blob beforeblob=Blob.valueOf('Unit test Attachment Body');
 
         
@@ -302,8 +270,17 @@ public class CustomDocumentControllerTest {
         contr.parentId = 'notId';
         contr.filename = 'verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext';
 		
+        
         CustomDocumentController.prepareDocumentForUpload('text','notId',acc.Id,tag1Id);
         
+        
+        update doc;
+        
+        
+
+        
+    
+        Test.startTest();
         CustomDocumentController.prepareDocumentForUpload('verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext',acc.Id,acc.Id,tag1Id);
         CustomDocumentController.changeDocumentsParent(doc.Id,acc.Id);
         CustomDocumentController.changeDocumentsParent(doc.Id,c.Id);
@@ -311,11 +288,9 @@ public class CustomDocumentControllerTest {
         CustomDocumentController.changeDocumentsParent(doc.Id,b.Id);
         CustomDocumentController.changeDocumentsParent(doc.Id,o.Id);
         CustomDocumentController.setAccountShareOnly(doc.Id,false,acc.Id,'Read');
-        update doc;
-        CustomDocumentController.reApplyTags(acc.Id);
         
-    
-        Test.startTest();
+        CustomDocumentController.reApplyTags(acc.Id);
+
         CustomDocumentController.addPermission(gp.Id,doc.Id,'read');
         CustomDocumentController.addBulkPermission(gp.Id,acc.Id,acc.Id,'read');
         CustomDocumentController.addBulkPermission(gp.Id,acc.Id,c.Id,'read');
@@ -323,6 +298,8 @@ public class CustomDocumentControllerTest {
         CustomDocumentController.addBulkPermission(gp.Id,acc.Id,'Contacts','read');
         CustomDocumentController.addBulkPermission(gp.Id,acc.Id,'Board_Meetings__r','read');
         
+        
+
         system.debug(CustomDocumentController.getCurrentPermissionsForTheDocument(doc.Id));
         system.debug(CustomDocumentController.getCurrentPermissionsForObject(acc.Id,acc.Id));
         system.debug(CustomDocumentController.getCurrentPermissionsForObject(acc.Id,c.Id));
@@ -330,19 +307,75 @@ public class CustomDocumentControllerTest {
         system.debug(CustomDocumentController.getCurrentPermissionsForObject(acc.Id,'Contacts'));
         system.debug(CustomDocumentController.getCurrentPermissionsForObject(acc.Id,'Board_Meetings__r'));
         
+        /*
+        
+        
+
+        
+        */
+        Test.stopTest();
+        
+    }
+
+    @IsTest
+    private static void test3() {
+
+        Account acc = new Account(Name = 'Test Account');
+        insert acc;
+        Account CanapiAcc = new Account(Name = 'Canapi');
+        insert CanapiAcc;
+
+        Document__c doc = new Document__c (Name__c='test',Account__c=acc.Id);
+        insert doc;
+
+        Assessment__c assess = new Assessment__c(Account__c = acc.id);
+        insert assess;
+
+        review_item__c reviewItem = 
+            new review_item__c(
+                Assessment__c = assess.Id, 
+                Review_Item_Name__c = 'Bronze 1',
+                Item_Category__c = 'Bronze',
+                Item_Category_Description__c = 'Bronze items');
+        insert reviewItem;
+        
+        
+        
+        system.debug(CustomDocumentController.GetDocNotes(doc.Id,reviewItem.id));
+        CustomDocumentController.LinkDocToRI(reviewItem.id,doc.Id,'test');
+        CustomDocumentController.LinkDocToRI(reviewItem.id,doc.Id,'test');
+
+         
+        system.debug(CustomDocumentController.GetDocNotes(doc.Id,reviewItem.id));
+        CustomDocumentController.updateDocument(doc.Id, 'test', '2019-09-11 05:21:00', 'test2');
+            system.debug(Review_Items_Controller.getLinkedDocuments(reviewItem.id,''));
+            string extId = String.valueOf(reviewItem.id) + String.valueOf(doc.id);
+            Junction_Document_ReviewItem__c obj = [ select id from Junction_Document_ReviewItem__c where External_Id__c=:extId][0];
+            Review_Items_Controller.removeJunctionObjectById(obj.id);
+        
+        
+        system.debug(CustomDocumentController.GetDocumentsFilteredRI(null,null));
+        system.debug(CustomDocumentController.GetDocumentsFilteredRI(doc.Id,'test'));
+
+        Test.startTest();
+
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, '7 Days','All','All');
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'This Month','Opportunities','Opportunities');
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'Today','Board_Meetings__r','Board_Meetings__r');
+        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'This Week','All','All');
+
+
         system.debug(CustomDocumentController.getUsers('System Administrator'));
         system.debug(CustomDocumentController.getUsers(''));
-        /*system.debug(CustomDocumentController.getCommunityPageHeaderInitValues2(c.Id));*/
         
         CustomDocumentController.getFavoriteGroups();
+        Group gp = new Group(Name = 'Test');
+        insert gp; 
         CustomDocumentController.shareForFavGroups('ShareWithGroup' + gp.Id,doc.Id);
 
         CustomDocumentController.getUsersWithAccessForDocs(acc.Id);
 
-        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'Today');
-        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'This Week');
-        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, '7 Days');
-        CustomDocumentController.sendEmail(New List <String> {userInfo.getUserId()}, acc.Id, 'This Month');
+        
 
         Default_Sharing__c ds = new Default_Sharing__c();
         ds.CreatedBy__c = userInfo.getUserId();
@@ -351,8 +384,10 @@ public class CustomDocumentControllerTest {
         insert ds;
         CustomDocumentController.removeDefaultSharing(ds.Id);
 
+
         Test.stopTest();
-        
+
+
     }
 
 

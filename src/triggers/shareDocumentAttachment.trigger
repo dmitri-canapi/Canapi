@@ -21,11 +21,11 @@ trigger shareDocumentAttachment on Document__c (before update,after insert) {
                 update cdlList;
             }
         }
-        if (Trigger.isInsert) {
+        if (Trigger.isInsert && Trigger.IsAfter) {
             map <id, List <String>> tagKeywords = new map <id, List <String>>();
             String AccRecordTypeName = accId != null ? [select recordType.Name from account where id=: accId].recordType.Name : null;
             List <Tag__c>  tags = new List <Tag__c>();
-            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank'){
+            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)'){
                 tags = [select id, name, (select id,Tag__c,Tag__r.Name, Keywords__c from Keywords__r where IsKeywordEnabled__c = true)  from Tag__c where Type__c = 'Bank Or LP' order by name asc];
             } else {
                 tags = [select id, name, (select id,Tag__c,Tag__r.Name, Keywords__c from Keywords__r where IsKeywordEnabled__c = true) from Tag__c where Account__c =: accId limit 50000];
@@ -45,10 +45,24 @@ trigger shareDocumentAttachment on Document__c (before update,after insert) {
                     
                 }
             }
+
+            Map <Id, User> inactiveUsers = New Map <Id, User>([select id from user where isActive = false]);
+
             List <TagDocumentAssociation__c> tdaList = new List <TagDocumentAssociation__c>();
-            List <Default_Sharing__c> defSharings = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where (createdById=:userInfo.getUserId() or CreatedBy__c =:userInfo.getUserId()) and Account__c =: null];
-            List <Default_Sharing__c> folderSharings = [select id, UserOrGroup__c, Access__c,Account__c,Board_Meeting__c, Contact__c, Documents_Folder_Template__c,Investment__c, Object_For_Share__c,Opportunity__c from Default_Sharing__c where Account__c =: accId];
+            List <Default_Sharing__c> defSharings = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where (createdById=:userInfo.getUserId() or CreatedBy__c =:userInfo.getUserId()) and Account__c =: null and UserOrGroup__c not in: inactiveUsers.KeySet()];
+            List <Default_Sharing__c> folderSharings = [select id, UserOrGroup__c, Access__c,Account__c,Board_Meeting__c, Contact__c, Documents_Folder_Template__c,Investment__c, Object_For_Share__c,Opportunity__c from Default_Sharing__c where Account__c =: accId and UserOrGroup__c not in: inactiveUsers.KeySet()];
             List <Document__Share> docShares = new List <Document__Share>();
+
+            
+            /*Set <String> usrIds = new Set <String>();
+            for (Default_Sharing__c ds: defSharings){
+                usrIds.add(ds.UserOrGroup__c);
+            }
+            for (Default_Sharing__c ds: folderSharings){
+                usrIds.add(ds.UserOrGroup__c);
+            }*/
+            
+
             
             
             for (Document__c doc: DocsMap.values()){
@@ -107,6 +121,7 @@ trigger shareDocumentAttachment on Document__c (before update,after insert) {
             
             
         }
-        
+
+       
     }
 }

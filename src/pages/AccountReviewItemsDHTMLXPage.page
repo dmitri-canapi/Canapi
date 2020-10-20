@@ -86,6 +86,7 @@
         });
         var accId = vars["accId"];
         var ddId = vars["ddId"];
+        var IsExternalGrader = JSON.parse(vars["IsExternalGrader"]);
         var communityName = vars["communityName"];
         var mode = "ReviewSubmissions";
         var componentHeightInt = Number(vars["componentHeight"]) - 65;
@@ -286,6 +287,11 @@
             ddGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxgrid_' + dhtmlxSkin + '/');
             ddGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
             ddGrid.init();
+
+            if (communityName != '') {
+                ddGrid.setColumnHidden(7, true);
+                ddGrid.setColumnHidden(8, true);
+            }
 
             updateDDGrid();
 
@@ -606,9 +612,17 @@
         myTabbar.addTab("itemDescription", "Item Description", null, null, false, false);
         myTabbar.addTab("assets", "Assets needed", null, null, false, false);
         if (communityName != '') {
-            myTabbar.addTab("submComments", "Submitter Comments", null, null, true, false);
-            myTabbar.addTab("docs", "Linked Documents", null, null, false, false);
-            myTabbar.addTab("intReview", "Internal Review", null, null, false, false);
+            if (IsExternalGrader) {
+                myTabbar.addTab("intReview", "Internal Review", null, null, true, false);
+                myTabbar.addTab("submComments", "Submitter Comments", null, null, false, false);
+                myTabbar.addTab("docs", "Linked Documents", null, null, false, false);
+            } else {
+                myTabbar.addTab("submComments", "Submitter Comments", null, null, true, false);
+                myTabbar.addTab("docs", "Linked Documents", null, null, false, false);
+                myTabbar.addTab("intReview", "Internal Review", null, null, false, false);
+                myTabbar.tabs("intReview").hide();
+            }
+
         } else {
             myTabbar.addTab("intReview", "Internal Review", null, null, true, false);
             myTabbar.addTab("submComments", "Submitter Comments", null, null, false, false);
@@ -620,9 +634,7 @@
         myTabbar.tabs("assets").hide();
         myTabbar.tabs("categoryDescription").hide();
 
-        if (communityName != '') {
-            myTabbar.tabs("intReview").hide();
-        }
+
         myTabbar.attachEvent("onSelect", function (id, lastId) {
             showConfirmation();
             return true;
@@ -1162,7 +1174,7 @@
                             //catEditor.setReadonly(true)
 
                         } else {
-                            if (ddGrid.cells(ddId, 5).getValue() == 0) {
+                            if (ddId && ddGrid.cells(ddId, 5).getValue() == 0) {
                                 dhtmlx.message({
                                     type: "error",
                                     expire: 6000,
@@ -1257,10 +1269,12 @@
 
                     ddGrid.clearAll();
                     ddGrid.parse(data, "json");
-                    ddGrid.selectRowById(ddId, false, true, true);
+
                     filterDDrows();
 
-
+                    if (ddId) {
+                        ddGrid.selectRowById(ddId, false, true, true);
+                    }
                 }
             });
         }
@@ -1475,6 +1489,10 @@
                         ddGrid.setRowHidden(id, true);
                     } else {
                         ddGrid.setRowHidden(id, false);
+                        if (!ddId) {
+                            ddGrid.selectRowById(id, false, true, true);
+                            ddId = id;
+                        }
                     }
 
                 });

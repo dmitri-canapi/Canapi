@@ -18,6 +18,7 @@
                 cmp.set('v.usersData', data.users);
                 cmp.set('v.contactsData', data.contacts);
                 cmp.set('v.data', data.users.concat(data.contacts));
+                cmp.set('v.RTname', data.RTname);
             }
             // error handling when state is "INCOMPLETE" or "ERROR"
         });
