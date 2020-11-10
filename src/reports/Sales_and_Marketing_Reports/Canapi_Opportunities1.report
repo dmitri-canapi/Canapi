@@ -31,6 +31,9 @@
         <field>OPPORTUNITY_NAME</field>
     </columns>
     <columns>
+        <field>Opportunity.Series__c</field>
+    </columns>
+    <columns>
         <field>FULL_NAME</field>
     </columns>
     <columns>
@@ -55,9 +58,6 @@
     </columns>
     <columns>
         <field>ACCOUNT_LAST_ACTIVITY</field>
-    </columns>
-    <columns>
-        <field>NEXT_STEP</field>
     </columns>
     <filter>
         <criteriaItems>

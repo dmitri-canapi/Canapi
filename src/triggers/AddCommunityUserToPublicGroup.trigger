@@ -65,12 +65,12 @@ trigger AddCommunityUserToPublicGroup on User (before insert, after insert, afte
         
         AddCommunityUserToPublicGroupHandler.subscribe(userIds);
 
-        List <UserContactTagAssociation__c> uctaList = [select id,Contact__c from UserContactTagAssociation__c where Contact__c in: contactUserMap.keySet()];
+        /*List <UserContactTagAssociation__c> uctaList = [select id,Contact__c from UserContactTagAssociation__c where Contact__c in: contactUserMap.keySet()];
 
         for(UserContactTagAssociation__c ucta: uctaList){
             ucta.User__c = contactUserMap.get(ucta.Contact__c);
         }
-        update uctaList;
+        update uctaList;*/
 
         
 

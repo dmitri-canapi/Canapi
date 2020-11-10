@@ -5,7 +5,7 @@ global  without sharing class TeamManagementController {
         List <contact> contacts = new List <contact>();
         //if (TeamManagementController.getCommunityAccId() != null){
             String accId = recordId != null ? recordId :TeamManagementController.getCommunityAccId();
-            users = [Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate from User where Account_Id__c =: accId and IsActive = true]; 
+            users = [Select Id, Name, Username, Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate from User where Account_Id__c =: accId and IsActive = true]; 
             contacts = [Select id, Name, FirstName, LastName, Title, Phone, Email, Account.External_Logo__c, Account.External_Logo2__c, Account.External_Logo3__c from Contact where Account.Id =: accId and id not in (select  ContactID from User) order by name asc limit 100];
         /*} else {
             ID canapiAccId = [select id from Account where name = 'Canapi' limit 1].Id;
@@ -55,7 +55,7 @@ global  without sharing class TeamManagementController {
         List <User> users = new List <User>();
         List <contact> contacts = new List <contact>();
         String accId = recordId != null ? recordId :TeamManagementController.getCommunityAccId();
-        String q ='Select Id, Name,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Function__c desc, UserContactTag__r.name asc) from User where Account_Id__c =: accId and IsActive = true ';
+        String q ='Select Id, Name,Username, Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Function__c desc, UserContactTag__r.name asc) from User where Account_Id__c =: accId and IsActive = true ';
         if (filter != null && filter != '') q += 'and ' + order + ' like \'%' + filter + '%\'';
         q+= ' order by ' + order + ' asc nulls last';
         users = Database.query(q);
@@ -76,7 +76,7 @@ global  without sharing class TeamManagementController {
         List <User> users = new List <User>();
         List <contact> contacts = new List <contact>();
         String accId = recordId != '' ? recordId :TeamManagementController.getCommunityAccId();
-        String q ='Select Id, FirstName, LastName,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from User where Account_Id__c =: accId and IsActive = true ';
+        String q ='Select Id, Username, FirstName, LastName,Title, Phone, Email, Account_Id__c, fullphotourl, LastLoginDate, (Select id, UserContactTag__r.Name from UserContactTagAssociations__r order by UserContactTag__r.Name) from User where Account_Id__c =: accId and IsActive = true ';
         if (filter != null && filter != '') q += 'and ( Name like \'%' + filter + '%\')';
         q+= ' order by Name asc nulls last';
         users = Database.query(q);
@@ -233,11 +233,14 @@ global  without sharing class TeamManagementController {
                 u.setOptions(dlo);
                 if (InviteType == 'Invite to Portal' /*|| InviteType == 'New Contact'*/) {
                     TeamManagementController.sendIntro(u.ContactId);
-                    
-                    for (integer i = 1; i < 11; i++){
+                    for (integer i = 1; i < 12; i++){
                         try {
-                            String username = u.Email + '.' + CommunityUserNameSuffix;
+                            String username = u.Email;
+
                             if (i > 1) {
+                                username = username + '.' + CommunityUserNameSuffix;
+                            }
+                            if (i > 2) {
                                 username += i;
                             }
                             u.Username = username;

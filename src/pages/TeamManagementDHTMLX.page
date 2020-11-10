@@ -163,6 +163,15 @@
                                                 />
                                             </p>
 
+                                            <br />
+                                            <p class="tileLabel">Login ID</p>
+                                            <p class="tileValue">
+                                                <input class="editCardInput" data-field="Username" data-rId="{!rec.Id}" type="text" value="{!rec.Username}" style="" onblur="updateField(this);"
+                                                />
+                                            </p>
+
+
+
                                         </div>
                                     </div>
                                     <span style="display: flex; padding-left: 25px;">Tags</span>
@@ -274,55 +283,59 @@
                                     $('.card').each(function (i, obj) {
                                         TagTree.dragger.addDragLanding(obj, new s_control);
                                     });
+                                    if ({!Data.RTname = 'LP (Individuals)'
+                                }){
+                                    $('.newContact').hide();
+                                }
                                 });
                             </script>
                         </apex:outputPanel>
-                        
-                            <div class="card newContact" >
 
-                                <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">
-                                    <input id="newContactName" class="editCardInput" type="text" placeholder="New Contact" value="" autocomplete="off" style="text-align: center; font-size: 14px;font-weight: bold;width: 80%;"
-                                    />
+                        <div class="card newContact">
+
+                            <div style="font-weight: 700; padding-top: 10px; font-size: 15px;">
+                                <input id="newContactName" class="editCardInput" type="text" placeholder="New Contact" value="" autocomplete="off" style="text-align: center; font-size: 14px;font-weight: bold;width: 80%;"
+                                />
+                            </div>
+                            <div style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
+                                <div style="width:40%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+                                    <img style="width:80px" src="../profilephoto/005/F" />
+                                    <br />
+                                    <br />
                                 </div>
-                                <div style="display: table; vertical-align: top; width:100%; height:100%; line-height: 1.3em;margin-top: 5px;">
-                                    <div style="width:40%; height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
-                                        <img style="width:80px" src="../profilephoto/005/F" />
-                                        <br />
-                                        <br />
-                                    </div>
-                                    <div style="width:58%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
-                                        <br />
-                                        <p class="tileLabel">Title</p>
-                                        <p class="tileValue" style="font-size: 12px;">
-                                            <input id="title" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
-                                        </p>
+                                <div style="width:58%; height:170px;display:table-cell; vertical-align: middle;text-align: left;    padding-right: 5px;">
+                                    <br />
+                                    <p class="tileLabel">Title</p>
+                                    <p class="tileValue" style="font-size: 12px;">
+                                        <input id="title" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
+                                    </p>
 
 
-                                        <br />
-                                        <p class="tileLabel">Phone</p>
-                                        <p class="tileValue">
-                                            <input id="phone" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
-                                        </p>
+                                    <br />
+                                    <p class="tileLabel">Phone</p>
+                                    <p class="tileValue">
+                                        <input id="phone" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
+                                    </p>
 
-                                        <br />
-                                        <p class="tileLabel">Email</p>
-                                        <p class="tileValue">
-                                            <input id="email" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
-                                        </p>
+                                    <br />
+                                    <p class="tileLabel">Email</p>
+                                    <p class="tileValue">
+                                        <input id="email" type="text" value="" style="border-bottom: 1px solid rgb(153, 153, 153);" />
+                                    </p>
 
-                                    </div>
-                                </div>
-                                <span style="display: flex; padding-left: 25px;">Tags</span>
-                                <div style="display: table; min-height: 40px; padding: 4px 15px 4px 25px;"></div>
-                                <div style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
-                                    <div style=" text-align: right; display:table-cell;vertical-align: middle;">
-                                        <a href="javascript:void(null);" onclick="saveNewUser();" style="color:white !important;display: inline-flex; line-height: 2rem;">Save
-                                            <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}" style="height: 30px; margin: 0px 5px 0px 5px" />
-                                        </a>
-                                    </div>
                                 </div>
                             </div>
-                        
+                            <span style="display: flex; padding-left: 25px;">Tags</span>
+                            <div style="display: table; min-height: 40px; padding: 4px 15px 4px 25px;"></div>
+                            <div style="text-align: right; height: 40px; border: 1px solid #1A182D; background: #1A182D; color: white; display: table; width: 100%;     ">
+                                <div style=" text-align: right; display:table-cell;vertical-align: middle;">
+                                    <a href="javascript:void(null);" onclick="saveNewUser();" style="color:white !important;display: inline-flex; line-height: 2rem;">Save
+                                        <img src="{!$Resource.AllianceCommunityAssets + '/Icons/next.svg'}" style="height: 30px; margin: 0px 5px 0px 5px" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -777,7 +790,7 @@
                 console.log(f);
                 console.log(jQuery(f).data('field'));
                 console.log(jQuery(f).data('rid'));
-                if ((jQuery(f).data('field') == 'name' || jQuery(f).data('field') == 'email') && f.value == '') {
+                if ((jQuery(f).data('field') == 'name' || jQuery(f).data('field') == 'email' || jQuery(f).data('field') == 'Username') && f.value == '') {
                     dhtmlx.message({
                         type: "alert-error",
                         text: "Please, fill in the input field."

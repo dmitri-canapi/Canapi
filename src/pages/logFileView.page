@@ -1,0 +1,10 @@
+<apex:page controller="LogFileView" showHeader="false" sidebar="false">
+    <script>
+        LogFileView.logView("{!$CurrentPage.parameters.id}", function (result, event) {
+            if (event.type == 'exception') {
+                alert(event.message);
+            }
+        });
+    </script>
+
+</apex:page>

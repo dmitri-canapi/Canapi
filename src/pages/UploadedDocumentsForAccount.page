@@ -2349,9 +2349,11 @@
                 parent.postMessage('openUploadWindow' + '-del-' + TagTree.getSelectedItemId(), url);
             }
 
-            function openModal(o, type, isCommunity) {
+            function openModal(o, docId, isCommunity) {
+                console.log(docId);
                 var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
                 parent.postMessage('showFilePreview' + '-del-' + o, url);
+                CustomDocumentController.logFileView(docId, function (result, event) { });
             }
 
             function reApplyTags() {

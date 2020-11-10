@@ -191,6 +191,16 @@
                         $A.util.removeClass(cmpBack, 'slds-backdrop--open');
                         $A.util.removeClass(cmpTarget, 'slds-fade-in-open');
 
+                        var toastEvent = $A.get("e.force:showToast");
+                        toastEvent.setParams({
+                            title: 'Success!',
+                            message: 'User was successfully created/updated',
+                            type: 'success',
+                            mode: 'pester'
+                        });
+                        toastEvent.fire();
+
+
                     } else {
                         console.log('Failed with state: ' + state);
                         var toastEvent = $A.get("e.force:showToast");

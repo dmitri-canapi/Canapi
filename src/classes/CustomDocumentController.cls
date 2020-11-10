@@ -1155,7 +1155,7 @@ global with sharing class CustomDocumentController {
                         strlist.add('file.png');
                     }
                     
-                        link = 'javascript:openModal("' + docAttachmentMap.get(d.Id) + '","public"' + ',' + isCommunity + ')^_self';
+                        link = 'javascript:openModal("' + docAttachmentMap.get(d.Id) + '","' + d.Id + '",' + isCommunity + ')^_self';
                     //}
                     
                     String docName = (docsVersionMap.get(d.Name__c)[1]!='1' ? d.Name__c + ' <span class="docVersion">V.' + docsVersionMap.get(d.Name__c)[1] + '</span>' : (d.Unverified__c ? '[Unverified] ': '') + d.Name__c );
@@ -1568,6 +1568,11 @@ global with sharing class CustomDocumentController {
     @RemoteAction
     global static void shareWithUsers (List <String> fileids){
         CustomDocumentControllerWoutSharing.shareWithUsers(fileids);
+    }
+
+    @RemoteAction
+    global static void logFileView (String docId){
+        insert new DocumentViewCount__c(Document__c = docId);
     }
     
     @AuraEnabled

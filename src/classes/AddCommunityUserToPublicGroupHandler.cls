@@ -6,6 +6,19 @@ public class AddCommunityUserToPublicGroupHandler {
 
         List <Account> portfolios = [SELECT Id FROM Account where recordtype.name='Portfolio Company'];
         //List <User> userToUpdate = new List <User>();
+
+        Map <id,id> contactUserMap = new Map <id,id>();
+
+        for(User u:[select id, ContactId from User where id in: usersIds]) {
+            contactUserMap.put(u.contactId, u.id);
+        }
+
+        List <UserContactTagAssociation__c> uctaList = [select id,Contact__c from UserContactTagAssociation__c where Contact__c in:contactUserMap.keySet()];
+
+        for(UserContactTagAssociation__c ucta: uctaList){
+            ucta.User__c = contactUserMap.get(ucta.Contact__c);
+        }
+        
         for (Id uId: usersIds){
             for (Account a: portfolios){
                 EntitySubscription ES = new EntitySubscription();
@@ -17,6 +30,8 @@ public class AddCommunityUserToPublicGroupHandler {
             //userToUpdate.add(New User(id = uId, NeedSubscribing__c = true));
         }
         insert listEntitySubscription;
+        update uctaList;
+        
         //system.debug(userToUpdate);
         //update userToUpdate;
 
