@@ -384,6 +384,14 @@ public class CustomDocumentControllerTest {
         insert ds;
         CustomDocumentController.removeDefaultSharing(ds.Id);
 
+        Documents_Folder_Template__c folder = new Documents_Folder_Template__c(Name = 'Test');
+        insert folder;
+
+        CustomDocumentController.hideFolder (folder.Id, acc.Id);
+        CustomDocumentController.showFolders  (acc.Id);
+
+        CustomDocumentController.logFileView(doc.Id);
+
 
         Test.stopTest();
 

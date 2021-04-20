@@ -31,6 +31,8 @@
     <filter>
         <criteriaItems>
             <column>Assessment__c.Account__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Kwipped</value>
         </criteriaItems>
@@ -44,6 +46,8 @@
     <reportType>CustomEntityCustomEntity$Assessment__c$review_item__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>review_item__c.Review_Item_Status__c</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

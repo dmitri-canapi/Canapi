@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$Contact__c</field>
+    </columns>
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$Contact__c.Email</field>
+    </columns>
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$Contact__c.Phone</field>
+    </columns>
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$User__c</field>
+    </columns>
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$User__c.Email</field>
+    </columns>
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$User__c.Phone</field>
+    </columns>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>UserContactTag__c$Name</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Org Builder Tagged Users and Contacts</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Org_Builder_Tagged_Contacts__c</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>UserContactTag__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CURRENT</interval>
+    </timeFrameFilter>
+</Report>

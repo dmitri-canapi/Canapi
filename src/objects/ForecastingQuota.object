@@ -3,13 +3,6 @@
     <enableFeeds>false</enableFeeds>
     <fields>
         <fullName>ProductFamily</fullName>
-        <picklist>
-            <picklistValues>
-                <fullName>None</fullName>
-                <default>false</default>
-            </picklistValues>
-            <sorted>false</sorted>
-        </picklist>
         <type>Picklist</type>
     </fields>
 </CustomObject>

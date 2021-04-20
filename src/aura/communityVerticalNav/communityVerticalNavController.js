@@ -54,11 +54,11 @@
                 menus.push(helper.createObj(component, 'Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
 
                 menus.push(helper.createObj(component, 'Messages', '18-Canapi-Icons-16.svg', 'messages/Home'));
-                menus.push(helper.createObj(component, 'Calendar', 'Calendar.png', 'calendar'));
+                //menus.push(helper.createObj(component, 'Calendar', 'Calendar.png', 'calendar'));
                 menus.push(helper.createObj(component, 'Files', '18-Canapi-Icons-27.svg', 'files'));
 
                 if (!isLimitedPartner) menus.push(helper.createObj(component, 'Reports', '18-Canapi-Icons-32.svg', 'reports'));//report/Report/Recent/Report/?queryScope=everything
-                if (!isLimitedPartner) menus.push(helper.createObj(component, 'Dashboards', '18-Canapi-Icons-39.svg', 'dashboard/01Z6A000000Cc3PUAS', null, 7));
+                if (!isLimitedPartner) menus.push(helper.createObj(component, 'Dashboards', '18-Canapi-Icons-39.svg', 'dashboard/01Z3u000000TAJVEA4'));//, null, 7));
 
                 childmmenus = [];
                 var userId = $A.get("$SObjectType.CurrentUser.Id");
@@ -73,22 +73,27 @@
             } else if (component.get("v.CommunityName") == 'fintech') {
                 menus.push(helper.createObj(component, 'Home', '18-Canapi-Icons-28.svg', 'https://canapi.force.com/fintech/s/', null, 0));
 
-                childmmenus = [];
+                /*childmmenus = [];
                 for (let gr of groups) {
                     childmmenus.push(helper.createObj(component, gr.Name, '18-Canapi-Icons-08.svg', 'group/' + gr.Id));
                 }
                 menus.push(helper.createObj(component, 'Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
+                
                 if (response.getReturnValue().AccRecTypeName == 'Fintech' || response.getReturnValue().AccRecTypeName == 'Portfolio Company' || response.getReturnValue().IsExternalGrader) {
                     menus.push(helper.createObj(component, 'DD Checklists', '18-Canapi-Icons-37.svg', 'dd-checklists'));
+                }*/
+                console.log(component.get('v.CurrentUser')['Profile'].Name);
+                if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal'){
+                	menus.push(helper.createObj(component, 'Documents', '18-Canapi-Icons-05.svg', 'documents'));
                 }
-                menus.push(helper.createObj(component, 'Documents', '18-Canapi-Icons-05.svg', 'deals'));
                 if (response.getReturnValue().AccRecTypeName != 'Fintech') {
-                    menus.push(helper.createObj(component, 'Milestones', '18-Canapi-Icons-25.svg', 'milestone/milestone__c/00B6A0000074msgUAA'));
-                    menus.push(helper.createObj(component, 'Cap Table', '18-Canapi-Icons-15.svg', 'cap-table'));
+                    //menus.push(helper.createObj(component, 'Milestones', '18-Canapi-Icons-25.svg', 'milestone/milestone__c/00B6A0000074msgUAA'));
+                    if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal'){
+                    	//menus.push(helper.createObj(component, 'Cap Table', '18-Canapi-Icons-15.svg', 'cap-table'));
+                        menus.push(helper.createObj(component, 'Financials', '18-Canapi-Icons-04.svg', 'financials'));
+                    }
                     //menus.push(helper.createObj(component, 'DD Checklists', '18-Canapi-Icons-37.svg', 'assessment/Assessment__c/00B6A0000074mJqUAI'));
-
-                    menus.push(helper.createObj(component, 'Financials', '18-Canapi-Icons-04.svg', 'financials'));
-                    menus.push(helper.createObj(component, 'Pending', '18-Canapi-Icons-31.svg', 'review-item/review_item__c/00B6A000006OfBzUAK'));
+                    //menus.push(helper.createObj(component, 'Pending', '18-Canapi-Icons-31.svg', 'review-item/review_item__c/00B6A000006OfBzUAK'));
                 }
             }
             component.set('v.menus', menus);

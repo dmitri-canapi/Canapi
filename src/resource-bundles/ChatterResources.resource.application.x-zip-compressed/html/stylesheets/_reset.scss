@@ -1,0 +1,117 @@
+/* CSS Reset */
+* {
+        /*Reset's every elements apperance*/
+        background: none repeat scroll 0 0 transparent;
+        border: medium none;
+        border-spacing: 0;
+        box-sizing: border-box;
+        list-style: none outside none;
+}
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 16px;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote, q {
+	&:before, &:after {
+	content: '';
+	content: none;
+	}
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/* Fixes jagged webfonts */
+h1, h2, h3, h4, h5, h6, p {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+//FORM RESET
+/*textarea, select, input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="email"], input[type="month"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="text"], input[type="time"], input[type="url"], input[type="week"]{
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-background-clip: padding;
+	-moz-background-clip: padding;
+	background-clip:padding-box;
+	border-radius: 2px;
+	border: none;
+	-webkit-appearance:none;
+	background-color:#fff;
+	color:#000;
+	outline:0;
+	line-height: normal;
+	margin:0;
+	padding: 4px;
+	text-align: left;
+	font-size: .9rem;
+	height: auto;
+	vertical-align: middle;
+} */
+
+select, select, select{
+	background:#fff url(data:image/png;base64,R0lGODlhDQAEAIAAAAAAAP8A/yH5BAEHAAEALAAAAAANAAQAAAILhA+hG5jMDpxvhgIAOw==);
+	background-repeat: no-repeat;
+	background-position: 97% center;
+	padding:0 25px 0 8px;
+	font-size: .875em
+}
+
+button, html input[type="button"], input[type="reset"], input[type="submit"] {
+	-webkit-appearance: none;
+	appearance: none;
+	    padding: inherit;
+}
+
+select.form-control { -webkit-appearance: menulist-button;}
+
+/*.input-group { 
+	margin-bottom: 12px;
+	width: 100%;
+	label {
+		margin-bottom: 8px;
+	}
+	input {
+		min-height: 35px;
+		width: 100%;
+	}
+	textarea {
+		height: 120px;
+		width: 100%;
+	}
+}*/

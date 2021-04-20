@@ -5,7 +5,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>Accept</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -13,7 +33,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>Clone</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -21,7 +61,13 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
-        <actionName>Follow</actionName>
+        <actionName>Edit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -29,7 +75,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>List</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -37,16 +103,42 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>Tab</actionName>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
-        <actionName>View</actionName>
-        <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>Investment_Record_Page</content>
+        <actionName>Tab</actionName>
         <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>Flexipage</type>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
     </actionOverrides>
     <allowInChatterGroups>true</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
@@ -55,6 +147,7 @@
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
     <enableHistory>true</enableHistory>
+    <enableLicensing>false</enableLicensing>
     <enableReports>true</enableReports>
     <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
@@ -65,19 +158,6 @@
         <externalId>false</externalId>
         <inlineHelpText>Total amount in this investment.</inlineHelpText>
         <label>Amount</label>
-        <precision>18</precision>
-        <required>false</required>
-        <scale>2</scale>
-        <trackHistory>false</trackHistory>
-        <trackTrending>false</trackTrending>
-        <type>Currency</type>
-    </fields>
-    <fields>
-        <fullName>Amount__c</fullName>
-        <externalId>false</externalId>
-        <formula>Round_Share__c *  Shares__c</formula>
-        <inlineHelpText>Shares * Share Amount</inlineHelpText>
-        <label>Old_Amount</label>
         <precision>18</precision>
         <required>false</required>
         <scale>2</scale>
@@ -106,18 +186,65 @@
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>InvestorFundName__c</fullName>
+        <externalId>false</externalId>
+        <label>InvestorFundName</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>InvestorStatus__c</fullName>
+        <externalId>false</externalId>
+        <label>InvestorStatus</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Investor__c</fullName>
         <deleteConstraint>SetNull</deleteConstraint>
         <description>Investments made by investors (account type investor) linked to a particular round (which then links back to an account_type record = target).</description>
         <externalId>false</externalId>
         <label>Investor</label>
         <referenceTo>Account</referenceTo>
-        <relationshipLabel>Investments</relationshipLabel>
+        <relationshipLabel>Investors</relationshipLabel>
         <relationshipName>Investments</relationshipName>
         <required>false</required>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>IsLeadInvestor__c</fullName>
+        <externalId>false</externalId>
+        <label>IsLeadInvestor</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Yes</fullName>
+                    <default>false</default>
+                    <label>Yes</label>
+                </value>
+                <value>
+                    <fullName>No</fullName>
+                    <default>false</default>
+                    <label>No</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
     </fields>
     <fields>
         <fullName>Non_Voting_Shares__c</fullName>
@@ -159,18 +286,6 @@
         <type>Percent</type>
     </fields>
     <fields>
-        <fullName>Round_Share__c</fullName>
-        <externalId>false</externalId>
-        <inlineHelpText>Pulling in the value from the connected Round</inlineHelpText>
-        <label>Share Price</label>
-        <precision>18</precision>
-        <required>false</required>
-        <scale>4</scale>
-        <trackHistory>false</trackHistory>
-        <trackTrending>false</trackTrending>
-        <type>Currency</type>
-    </fields>
-    <fields>
         <fullName>Round__c</fullName>
         <externalId>false</externalId>
         <label>Series</label>
@@ -178,11 +293,24 @@
         <relationshipLabel>Investments</relationshipLabel>
         <relationshipName>Investments</relationshipName>
         <relationshipOrder>0</relationshipOrder>
-        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <reparentableMasterDetail>true</reparentableMasterDetail>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>MasterDetail</type>
         <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Share_Price__c</fullName>
+        <externalId>false</externalId>
+        <formula>Round__r.Share_Price__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Share Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
     </fields>
     <fields>
         <fullName>Shares1__c</fullName>
@@ -204,6 +332,30 @@ IF(AND(ISBLANK(Shares__c),NOT(ISBLANK(Non_Voting_Shares__c))), 0 + Non_Voting_Sh
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>Shares_Non_Voting__c</fullName>
+        <externalId>false</externalId>
+        <label>Non-voting Shares</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Shares_Voting__c</fullName>
+        <externalId>false</externalId>
+        <label>Voting Shares</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Shares__c</fullName>
         <externalId>false</externalId>
         <label>Voting Shares</label>
@@ -215,6 +367,37 @@ IF(AND(ISBLANK(Shares__c),NOT(ISBLANK(Non_Voting_Shares__c))), 0 + Non_Voting_Sh
         <type>Number</type>
         <unique>false</unique>
     </fields>
+    <fields>
+        <fullName>hasInvestor__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(ISBLANK(Investor__c), False, True)</formula>
+        <label>hasInvestor</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>pbk_dealid__c</fullName>
+        <externalId>false</externalId>
+        <label>pbk__dealid</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>pbk_pbId__c</fullName>
+        <externalId>true</externalId>
+        <label>pbk__pbId</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
     <label>Investment</label>
     <nameField>
         <displayFormat>INV{00000}</displayFormat>
@@ -222,7 +405,46 @@ IF(AND(ISBLANK(Shares__c),NOT(ISBLANK(Non_Voting_Shares__c))), 0 + Non_Voting_Sh
         <trackHistory>false</trackHistory>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Investments</pluralLabel>
-    <searchLayouts/>
+    <pluralLabel>Investors</pluralLabel>
+    <searchLayouts>
+        <lookupDialogsAdditionalFields>Investor__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Round__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Amount1__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Shares1__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Share_Price__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Percentage_of_Round__c</lookupDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Investor__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Round__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Share_Price__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Shares1__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Percentage_of_Round__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Close_Date__c</lookupPhoneDialogsAdditionalFields>
+        <searchFilterFields>NAME</searchFilterFields>
+        <searchFilterFields>Investor__c</searchFilterFields>
+        <searchFilterFields>Round__c</searchFilterFields>
+        <searchFilterFields>Share_Price__c</searchFilterFields>
+        <searchFilterFields>Shares1__c</searchFilterFields>
+        <searchFilterFields>Percentage_of_Round__c</searchFilterFields>
+        <searchFilterFields>Amount1__c</searchFilterFields>
+    </searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>no_negative_amount</fullName>
+        <active>true</active>
+        <errorConditionFormula>Amount1__c &lt; 0</errorConditionFormula>
+        <errorMessage>Can&apos;t have a negative investment amount.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>no_negative_non_voting_shares</fullName>
+        <active>true</active>
+        <errorConditionFormula>Shares_Non_Voting__c &lt; 0</errorConditionFormula>
+        <errorMessage>Can&apos;t have a negative number of non-voting shares.</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>no_negative_voting_shares</fullName>
+        <active>true</active>
+        <errorConditionFormula>Shares_Voting__c &lt; 0</errorConditionFormula>
+        <errorMessage>Can&apos;t have a negative number of voting shares.</errorMessage>
+    </validationRules>
+    <visibility>Public</visibility>
 </CustomObject>

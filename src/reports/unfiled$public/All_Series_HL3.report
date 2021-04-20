@@ -26,6 +26,8 @@
     <reportType>Series__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Round__c$Name</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

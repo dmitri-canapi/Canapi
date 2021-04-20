@@ -1,0 +1,1397 @@
+[
+	{
+        "Personal Info": [
+            {
+                "Group": "General",
+                "Fields": [
+                    {
+                        "Name": "FirstName",
+                        "Label": "First Name",
+                        "Type": "string",
+                        "Required": true
+                    },
+                    {
+                        "Name": "LastName",
+                        "Label": "Last Name",
+                        "Type": "string",
+                        "Required": true
+                    },
+                    {
+                        "Name": "SS__c",
+                        "Label": "Your SS#",
+                        "Type": "ssn",
+                        "Required": true
+                    },
+                    {
+                        "Name": "Birthdate",
+                        "Label": "Date of Birth",
+                        "Type": "date",
+                        "Required": true
+                    },
+                    {
+                        "Name": "POB",
+                        "Label": "Place of Birth",
+                        "Type": "string",
+                        "Required": true
+                    },
+                    {
+                        "Name": "Citizenship",
+                        "Label": "Citizenship",
+                        "Type": "string",
+                        "Required": true
+                    },
+                    {
+                        "Name": "AlienNumber",
+                        "Label": "AlienRegistration#",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "InitialCitizenship",
+                        "Label": "InitialCitizenship",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "SpouseSSN",
+                        "Label": "SpouseSS#",
+                        "Type": "string"
+                    }
+                ]
+            },
+            {
+                "Group": "Contact",
+                "Fields": [
+                    {
+                        "Name": "HomePhone",
+                        "Label": "Home Phone",
+                        "Type": "phone",
+                        "Required": true
+                    },
+                    {
+                        "Name": "MobilePhone",
+                        "Label": "Mobile Phone",
+                        "Type": "phone",
+                        "Required": true
+                    },
+                    {
+                        "Name": "BusinessPhone",
+                        "Label": "Office Phone",
+                        "Type": "phone",
+                        "Required": true
+                    },
+                    {
+                        "Name": "Fax",
+                        "Label": "Fax",
+                        "Type": "phone"
+                    },
+                    {
+                        "Name": "Email",
+                        "Label": "Email",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "Home_Address__c",
+                        "Label": "Current Residence",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "ActualAddressFrom",
+                                "Label": "From",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "ActualAddressTo",
+                                "Label": "To",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "ResidenceAddress",
+                                "Label": "Address",
+                                "Type": "textarea"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "PreviousResidence",
+                        "Label": "Previous Residence",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "PreviousAddressFrom",
+                                "Label": "From",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "PreviousAddressTo",
+                                "Label": "To",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "PreviousAddress",
+                                "Label": "Address",
+                                "Type": "textarea"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+	{
+        "Resume": [
+            {
+                "Group": "Education",
+                "Fields": [
+                    {
+                        "Name": "Education",
+                        "Type": "multiple",
+                        "Rows": 1,
+                        "Orientation": "horizontal",
+                        "Fields": [
+                            {
+                                "Name": "Institution",
+                                "Label": "Institution",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "InstitutionType",
+                                "Label": "Type",
+                                "Type": "dropdown",
+                                "Options": [
+                                    "HighSchool",
+                                    "University",
+                                    "Technical"
+                                ]
+                            },
+                            {
+                                "Name": "EducationDates",
+                                "Label": "From Date",
+                                "Type": "date",
+                                "Description": [
+                                    {
+                                        "Name": "EducationDateFrom",
+                                        "Label": "From",
+                                        "Type": "date"
+                                    },
+                                    {
+                                        "Name": "EducationDateTo",
+                                        "Label": "To",
+                                        "Type": "date"
+                                    }
+                                ]
+                            },
+                            {
+                                "Name": "Education",
+                                "Label": "Add New Education",
+                                "Type": "addnew"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Work Experience",
+                "Fields": [
+                    {
+                        "Name": "WorkExperience",
+                        "Type": "multiple",
+                        "Rows": 1,
+                        "Orientation": "horizontal",
+                        "Fields": [
+                            {
+                                "Name": "WorkExperienceBusinessName",
+                                "Label": "CompanyName",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "Location",
+                                "Label": "Location",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "LocationDates",
+                                "Label": "Dates",
+                                "Type": "object",
+                                "Description": [
+                                    {
+                                        "Name": "LocationDateFrom",
+                                        "Label": "From",
+                                        "Type": "date"
+                                    },
+                                    {
+                                        "Name": "LocationDateTo",
+                                        "Label": "To",
+                                        "Type": "date"
+                                    }
+                                ]
+                            },
+                            {
+                                "Name": "Title",
+                                "Label": "Title",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "Duties",
+                                "Label": "Duties",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "WorkExperience",
+                                "Label": "",
+                                "Type": "addnew"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Government",
+                "Fields": [
+                    {
+                        "Name": "GovernmentEmployee",
+                        "Label": "Employed by US Government?",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    {
+                        "Name": "Agency",
+                        "Label": "Agency",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "Position",
+                        "Label": "Position",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "MilitaryBackground",
+                        "Label": "Military Background",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    {
+                        "Name": "Branch",
+                        "Label": "Branch of Service",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "BranchDates",
+                        "Label": "Dates",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "BranchDateFrom",
+                                "Label": "From",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "BranchDateTo",
+                                "Label": "To",
+                                "Type": "date"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+	{
+        "PFS": [
+            {
+                "Group": "Assets",
+                "Fields": [
+                    {
+                        "Name": "CashOnHands",
+                        "Label": "Cash on hands and/or in banks",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "SavingsAccounts",
+                        "Label": "Savings Accounts",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "IRAorRetirementAccount",
+                        "Label": "IRA or Other Retirement Account",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "AccountsAndNotes",
+                        "Label": "Accounts and Notes Receivable",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "LifeInsurance",
+                        "Label": "Life Insurance(Cash Surrender Value Only)",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "StocksAndBonds",
+                        "Label": "Stocks and Bonds",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "RealEstate",
+                        "Label": "Real Estate",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "AutomobilePresentValue",
+                        "Label": "Automobile- Present Value",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "OtherPersonalProperty",
+                        "Label": "Other Personal Property",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "OtherAssets",
+                        "Label": "Other Assets",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "TotalAssets",
+                        "Label": "Total",
+                        "Type": "formula",
+                        "Class": "currency",
+                        "Formula": "CashOnHands+SavingsAccounts+IRAorRetirementAccount+AccountsAndNotes+LifeInsurance+StocksAndBonds+RealEstate+AutomobilePresentValue+PresentValue+OtherPersonalProperty+OtherAssets"
+                    }
+                ]
+            },
+            {
+                "Group": "Liabilities",
+                "Fields": [
+                    {
+                        "Name": "AccountsPayable",
+                        "Label": "Accounts Payable",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "NotesPayable",
+                        "Label": "Notes payable to Bank and Others",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "AutoInstallAccount",
+                        "Label": "Install Account(Auto)",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "AutoInstallAccount",
+                                "Label": "Amount",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "AutoInstallAccountMoPayments",
+                                "Label": "Mo.Payments",
+                                "Type": "currency"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "OtherInstallmentAccount",
+                        "Label": "Installment Account(Other)",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "OtherInstallmentAccount",
+                                "Label": "Amount",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "OtherInstallAccountMoPayments",
+                                "Label": "Mo. Payments",
+                                "Type": "currency"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "LoanOnLifeInsurance",
+                        "Label": "Loan on Life Insurance",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "MortgagesOnRealEstate",
+                        "Label": "Mortgages on Real Estate",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "UnpaidTaxes",
+                        "Label": "Unpaid Taxes",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "OtherLiabilities",
+                        "Label": "Other Liabilities",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "TotalLiabilities",
+                        "Label": "Total Liabilities",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "NetWorth",
+                        "Label": "NetWorth",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "Total",
+                        "Label": "Total",
+                        "Type": "currency"
+                    }
+                ]
+            },
+            {
+                "Group": "Source of Income",
+                "Fields": [
+                    {
+                        "Name": "Salary",
+                        "Label": "Salary",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "NetInvestmentIncome",
+                        "Label": "Net Investment Income",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "RealEstateIncome",
+                        "Label": "RealEstateIncome",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "OtherIncome",
+                        "Label": "OtherIncome",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "DescriptionofOtherIncome",
+                        "Label": "Describe Other Income",
+                        "Type": "textarea"
+                    }
+                ]
+            },
+            {
+                "Group": "Contingent Liabilities",
+                "Fields": [
+                    {
+                        "Name": "AsEndorser",
+                        "Label": "As Endorser or Co-Maker",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "LegalClaims",
+                        "Label": "Legal Claims and Judgments",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "ProvisionForFederalIncomeTax",
+                        "Label": "Provision for Federal Income Tax",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "OtherSpecialDebt",
+                        "Label": "OtherSpecialDebt",
+                        "Type": "currency"
+                    }
+                ]
+            },
+            {
+                "Group": "Notes Payable to Bank and Others",
+                "Fields": [
+                    {
+                        "Name": "NotesPayableToBank",
+                        "Type": "multiple",
+                        "Rows": 1,
+                        "Orientation": "horizontal",
+                        "Fields": [
+                            {
+                                "Name": "NotesPayableToBankNameAndAddress",
+                                "Label": "Name and Address of Noteholder(s)",
+                                "Type": "textarea"
+                            },
+                            {
+                                "Name": "NotesPayableToBankOriginalBalance",
+                                "Label": "Original Balance",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "NotesPayableToBankCurrentBalance",
+                                "Label": "Current Balance",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "NotesPayableToBankPaymentAmount",
+                                "Label": "Payment Amount",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "NotesPayableToBankFrequency",
+                                "Label": "Frequency(monthly, etc)",
+                                "Type": "number"
+                            },
+                            {
+                                "Name": "NotesPayableToBankHowSecured",
+                                "Label": "HowSecuredorEndorsed",
+                                "Type": "textarea"
+                            },
+                            {
+                                "Name": "NotesPayableToBank",
+                                "Label": "",
+                                "Type": "addnew"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Stocks and Bonds",
+                "Fields": [
+                    {
+                        "Name": "StocksAndBonds",
+                        "Type": "multiple",
+                        "Rows": 1,
+                        "Orientation": "horizontal",
+                        "Fields": [
+                            {
+                                "Name": "NumberOfShares",
+                                "Label": "Number of Shares",
+                                "Type": "number"
+                            },
+                            {
+                                "Name": "Cost",
+                                "Label": "Cost",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "MarketValue",
+                                "Label": "Market Value Quotation/Exchange",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "DateOfQuotation",
+                                "Label": "Date of Quotation/Exchange",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "TotalValue",
+                                "Label": "Total Value",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "StocksAndBonds",
+                                "Label": "",
+                                "Type": "addnew"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Real Estate Owned",
+                "Fields": [
+                    {
+                        "Name": "PropertyType",
+                        "Label": "Type Of Property",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "PropertyTypeA",
+                                "Label": "PropertyA",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "PropertyTypeB",
+                                "Label": "PropertyB",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "PropertyTypeC",
+                                "Label": "PropertyC",
+                                "Type": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "Address",
+                        "Label": "Address",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "AddressA",
+                                "Label": "PropertyA",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "AddressB",
+                                "Label": "PropertyB",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "AddressC",
+                                "Label": "PropertyC",
+                                "Type": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "DatePurchased",
+                        "Label": "Date Purchased",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "DatePurchasedA",
+                                "Label": "PropertyA",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "DatePurchasedB",
+                                "Label": "PropertyB",
+                                "Type": "date"
+                            },
+                            {
+                                "Name": "DatePurchasedC",
+                                "Label": "PropertyC",
+                                "Type": "date"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "OriginalCost",
+                        "Label": "Original Cost",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "OriginalCostA",
+                                "Label": "PropertyA",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "OriginalCostB",
+                                "Label": "PropertyB",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "OriginalCostC",
+                                "Label": "PropertyC",
+                                "Type": "currency"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "PresentMarketValue",
+                        "Label": "Present Market Value",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "PresentMarketValueA",
+                                "Label": "PropertyA",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "PresentMarketValueB",
+                                "Label": "PropertyB",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "PresentMarketValueC",
+                                "Label": "PropertyC",
+                                "Type": "currency"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "NameAndAddressOfHolder",
+                        "Label": "Name and Address of Mortgage Holder",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "NameAndAddressOfHolderA",
+                                "Label": "PropertyA",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "NameAndAddressOfHolderB",
+                                "Label": "PropertyB",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "NameAndAddressOfHolderC",
+                                "Label": "PropertyC",
+                                "Type": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "MortgageBalance",
+                        "Label": "Mortgage Balance",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "MortgageBalanceA",
+                                "Label": "PropertyA",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "MortgageBalanceB",
+                                "Label": "PropertyB",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "MortgageBalanceC",
+                                "Label": "PropertyC",
+                                "Type": "currency"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "PaymentAmountPerMonthYear",
+                        "Label": "Amount of Payment per month/Year",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "PaymentAmountPerMonthYearA",
+                                "Label": "PropertyA",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "PaymentAmountPerMonthYearB",
+                                "Label": "PropertyB",
+                                "Type": "currency"
+                            },
+                            {
+                                "Name": "PaymentAmountPerMonthYearC",
+                                "Label": "PropertyC",
+                                "Type": "currency"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "MortgageStatus",
+                        "Label": "StatusofMortgage",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "MortgageStatusA",
+                                "Label": "PropertyA",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "MortgageStatusB",
+                                "Label": "PropertyB",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "MortgageStatusC",
+                                "Label": "PropertyC",
+                                "Type": "string"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Descriptions",
+                "Fields": [
+                    {
+                        "Name": "Section5",
+                        "Label": "Other Personal Property and Other Assets",
+                        "Type": "textarea"
+                    },
+                    {
+                        "Name": "Section6",
+                        "Label": "UnpaidTaxes",
+                        "Type": "textarea"
+                    },
+                    {
+                        "Name": "Section7",
+                        "Label": "OtherLiabilities",
+                        "Type": "textarea"
+                    },
+                    {
+                        "Name": "Section8",
+                        "Label": "LifeInsuranceHeld",
+                        "Type": "textarea"
+                    }
+                ]
+            }
+        ]
+    },
+	{
+        "Disclosures": [
+            {
+                "Group": "If you answer YES to these questions, please furnish details.",
+                "Fields": [
+                    {
+                        "Name": "UnderIndictment",
+                        "Label": "Are you presently under indictment, on parole or probation?",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    {
+                        "Name": "ParoleOrProbationExpirationDate",
+                        "Label": "If yes, indicate date parole or probation is to expire.",
+                        "Type": "date"
+                    },
+                    {
+                        "Name": "Offenses",
+                        "Label": "Have you ever been charged with, and/or arrested for, any criminal offense other than a minor motor vehicle violation? Include offenses which have been dismissed, discharged, or not prosecuted.",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    {
+                        "Name": "Probation",
+                        "Label": "Have you ever been convicted, placed on pretrial diversion, or placed on any form of probation, including adjudication with held pending probation, for any criminal offense other than a minor vehicle violation?",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Other Questions",
+                "Fields": [
+                    {
+                        "Name": "BankruptInfo",
+                        "Label": "Have you or any officer of your company ever been involved in a bankruptcy or insolvency proceedings?",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    {
+                        "Name": "PendingLawsuits",
+                        "Label": "Are you and your business involved in any pending lawsuits?",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    },
+                    {
+                        "Name": "ApplicantOwnership",
+                        "Label": "Does the applicant own 25% or more of another company?",
+                        "Type": "radio",
+                        "Options": [
+                            "Yes",
+                            "No"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+	    {
+        "Business Summary": [
+            {
+                "Group": "General Business",
+                "Fields": [
+                    {
+                        "Name": "BusinessName",
+                        "Label": "Name",
+                        "Type": "string",
+                        "Required": true
+                    },
+                    {
+                        "Name": "DBA",
+                        "Label": "DBA",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "BusinessAddress",
+                        "Label": "Address",
+                        "Type": "textarea"
+                    },
+                    {
+                        "Name": "BusinessCity",
+                        "Label": "City",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "BusinessCounty",
+                        "Label": "County",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "BusinessState",
+                        "Label": "State",
+                        "Type": "states"
+                    },
+                    {
+                        "Name": "BusinessZip",
+                        "Label": "Zip",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "TaxId",
+                        "Label": "TaxID",
+                        "Type": "string"
+                    }
+                ]
+            },
+            {
+                "Group": "Ownership",
+                "Fields": [
+                    {
+                        "Name": "Ownership",
+                        "Type": "multiple",
+                        "Rows": 1,
+                        "Orientation": "horizontal",
+                        "Fields": [
+                            {
+                                "Name": "OwnerName",
+                                "Label": "Name",
+                                "Type": "string",
+                                "Required": true
+                            },
+                            {	
+                                "Name": "OwnershipPct",
+                                "Label": "Ownership%",
+                                "Type": "number",
+                                "Required": true
+                            },
+                            {
+                                "Name": "OwnerEmail",
+                                "Label": "Email",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "OwnerAddress",
+                                "Label": "Address",
+                                "Type": "string",
+                                "Required": true
+                            },
+                            {
+                                "Name": "Ownership",
+                                "Label": "",
+                                "Type": "addnew"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Third Parties",
+                "Fields": [
+                    {
+                        "Name": "Accountant",
+                        "Label": "Accountant",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "AccountantName",
+                                "Label": "Name",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "AccountantPhone",
+                                "Label": "Phone",
+                                "Type": "phone"
+                            },
+                            {
+                                "Name": "AccountantEmail",
+                                "Label": "Email",
+                                "Type": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "LegalCounsel",
+                        "Label": "Legal Counsel",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "LegalCounselName",
+                                "Label": "Name",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "LegalCounselPhone",
+                                "Label": "Phone",
+                                "Type": "phone"
+                            },
+                            {
+                                "Name": "LegalCounselEmail",
+                                "Label": "Email",
+                                "Type": "string"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Financial Performance",
+                "Fields": [
+                    {
+                        "Name": "GrossRevenue",
+                        "Label": "GrossRevenue",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "Expenses",
+                        "Label": "Expenses",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "NetProfit",
+                        "Label": "NetProfit",
+                        "Type": "currency"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "Business Detail": [
+            {
+                "Group": "Business Detail",
+                "Fields": [
+                    {
+                        "Name": "Industry",
+                        "Label": "Industry",
+                        "Type": "dropdown",
+                        "Options": [
+                            "Choose One...",
+							"Vet",
+                            "Dental",
+                            "Pharm",
+                            "Deathcare",
+                            "IA"
+                        ]
+                    },
+                    {
+                        "Name": "Type",
+                        "Label": "Type of Loan",
+                        "Type": "dropdown",
+                        "Options": [
+							"Choose One...",
+                            "StartUp",
+                            "Refi",
+                            "Expansion",
+                            "Acquisition"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "Real Estate Info": [
+            {
+                "Group": "General Real Estate",
+                "Fields": [
+                    {
+                        "Name": "TitleType",
+                        "Label": "Title Type",
+                        "Type": "dropdown",
+                        "Options": [
+							"Choose One...",
+                            "Individual",
+                            "Partnership",
+                            "Corporation",
+                            "LLC"
+                        ]
+                    },
+                    {
+                        "Name": "NameIfAvailable",
+                        "Label": "Name if available",
+                        "Type": "string"
+                    }
+                ]
+            },
+            {
+                "Group": "Project Costs",
+                "Fields": [
+                    {
+                        "Name": "LandPurchase",
+                        "Label": "Land Purchase or Refinance",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "RealEstatePurchase",
+                        "Label": "Real Estate Purchase",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "ConstructionHardCost",
+                        "Label": "Construction Hard Cost",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "ConstructionSoftCosts",
+                        "Label": "Construction Soft Costs",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "RealEstateRefinance",
+                        "Label": "RealEstate Refinance Amount",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "BuildingInterior",
+                        "Label": "Building Interior Improvement or Repairs",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "WorkingCapital",
+                        "Label": "Working Capital",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "EquipmentFinancing",
+                        "Label": "Equipment Financing",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "RealEstateDownPayment",
+                        "Label": "Real Estate Down Payment Amount",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "TotalLoanRequest",
+                        "Label": "Total Loan Request",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "PaymentSource",
+                        "Label": "Source of Down Payment",
+                        "Type": "radio",
+                        "Options": [
+							"Choose One...",
+                            "Savings",
+                            "Gift",
+                            "Financed",
+                            "RetirementFunds",
+                            "Other"
+                        ]
+                    },
+                    {
+                        "Name": "ifFinanced",
+                        "Label": "If financed, please outline loan terms",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "Lender",
+                                "Label": "Lender",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "Term",
+                                "Label": "Term",
+                                "Type": "number"
+                            },
+                            {
+                                "Name": "Rate",
+                                "Label": "Rate",
+                                "Type": "number"
+                            },
+                            {
+                                "Name": "Payment",
+                                "Label": "Payment",
+                                "Type": "currency"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Group": "Subject Property",
+                "Fields": [
+                    {
+                        "Name": "Address",
+                        "Label": "Address",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "YearBuilding",
+                        "Label": "Year Building Built",
+                        "Type": "number"
+                    },
+                    {
+                        "Name": "SquareFootage",
+                        "Label": "Total Square Footage",
+                        "Type": "number"
+                    },
+                    {
+                        "Name": "PercentOccupied",
+                        "Label": "Percent Occupied By Owner",
+                        "Type": "number"
+                    },
+                    {
+                        "Name": "BuildingValue",
+                        "Label": "Estimated Building value",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "LandArea",
+                        "Label": "Land Area",
+                        "Type": "number"
+                    },
+                    {
+                        "Name": "DatePurchasedLand",
+                        "Label": "Date Purchased Land",
+                        "Type": "date"
+                    },
+                    {
+                        "Name": "LandFinance",
+                        "Label": "How Was Land Financed",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "LandFinanceOption",
+                                "Label": "",
+                                "Type": "radio",
+                                "Options": [
+                                    "Choose One...",
+									"Cash",
+                                    "Loan",
+                                    "Other"
+                                ]
+                            },
+                            {
+                                "Name": "LandFinanceOtherDescription",
+                                "Label": "Comments",
+                                "Type": "string"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "RealEstateDescription",
+                        "Label": "Real Estate Description",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "NumberOfBuildings",
+                                "Label": "# of buildings",
+                                "Type": "number"
+                            },
+                            {
+                                "Name": "BuildingType",
+                                "Label": "Type",
+                                "Type": "radio",
+                                "Options": [
+                                    "FreeStanding",
+                                    "CondoUnit"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "ConstructionType",
+                        "Label": "Construction Type",
+                        "Type": "radio",
+                        "Options": [
+                            "Choose One...",
+							"Brick",
+                            "Stucco",
+                            "ConcreteBlock",
+                            "WoodFrame"
+                        ]
+                    },
+                    {
+                        "Name": "ProximityToOtherBusinesses",
+                        "Label": "Proximity to Other Businesses",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "EstimatedValue",
+                        "Label": "Estimated Value of Real Estate",
+                        "Type": "currency"
+                    },
+                    {
+                        "Name": "Source",
+                        "Label": "Source",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "EnvironmentalIssues",
+                        "Label": "Environmental Issues",
+                        "Type": "string"
+                    },
+                    {
+                        "Name": "ClosingDate",
+                        "Label": "Closing Date",
+                        "Type": "date"
+                    },
+                    {
+                        "Name": "EscrowDeadLine",
+                        "Label": "Escrow Dead Line",
+                        "Type": "date"
+                    }
+                ]
+            },
+            {
+                "Group": "Real Estate Contact",
+                "Fields": [
+                    {
+                        "Name": "Escrow",
+                        "Label": "Escrow Company",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "EscrowCompanyName",
+                                "Label": "Name",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "EscrowPhone",
+                                "Label": "Phone",
+                                "Type": "phone"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "Title",
+                        "Label": "Title Company",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "TitleCompanyName",
+                                "Label": "Name",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "TitleCompanyPhone",
+                                "Label": "Phone",
+                                "Type": "phone"
+                            }
+                        ]
+                    },
+                    {
+                        "Name": "RealEstate",
+                        "Label": "Real Estate",
+                        "Type": "object",
+                        "Description": [
+                            {
+                                "Name": "RealEstateAttorney",
+                                "Label": "Name",
+                                "Type": "string"
+                            },
+                            {
+                                "Name": "RealEstateAttorneyPhone",
+                                "Label": "Phone",
+                                "Type": "phone"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

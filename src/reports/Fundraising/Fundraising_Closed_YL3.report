@@ -47,6 +47,7 @@
     <crossFilters>
         <criteriaItems>
             <column>Commitment_Stage__c</column>
+            <isUnlocked>false</isUnlocked>
             <operator>equals</operator>
             <value>Closed</value>
         </criteriaItems>
@@ -66,7 +67,7 @@
         <field>Account$RecordType</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>Fundraising - Closed</name>
+    <name>Fundraising - Closed -backup</name>
     <params>
         <name>co</name>
         <value>1</value>
@@ -74,6 +75,8 @@
     <reportType>Commitments_Accounts__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Account.Commitments__r$Target_Commitment__c</sortColumn>
     <sortOrder>Desc</sortOrder>
     <timeFrameFilter>

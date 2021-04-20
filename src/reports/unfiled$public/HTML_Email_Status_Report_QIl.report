@@ -36,6 +36,8 @@
     </params>
     <reportType>EmailStatus</reportType>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <timeFrameFilter>
         <dateColumn>SENDDATE</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>

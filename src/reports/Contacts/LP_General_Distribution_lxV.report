@@ -28,6 +28,8 @@
         <booleanFilter>1</booleanFilter>
         <criteriaItems>
             <column>Contact.Canapi_Role__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>includes</operator>
             <value>ALL_LPs</value>
         </criteriaItems>
@@ -46,6 +48,8 @@
     <reportType>ContactList</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <timeFrameFilter>
         <dateColumn>CREATED_DATE</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>

@@ -1,4 +1,0 @@
-<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" >
-	<aura:attribute name="phone" type="String" default="(343) 343-3434" />
-    <ui:inputText aura:id="phoneNumber" value="{!v.phone}" label="Phone field with pattern matching" updateOn="keyup" keyup="{!c.formatPhone}"/>
-</aura:component>

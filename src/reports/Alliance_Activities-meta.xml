@@ -6,9 +6,19 @@
         <sharedToType>AllCspUsers</sharedToType>
     </folderShares>
     <folderShares>
+        <accessLevel>View</accessLevel>
+        <sharedTo>Investor_Portal_Users</sharedTo>
+        <sharedToType>Group</sharedToType>
+    </folderShares>
+    <folderShares>
         <accessLevel>EditAllContents</accessLevel>
         <sharedTo>Canapi_Int</sharedTo>
         <sharedToType>Group</sharedToType>
+    </folderShares>
+    <folderShares>
+        <accessLevel>View</accessLevel>
+        <sharedTo>salesforceemailtocase1@gmail.com22</sharedTo>
+        <sharedToType>CustomerPortalUser</sharedToType>
     </folderShares>
     <name>Alliance Activities</name>
 </ReportFolder>

@@ -21,11 +21,15 @@
     <filter>
         <criteriaItems>
             <column>Account.Last_Commitment_Stage__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>,Qualifying,Interested,Verbal,Letter,SBA Letter,Closing,Closed,Not Interested,Hold</value>
         </criteriaItems>
         <criteriaItems>
             <column>Account.Assets__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>greaterThan</operator>
             <value>3000000</value>
         </criteriaItems>
@@ -44,6 +48,8 @@
     <reportType>AccountList</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Account.Assets__c</sortColumn>
     <sortOrder>Desc</sortOrder>
     <timeFrameFilter>

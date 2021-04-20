@@ -54,6 +54,8 @@
     <reportType>Series_with_Investments__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <timeFrameFilter>
         <dateColumn>Round__c$CreatedDate</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>

@@ -1,0 +1,39 @@
+<aura:component
+    implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes,force:hasRecordId"
+    access="global" controller="RelatedCompaniesController">
+    <aura:attribute name="data" type="List" />
+    <aura:attribute name="recordId" type="String" />
+
+    <aura:handler name="init" value="{! this }" action="{! c.init }" />
+
+
+    <lightning:card title="{! 'Related Companies (' + v.data.length + ')'}" iconName="standard:account">
+        <div class="slds-m-around_small">
+            <ul class="slds-has-dividers_bottom-space">
+                <aura:iteration items="{!v.data}" var="rec">
+                    <li class="slds-item">
+                        <lightning:tile label="{!rec.Name}" href="{! '/alliance/s/detail/' + rec.Id}">
+                            <aura:set attribute="media">
+                                <div
+                                    style="height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
+                                    <aura:if isTrue="{!rec.External_Logo__c!=null}">
+                                        <img style="width:32px"
+                                            src="{! 'data:image/png;base64,' + rec.External_Logo__c + rec.External_Logo2__c + rec.External_Logo3__c}" />
+                                        <aura:set attribute="else">
+                                            <img style="width:32px"
+                                                src="{! '/alliance/services/images/photo/' + rec.Id}" />
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                            </aura:set>
+                            <ul class="slds-list_horizontal slds-has-dividers_right">
+                                <li class="slds-item" style="font-size: 13px;">Type: {!rec.Type}</li>
+                            </ul>
+                        </lightning:tile>
+                    </li>
+                </aura:iteration>
+            </ul>
+        </div>
+    </lightning:card>
+
+</aura:component>

@@ -49,8 +49,8 @@ trigger shareDocumentAttachment on Document__c (before update,after insert) {
             Map <Id, User> inactiveUsers = New Map <Id, User>([select id from user where isActive = false]);
 
             List <TagDocumentAssociation__c> tdaList = new List <TagDocumentAssociation__c>();
-            List <Default_Sharing__c> defSharings = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where (createdById=:userInfo.getUserId() or CreatedBy__c =:userInfo.getUserId()) and Account__c =: null and UserOrGroup__c not in: inactiveUsers.KeySet()];
-            List <Default_Sharing__c> folderSharings = [select id, UserOrGroup__c, Access__c,Account__c,Board_Meeting__c, Contact__c, Documents_Folder_Template__c,Investment__c, Object_For_Share__c,Opportunity__c from Default_Sharing__c where Account__c =: accId and UserOrGroup__c not in: inactiveUsers.KeySet()];
+            List <Default_Sharing__c> defSharings = [select id, UserOrGroup__c, Access__c, createdById from Default_Sharing__c where /*(createdById=:userInfo.getUserId() or*/ CreatedBy__c =:userInfo.getUserId() /*)*/ and Account__c =: null and UserOrGroup__c not in: inactiveUsers.KeySet() and UserOrGroup__c !=: userInfo.getUserId()];
+            List <Default_Sharing__c> folderSharings = [select id, UserOrGroup__c, Access__c,Account__c,Board_Meeting__c, Contact__c, Documents_Folder_Template__c,Investment__c, Object_For_Share__c,Opportunity__c from Default_Sharing__c where Account__c =: accId and UserOrGroup__c not in: inactiveUsers.KeySet() and UserOrGroup__c !=: userInfo.getUserId()];
             List <Document__Share> docShares = new List <Document__Share>();
 
             

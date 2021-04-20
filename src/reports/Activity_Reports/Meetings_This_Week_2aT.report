@@ -46,6 +46,8 @@
     <filter>
         <criteriaItems>
             <column>Activity.Meeting_Type__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>notEqual</operator>
             <value></value>
         </criteriaItems>
@@ -72,6 +74,8 @@
     <reportType>Activity</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Activity.Meeting_Type__c</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

@@ -21,11 +21,15 @@
     <filter>
         <criteriaItems>
             <column>DUE_DATE</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>LAST_WEEK</value>
         </criteriaItems>
         <criteriaItems>
             <column>Activity.Meeting_Type__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>notEqual</operator>
             <value>,Not Related,Live Oak,Spring Harbor</value>
         </criteriaItems>
@@ -57,6 +61,8 @@
     <reportType>Activity</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>TASK_TYPE</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

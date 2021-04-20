@@ -2,6 +2,7 @@
 
     <apex:includeScript value="{!URLFOR($Resource.jquery)}" />
     <apex:includeScript value="{!URLFOR($Resource.DHTMLX, '/codebase/dhtmlx.js')}" />
+    <apex:includeScript value="{!URLFOR($Resource.forcetk, '/Force.com-JavaScript-REST-Toolkit-master/forcetk.js')}" />
     <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/material/dhtmlx.css')}" />
     <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/terrace/dhtmlx.css')}" />
     <apex:stylesheet value="{!URLFOR($Resource.DHTMLX, '/skins/web/dhtmlx.css')}" />
@@ -166,17 +167,98 @@
             margin-left: 0px !important;
         }
 
-        .objbox img {
+        /*.objbox td:nth-child(1n+4) img {
             height: 17px;
             opacity: 0.6;
-        }
+        }*/
 
         div.gridbox_dhx_terrace.gridbox table.obj tr td {
-            padding-left: 10px !important;
+            padding-left: 5px !important;
+            padding-right: 5px !important;
         }
 
         .dhx_toolbar_dhx_terrace {
             padding: 0px;
+        }
+
+        .formHeaderLabel div {
+            color: black !important;
+            font-size: 16px !important;
+        }
+
+        .formCatLabel div {
+            color: black !important;
+        }
+
+        .uplDocLabel div {
+            color: black !important;
+            text-align: center !important;
+            font-size: 11px !important;
+            font-weight: 100 !important;
+        }
+
+        .blueLayout {
+            background-color: #dbeafd !important;
+        }
+
+        #dragDiv {
+            outline: 1px dashed #b3b0b0;
+            height: 65px;
+            margin-left: 70px;
+            text-align: center;
+            line-height: 60px;
+        }
+
+        .notification,
+        .notification:hover,
+        .UserOrGroupSelected {
+            line-height: 1.7em;
+            text-decoration: none;
+            padding: 5px;
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px solid rgb(221, 219, 218);
+            background: #6fb1da;
+            margin-right: 10px;
+            font-size: 12px;
+        }
+
+        .badge {
+            top: 2px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            text-indent: 8px;
+        }
+
+        .UserOrGroupSelected {
+            background: #fff;
+            color: black;
+            margin-top: 5px;
+        }
+
+        .UserOrGroupSelected-Badge {
+            top: 2px;
+            border-radius: 50%;
+            text-decoration: none;
+            color: black;
+            display: inline-block;
+            text-indent: 8px;
+        }
+
+        .badge:hover {
+            color: red !important;
+            text-decoration: none;
+        }
+
+        #file {
+            float: left;
+            left: 73px;
+            width: 430px;
+            height: 65px;
+            opacity: 0;
+            position: absolute;
         }
     </style>
 
@@ -192,6 +274,32 @@
         </div>
 
         <script type="text/javascript">
+            var selectedCell = {};
+            var client = new forcetk.Client();
+            client.setSessionToken('{!$Api.Session_ID}');
+            var FinancialReportRequestWinLayout;
+            let today = new Date();
+            var quarter = 'Q' + Math.floor((today.getMonth() + 3) / 3) + ', ' + today.getFullYear();
+
+
+            var isAdminUser = ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin');
+            console.log(isAdminUser);
+
+            function eXcell_perc(cell) { //the eXcell name is defined here
+                if (cell) {                 //the default pattern, just copy it
+                    this.cell = cell;
+                    this.grid = this.cell.parentNode.grid;
+                    eXcell_ed.call(this); //uses methods of the "ed" type
+                }
+                this.setValue = function (val) {
+                    this.setCValue("" + val + "%", val);
+                }
+                this.getValue = function () {
+                    //console.log(this.cell);
+                    return this.cell.innerHTML.replace('%', ''); // gets the value
+                }
+            }
+            eXcell_perc.prototype = new eXcell;
 
             var tribute = new Tribute({
                 collection: [{
@@ -252,9 +360,15 @@
             var accName;
 
             var jsRounds;
+            var jsFinCats;
             var advancedEditWin;
             var RoundTooltip;
             var exportHeaderLabels;
+
+            var doNotShowRFRmodal = false;
+            var currentQuarterColNumber;
+
+            var CatGrid;
 
             var componentHeightInt = Number(componentHeight);
             componentHeightInt = componentHeightInt - 36;
@@ -285,6 +399,8 @@
                     openSaveTemplateWindow();
                 } else if (id == 'load_template') {
                     openLoadTemplateWindow();
+                } else if (id == 'edit_cats') {
+                    openEditCatsWindow();
                 } else if (id == 'new_metric') {
                     openAccountWindow(null);
                 } else if (id == "Export") {
@@ -315,6 +431,7 @@
 
                     }
 
+                    /*
                     csv += '\n';
                     for (var i = 0; i < CapSharesGrid.getColumnsNum(); i++) {
                         csv += i == 1 ? ',' : ',' + CapSharesGrid.getFooterLabel(i, 0).replaceAll(',', '').replaceAll('$', '').replaceAll('Â', '');
@@ -323,6 +440,7 @@
                     for (var i = 0; i < CapSharesGrid.getColumnsNum(); i++) {
                         csv += i == 1 ? ',' : ',' + CapSharesGrid.getFooterLabel(i, 1).replaceAll(',', '').replaceAll('$', '').replaceAll('Â', '');
                     }
+                    */
 
                     var hiddenElement = document.createElement('a');
                     hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
@@ -330,21 +448,49 @@
                     hiddenElement.download = 'Financials.csv';  // CSV file Name* you can change it.[only name not .csv] 
                     document.body.appendChild(hiddenElement); // Required for FireFox browser
                     hiddenElement.click();
+                } else if (id == 'requestFinReport') {
+                    FinancialsFeatureDHTMLXController.requestFinReport(recordId, function (result, event) {
+                        if (event.type == 'exception') {
+                            alert(event.message);
+                        } else {
+                            if (result == '') {
+                                dhtmlx.message({
+                                    expire: 7000,
+                                    type: "alert-error",
+                                    text: 'No contacts with "Financial Report Contact" box checked found for this Account. Unable to request Financial Report.'
+                                });
+                            } else {
+                                dhtmlx.message({
+                                    expire: 7000,
+                                    text: 'Financial Report Request sent to ' + $('<div>').html(result).text()
+                                });
+                            }
+                        }
+                    });
+
                 }
             });
 
             eXcell_link.prototype.getTitle = eXcell_link.prototype.getContent;
 
-            var newOpts = Array(Array('save_template', 'obj', 'Save as Template...', null), Array('load_template', 'obj', ' Load from Template...', null));
+            var newOpts = Array(Array('save_template', 'obj', 'Save as Template...', null), Array('load_template', 'obj', 'Load from Template...', null), Array('edit_cats', 'obj', 'Edit Categories...', null));
             // if (!isCommunity || (isCommunity && isAllowEditing)) {
-            Toolbar.addButtonSelect("new_metric", 0, "New Account...", newOpts, "plusGreen.png", "plusGreen.png", true, false, 3, false);
+            Toolbar.addButtonSelect("new_metric", 0, "New Line Item", newOpts, "plusGreen.png", "plusGreen.png", true, false, 3, false);
             Toolbar.addSeparator("sep1", 1);
 
             //}
             Toolbar.addButton("new_board_meeting", 9, "New Period", "calendar.webp");
+
+            /*var impExp = Array(Array('Export', 'obj', 'Export', null), Array('Import', 'obj', ' Import', null));
+            Toolbar.addButtonSelect("Export", 10, "Export and Import", impExp, "excel.ico", "excel.ico", true, false, 3, false);*/
             Toolbar.addButton("Export", 10, "Export", "excel.ico");
+
+            Toolbar.addButton("requestFinReport", 9, "Request Financial Report", "requestFR.png");
+
+
             Toolbar.hideItem("new_metric");
             Toolbar.hideItem("new_board_meeting");
+            Toolbar.hideItem("requestFinReport");
             Toolbar.hideItem("sep1");
             Toolbar.setSkin(lSkin);
 
@@ -377,32 +523,33 @@
 
             function setDollarAmmount(stage, rId, cInd, nValue, oValue) {
 
-                if (stage == 2) {
-                    FinancialsFeatureDHTMLXController.setFinancials(rId, jsRounds[cInd - 2].Id, nValue, function (result, event) {
+                /*if (cInd == 0) {
+                    FinancialsFeatureDHTMLXController.setSequenceNumber(rId, nValue, function (result, event) {
                         if (event.type == 'exception') {
                             alert(event.message);
                         } else {
                             dhtmlx.message({
-                                text: 'Financials Updated.'
+                                text: 'Sequence Number Updated.'
                             });
                             refreshGrid();
                         }
                     });
-                }
+                } else {*/
+                nValue = nValue == "" ? "0" : nValue;
+                //console.log(nValue);
+                FinancialsFeatureDHTMLXController.setFinancials(rId, jsRounds[cInd - 3].Id, nValue, CapSharesGrid.getUserData(rId, "Type"), function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        dhtmlx.message({
+                            text: 'Financials Updated.'
+                        });
+                        refreshGrid();
+                    }
+                });
+                //}
 
-            }
 
-            function deleteBoard(name, sid) {
-                var isConfirmed = confirm("Are you sure you'd like to delete the Board Meeting " + name + " ?");
-                if (isConfirmed) {
-                    FinancialsFeatureDHTMLXController.deleteBoard(sid, function (result, event) {
-                        if (event.type == 'exception') {
-                            alert(event.message);
-                        } else {
-                            refreshGrid();
-                        }
-                    });
-                }
             }
 
             function saveBoard(data, advancedEditWin, rp) {
@@ -435,8 +582,10 @@
                         return;
                     }
                 }
+                let intOnly = data.getItemValue('InternalOnly') == 1 ? true : false;
 
-                FinancialsFeatureDHTMLXController.createChartOfAccounts(data.getItemValue('Name'), data.getItemValue('Category'), formula, accId, recordId, function (result, event) {
+
+                FinancialsFeatureDHTMLXController.createChartOfAccounts(data.getItemValue('Numb'), data.getItemValue('Name'), JSON.parse(data.getItemValue('Category')).id, data.getItemValue('Type'), formula, intOnly, data.getItemValue('ShowOnGraph'), accId, recordId, function (result, event) {
                     if (event.type == 'exception') {
                         var err = event.message;
                         err = err.replace(err.substring(0, err.indexOf('Unable to')), '').replace(': [Name]', '');
@@ -459,17 +608,18 @@
                 var menuData = CapSharesGrid.contextID.split("_");
                 if (menuitemId == 'DeleteAccount') {
                     console.log(menuData);
-                    var isConfirmed = confirm("Are you sure you would like to delete Account " + CapSharesGrid.cells(menuData[0], 0).getValue().split("^")[0] + " ? This will remove the data row for all Report Periods.");
+                    var isConfirmed = confirm("Are you sure you would like to delete Line Item " + CapSharesGrid.cells(menuData[0], 1).getValue().split("^")[0] + "? This will remove the data row for all Report Periods.");
                     if (isConfirmed) {
-                        /*var metricid = CapSharesGrid.cells(menuData[0], 0).getValue().split("^")[1];
-                        metricid = metricid.substring(1, metricid.length);*/
-                        FinancialsFeatureDHTMLXController.deleteChartOfAccounts(menuData[0], function (result, event) {
-                            if (event.type == 'exception') {
-                                alert(event.message);
-                            } else {
-                                refreshGrid();
+                        if (CapSharesGrid.getUserData(menuData[0], "DefaultLI")) {
+                            isConfirmed = confirm("This is a default Line Item that is required to be present on all accounts. Are you sure you want to delete it?");
+                            if (isConfirmed) {
+                                deleteChartOfAccounts(menuData[0]);
                             }
-                        });
+                        } else {
+                            deleteChartOfAccounts(menuData[0]);
+                        }
+
+
                     }
                 } else if (menuitemId == 'EditAccount') {
                     openAccountWindow(menuData[0]);
@@ -493,16 +643,168 @@
                 return true;
             }
 
+            function openEditCatsWindow() {
+                var dhxWins = new dhtmlXWindows();
+                dhxWins.attachViewportTo("body");
+                dhxWins.setSkin(lSkin);
+                advancedEditWin = dhxWins.createWindow("w1", 10, 10, 550, 260);
+                advancedEditWin.setText('Edit Categories');
+                advancedEditWin.center();
+                advancedEditWin.setModal(true);
+                advancedEditWin.button("park").hide();
+                advancedEditWin.button("minmax").hide();
+                var advancedEditWinLayout = advancedEditWin.attachLayout("2E");
+                advancedEditWinLayout.setSkin(lSkin);
+                advancedEditWinLayout.cells("a").hideHeader();
+                advancedEditWinLayout.cells("b").hideHeader();
+                advancedEditWinLayout.cells("a").setHeight(50);
+                advancedEditWinLayout.cells("a").fixSize(true, true);
+
+                advancedEditWinLayout.forEachItem(function (cell) {
+                    // actions, for example:         
+                    cell.cell.classList.add("blueLayout");
+                });
+
+                var advancedEditWinForm = advancedEditWinLayout.cells("a").attachForm([
+                    {
+                        type: "block", style: "margin: 0px 0px 0px 0px;", list: [
+                            { type: "settings", position: "label-left" },
+                            { type: "button", value: "Add New Category", width: 125, name: "NewCategory" },
+                            { type: "input", label: "New Category", inputWidth: 150, name: "CategoryName", hidden: true, required: true },
+                            { type: "newcolumn", offsetLeft: 20 },
+                            { type: "button", value: "Save", width: 100, name: "Save", hidden: true, offsetLeft: 20, offsetTop: 0 }
+                        ]
+                    }
+                ]);
+
+                advancedEditWinForm.attachEvent("onButtonClick", function (name) {
+                    if (name == 'NewCategory') {
+                        advancedEditWinForm.hideItem('NewCategory');
+                        advancedEditWinForm.showItem('CategoryName');
+                        advancedEditWinForm.showItem('Save');
+                        advancedEditWinForm.showItem('type');
+                    } else if (name == 'Save' && advancedEditWinForm.validate()) {
+                        if (jsFinCats.some(e => e.Name === advancedEditWinForm.getItemValue('CategoryName'))) {
+                            dhtmlx.message({
+                                type: "alert-error",
+                                text: 'Category ' + advancedEditWinForm.getItemValue('CategoryName') + ' already exists.'
+                            });
+                        } else {
+                            FinancialsFeatureDHTMLXController.addCategory(advancedEditWinForm.getItemValue('CategoryName'), recordId, function (result2, event) {
+                                if (event.type == 'exception') {
+                                    alert(event.message);
+                                } else {
+                                    refreshCatGrid();
+                                    refreshGrid();
+                                }
+                            });
+                        }
+
+                    }
+                });
+
+                CatGrid = advancedEditWinLayout.cells("b").attachGrid();
+                CatGrid.setHeader("Category,Static,Calculated,&nbsp;,&nbsp;");
+                CatGrid.setInitWidths("*,70,70,35,35");
+                CatGrid.setColAlign("left,left,left,right,right");
+                CatGrid.setColTypes("edtxt,ra_str,ra_str,img,img");
+                CatGrid.setColSorting("str,str,str,str,str");
+                CatGrid.enableAlterCss("even", "uneven");
+                CatGrid.enableRowsHover(true, 'grid_hover');
+                CatGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxgrid_' + dhtmlxSkin + '/');
+                CatGrid.setIconsPath("{!URLFOR($Resource.DHTMLX, '/customIcons/')}");
+                CatGrid.init();
+
+                refreshCatGrid();
+
+                CatGrid.attachEvent("onEditCell", function (stage, rId, cInd, nValue, oValue) {
+
+                    if (stage == 2) {
+                        if (jsFinCats.some(e => e.Name === nValue) && nValue != oValue) {
+                            dhtmlx.message({
+                                type: "alert-error",
+                                text: 'Category ' + nValue + ' already exists.'
+                            });
+                            return false;
+                        } else {
+                            FinancialsFeatureDHTMLXController.setCategoryName(rId, nValue, function (result2, event) {
+                                if (event.type == 'exception') {
+                                    alert(event.message);
+                                } else {
+                                    refreshGrid();
+                                }
+                            });
+                        }
+                    }
+                    return true;
+                });
+
+                CatGrid.attachEvent("onRowSelect", function (rowId, ind) {
+                    console.log(ind);
+                    if (ind == 3) {
+                        CatGrid.selectCell(CatGrid.getRowIndex(rowId), 0);
+                        CatGrid.editCell();
+                    } else if (ind == 4) {
+                        dhtmlx.confirm("Deleting category will delete all line items in it. Proceed?", function (result) {
+                            if (result) {
+                                FinancialsFeatureDHTMLXController.deleteCategory(rowId, function (result2, event) {
+                                    if (event.type == 'exception') {
+                                        alert(event.message);
+                                    } else {
+                                        CatGrid.deleteRow(rowId);
+                                        refreshGrid();
+                                    }
+                                });
+                            }
+                        });
+                    }
+
+                });
+
+                CatGrid.attachEvent("onCheckbox", function (id, index, mode) {
+                    console.log(index);
+                    let cat = index == 1 ? 'Static' : 'Calculated';
+                    FinancialsFeatureDHTMLXController.setCatData(id, cat, function (result, event) {
+                        if (event.type == 'exception') {
+                            alert(event.message);
+                        } else {
+                            dhtmlx.message({
+                                text: 'Category updated successfully.'
+                            });
+                            refreshGrid();
+                        }
+                    });
+                });
+
+
+
+            }
+
+            function refreshCatGrid() {
+                FinancialsFeatureDHTMLXController.getCatGridData(recordId, function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        var data = result;
+                        data = ($('<div>').html(data).text());
+                        console.log(data);
+                        CatGrid.clearAll();
+                        CatGrid.parse(data, "json");
+
+                    }
+                });
+            }
+
             function openAccountWindow(accId) {
-                var title = 'New Chart of Accounts';
+                var title = 'New Line Item';
 
                 if (accId != null) {
-                    title = 'Edit ' + CapSharesGrid.cells(accId, 0).getValue().split("^")[0];
+                    title = 'Edit ' + CapSharesGrid.cells(accId, 1).getValue().split("^")[0];
                 }
                 var dhxWins = new dhtmlXWindows();
                 dhxWins.attachViewportTo("body");
                 dhxWins.setSkin(lSkin);
-                advancedEditWin = dhxWins.createWindow("w1", 10, 10, 500, 240);
+                advancedEditWin = dhxWins.createWindow("w1", 10, 10, 500, 310);
                 advancedEditWin.setText(title);
                 advancedEditWin.center();
                 advancedEditWin.setModal(true);
@@ -512,16 +814,32 @@
                 advancedEditWinLayout.setSkin(lSkin);
                 advancedEditWinLayout.cells("a").hideHeader();
 
+                let cats = [];
+                let selectedValue = '';
+
+                for (let cat of jsFinCats) {
+                    let val = { id: cat.Id, type: cat.Type__c, label: cat.Name };
+                    cats.push({ value: JSON.stringify(val), text: cat.Name });
+                    if (accId != null && cat.Id == CapSharesGrid.getUserData(accId, "CatId")) {
+                        selectedValue = JSON.stringify(val);
+                    }
+                }
+
+
                 var formContent = [{
                     type: "block", list: [
                         { type: "settings", position: "label-left", labelWidth: 160, inputWidth: 220 },
-                        { type: "input", name: "Name", label: "Chart of Accounts Name", offsetTop: 10, required: true, value: accId != null ? CapSharesGrid.cells(accId, 0).getValue().split("^")[0] : '' },
-                        { type: "select", name: "Category", id: "Category", label: "Category", value: accId != null ? CapSharesGrid.cells(accId, 1).getValue() : "", required: true, options: [{ value: "Revenue", text: "Revenue" }, { value: "Expense", text: "Expense" }, { value: "Metric", text: "Metric" }, { value: "Other", text: "Other" }] },
+                        { type: "input", name: "Numb", label: "Sequence Number", offsetTop: 10, value: accId != null ? CapSharesGrid.cells(accId, 0).getValue() : '' },
+                        { type: "input", name: "Name", label: "Line Item Name", required: true, value: accId != null ? CapSharesGrid.cells(accId, 1).getValue().split("^")[0] : '' },
+                        { type: "select", name: "Category", id: "Category", label: "Category", value: accId != null ? selectedValue : "", required: true, options: cats },
+                        { type: "select", name: "Type", id: "Type", label: "Data Type", value: accId != null ? CapSharesGrid.getUserData(accId, "Type") : "", required: true, options: [{ value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Date", label: "Date" }, { value: "Text", label: "Text" }] },
                         {
-                            type: "input", className: "formulaInput", name: "Formula", label: "Formula", rows: 3, hidden: (accId != null && CapSharesGrid.cells(accId, 1).getValue() == 'Metric') ? false : true,
-                            required: (accId != null && CapSharesGrid.cells(accId, 1).getValue() == 'Metric') ? true : false,
+                            type: "input", className: "formulaInput", name: "Formula", label: "Formula", rows: 3, hidden: (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated') ? false : true,
+                            required: (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated') ? true : false,
                             value: (accId != null) ? CapSharesGrid.getUserData(accId, "Formula") : '',
                         },
+                        { type: "checkbox", label: "Internal Only", name: "InternalOnly", id: "InternalOnly", checked: (accId != null) ? CapSharesGrid.getUserData(accId, "InternalOnly") : false },
+                        { type: "select", label: "Show on Graph", name: "ShowOnGraph", id: "ShowOnGraph", value: (accId != null) ? CapSharesGrid.getUserData(accId, "ShowOnGraph") : 'None', options: [{ value: "None", label: "None" }, { value: "Bar Graph", label: "Bar Graph" }, { value: "Line Graph", label: "Line Graph" }] }
                     ]
                 },
 
@@ -530,22 +848,45 @@
 
                 tribute.attach(document.querySelectorAll('.formulaInput textarea'));
 
+                if (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated') {
+                    advancedEditWinForm.reloadOptions("Type", [
+                        { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }
+                    ]);
+                }
+
                 advancedEditWinForm.attachEvent("onButtonClick", function (name) {
                     if (advancedEditWinForm.validate() && name == 'save') {
-                        saveMetric(advancedEditWinForm, advancedEditWin, accId);
+                        if (accId && CapSharesGrid.getUserData(accId, "DefaultLI")) {
+                            var isConfirmed = confirm("This is a default Line Item that is required to be present on all accounts. Are you sure you want to update it?");
+                            if (isConfirmed) {
+                                saveMetric(advancedEditWinForm, advancedEditWin, accId);
+                            }
+                        } else {
+                            saveMetric(advancedEditWinForm, advancedEditWin, accId);
+                        }
+
                     } else if (name == 'cancel') {
                         advancedEditWin.close();
                     }
                 });
 
+
+
                 advancedEditWinForm.attachEvent("onChange", function (name, value, state) {
+                    console.log(value);
                     if (name == 'Category') {
-                        if (value == 'Metric') {
+                        if (JSON.parse(value).type == 'Calculated') {
                             advancedEditWinForm.showItem('Formula');
                             advancedEditWinForm.setRequired('Formula', true);
+                            advancedEditWinForm.reloadOptions("Type", [
+                                { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }
+                            ]);
                         } else {
                             advancedEditWinForm.hideItem('Formula');
                             advancedEditWinForm.setRequired('Formula', false);
+                            advancedEditWinForm.reloadOptions("Type", [
+                                { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Date", label: "Date" }, { value: "Text", label: "Text" }
+                            ]);
                         }
                     }
                     return true;
@@ -554,12 +895,264 @@
 
             }
 
+
+            function showFinancialReportRequestWindow() {
+                var dhxWins = new dhtmlXWindows();
+                dhxWins.attachViewportTo("body");
+                dhxWins.setSkin(lSkin);
+                advancedEditWin = dhxWins.createWindow("w1", 0, 0, 600, 455);
+
+                /*let today = new Date();
+                let quarter = 'Q' + Math.floor((today.getMonth() + 3) / 3) + ', ' + today.getFullYear();*/
+                let title = 'Complete Financial Report for ' + quarter;
+                advancedEditWin.setText('Financial Report');
+
+
+                advancedEditWin.center();
+                advancedEditWin.setModal(true);
+                advancedEditWin.button("park").hide();
+                advancedEditWin.button("minmax").hide();
+                FinancialReportRequestWinLayout = advancedEditWin.attachLayout("1C");
+                FinancialReportRequestWinLayout.setSkin(lSkin);
+                FinancialReportRequestWinLayout.cells("a").hideHeader();
+
+                let inputs = [];
+                var currentCat;
+                var currentCatNumber = 1;
+                var totalCats = 1;
+                var catMap = new Map();
+                var catSet = new Set();
+                var count = 0;
+
+                CapSharesGrid.forEachRow(function (id) {
+                    if (CapSharesGrid.getUserData(id, "CatType") != 'Calculated') {
+
+
+                        count++;
+
+                        if (!currentCat) {
+                            currentCat = CapSharesGrid.getUserData(id, "CatName");
+
+                        }
+                        let inp = {};
+                        inp.type = "input";
+                        if (CapSharesGrid.getUserData(id, "Type") == 'Date') {
+                            inp.type = "calendar";
+                            inp.dateFormat = "%m-%d-%y";
+                            inp.serverDateFormat = "%Y-%m-%d";//%m-%d-%y
+                            inp.style = "text-align: right;";
+                        } else if (CapSharesGrid.getUserData(id, "Type") == 'Currency' || CapSharesGrid.getUserData(id, "Type") == 'Percentage' || CapSharesGrid.getUserData(id, "Type") == 'Number') {
+                            inp.style = "text-align: right;";
+                        }
+
+                        inp.label = CapSharesGrid.cells(id, 1).getValue().split("^")[0];
+                        inp.name = "input" + CapSharesGrid.getUserData(id, "CatName") + '-cut-' + id + '-cut-' + CapSharesGrid.getUserData(id, "Type");
+                        inp.id = "input" + CapSharesGrid.getUserData(id, "CatName") + '-cut-' + id + '-cut-' + CapSharesGrid.getUserData(id, "Type");
+                        if (currentQuarterColNumber) inp.value = CapSharesGrid.cells(id, currentQuarterColNumber).getValue();
+                        //inp.required = true;
+                        inp.width = 200;
+                        inp.offsetLeft = 83;
+                        inp.offsetTop = 20;
+                        inp.labelWidth = 170;
+                        inp.numberFormat = "0,000";
+                        inp.validate = "ValidNumeric";
+                        //console.log(CapSharesGrid.cells(id, 2).getValue());
+                        //console.log(CapSharesGrid.getUserData(id, "CatName"));
+                        if (currentCat != CapSharesGrid.getUserData(id, "CatName")) {
+                            inp.hidden = true;
+
+                            //totalCats++;
+                        }
+                        catSet.add(CapSharesGrid.getUserData(id, "CatName"));
+                        //catMap.set(totalCats, CapSharesGrid.cells(id, 1).getValue());
+
+                        inputs.push(inp);
+                    }
+                });
+
+                totalCats = catSet.size + 1;
+
+                let titleInit = title + '<span style="float:right;"> Step 1 of ' + totalCats + '</span>';
+
+                let i = 1;
+                for (let value of catSet) {
+                    catMap.set(i, value);
+                    i++;
+                }
+                catMap.set(i, 'Upload Documents');
+
+
+                var formContent = [
+                    { type: "label", label: titleInit, offsetLeft: 30, offsetTop: 10, labelWidth: 510, className: "formHeaderLabel", name: "formHeaderLabel" },
+                    { type: "label", label: currentCat, offsetLeft: 30, name: "formCatLabel", className: "formCatLabel" },
+                    { type: "block", list: inputs },
+                    { type: "label", label: "Please upload any documents you may find relevant to your " + quarter + " Financial Report", offsetLeft: 30, name: "uplDocLabel", className: "uplDocLabel", hidden: totalCats > 1 ? true : false },
+                    { type: "container", name: "HTMLcontainer", id: "HTMLcontainer", inputWidth: 500, inputHeight: 65, hidden: totalCats > 1 ? true : false },
+                    { type: "container", name: "HTMLcontainer2", id: "HTMLcontainer2", offsetLeft: 30, inputWidth: 500, inputHeight: "auto", hidden: totalCats > 1 ? true : false },
+                    {
+                        type: "block", list: [
+                            { type: "button", name: "back", value: "Back", offsetTop: 10, width: 80, offsetLeft: 180, disabled: true },
+                            { type: "newcolumn" },
+                            { type: "button", name: "continue", value: "Continue", offsetTop: 10, width: 80, offsetLeft: 20, hidden: totalCats == 1 ? true : false },
+                            { type: "newcolumn" },
+                            { type: "button", name: "finish", value: "Submit", offsetTop: 10, width: 80, offsetLeft: 20, hidden: totalCats > 1 ? true : false },
+                        ]
+                    }
+                ];
+
+                var advancedEditWinForm = FinancialReportRequestWinLayout.cells("a").attachForm(formContent);
+
+                var container = advancedEditWinForm.getContainer("HTMLcontainer");
+                var inpFile = document.createElement('input');
+                inpFile.setAttribute("type", "file");
+                inpFile.setAttribute("name", "files[]");
+                inpFile.setAttribute("id", "file");
+                inpFile.setAttribute("multiple", "multiple");
+
+
+                var dragDiv = document.createElement('div');
+                dragDiv.setAttribute("id", "dragDiv");
+                dragDiv.innerHTML = "<b>Choose a file</b> or drop files here.";
+                dragDiv.appendChild(inpFile);
+                container.appendChild(dragDiv);
+
+                var container2 = advancedEditWinForm.getContainer("HTMLcontainer2");
+                var dragDiv2 = document.createElement('div');
+                dragDiv2.setAttribute("id", "userDocs");
+                container2.appendChild(dragDiv2);
+
+                refreshUserFiles();
+
+                $('#file').on("change", function (e) { drop(e); });
+
+                dragDiv.addEventListener("dragenter", function (e) {
+                    dragDiv.style.background = '#ece8e8';
+                }, true);
+
+                dragDiv.addEventListener("dragleave", function (e) {
+                    dragDiv.style.background = 'white';
+                }, true);
+
+                dragDiv.addEventListener("dragover", function (e) {
+                    e = e || event;
+                    e.preventDefault();
+                }, true);
+
+                dragDiv.addEventListener("drop", function (e) {
+                    e = e || event;
+                    e.preventDefault();
+                    drop(e);
+                    dragDiv.style.background = 'white';
+                }, true);
+
+
+                advancedEditWinForm.attachEvent("onKeyUp", function (inp, ev, name, value) {
+                    let type = name.split('-cut-')[2];
+                    if (type == 'Currency' || type == 'Percentage' || type == 'Number') {
+                        advancedEditWinForm.setItemValue(name, advancedEditWinForm.getItemValue(name).replace(/[^\d.-]/g, ''));
+                    }
+                });
+
+
+                function formChange() {
+                    console.log('formCh');
+                    //alert(catMap.get(currentCatNumber));
+                    advancedEditWinForm.setItemLabel("formCatLabel", catMap.get(currentCatNumber));
+                    advancedEditWinForm.setItemLabel("formHeaderLabel", title + '<span style="float:right;"> Step ' + currentCatNumber + ' of ' + totalCats + '</span>');
+                    advancedEditWinForm.forEachItem(function (name) {
+                        if (name.includes('input') && !name.includes(catMap.get(currentCatNumber))) {
+                            advancedEditWinForm.hideItem(name);
+                        } else if (name.includes('input') && name.includes(catMap.get(currentCatNumber))) {
+                            advancedEditWinForm.showItem(name);
+                        }
+                    });
+
+                    if (currentCatNumber == totalCats) {
+                        advancedEditWinForm.showItem("uplDocLabel");
+                    } else {
+                        advancedEditWinForm.hideItem("uplDocLabel");
+                    }
+                }
+
+                advancedEditWinForm.attachEvent("onButtonClick", function (name) {
+
+                    if (name == 'continue') {
+
+                        currentCatNumber++;
+                        formChange();
+                        if (currentCatNumber == totalCats) {
+                            advancedEditWinForm.hideItem("continue");
+                            advancedEditWinForm.showItem("finish");
+                            advancedEditWinForm.showItem("HTMLcontainer");
+                            advancedEditWinForm.showItem("HTMLcontainer2");
+                        } else {
+                            advancedEditWinForm.hideItem("finish");
+                            advancedEditWinForm.showItem("continue");
+                            advancedEditWinForm.hideItem("HTMLcontainer");
+                            advancedEditWinForm.hideItem("HTMLcontainer2");
+                        }
+                        advancedEditWinForm.enableItem("back");
+                    } else if (name == 'back') {
+                        currentCatNumber--;
+                        formChange();
+                        advancedEditWinForm.hideItem("finish");
+                        advancedEditWinForm.hideItem("HTMLcontainer");
+                        advancedEditWinForm.hideItem("HTMLcontainer2");
+                        advancedEditWinForm.showItem("continue");
+                        if (currentCatNumber == 1) {
+                            advancedEditWinForm.disableItem("back");
+
+                        } else {
+                            advancedEditWinForm.enableItem("back");
+
+                        }
+                    } else if (name == 'finish') {
+                        var fins = [];
+                        advancedEditWinForm.forEachItem(function (name) {
+                            if (name.includes('input')) {
+                                var fin = {};
+                                let type = name.split('-cut-')[2];
+                                console.log(type);
+                                fin.Chart_of_Accounts__c = name.split('-cut-')[1];
+                                fin.Report_Period__c = currentQuarterColNumber ? jsRounds[currentQuarterColNumber - 3].Id : quarter;
+                                if (type == 'Currency' || type == 'Percentage' || type == 'Number') {
+                                    fin.Value__c = isNaN(advancedEditWinForm.getItemValue(name)) ? 0 : Number(advancedEditWinForm.getItemValue(name));
+                                } else if (type == 'Date') {
+                                    fin.DateValue__c = advancedEditWinForm.getItemValue(name) ? Date.parse(advancedEditWinForm.getItemValue(name, true)) : 0;
+                                } else if (type == 'Text') {
+                                    fin.TextValue__c = advancedEditWinForm.getItemValue(name);
+                                }
+                                fins.push(fin);
+                            }
+                        });
+                        console.log(fins);
+
+                        FinancialsFeatureDHTMLXController.saveFinancialReport(fins, recordId, function (result, event) {
+                            if (event.type == 'exception') {
+                                alert(event.message);
+                            } else {
+                                dhtmlx.message({
+                                    text: ' Financial Report updated successfully.'
+                                });
+                                advancedEditWin.close();
+                                refreshGrid();
+                            }
+                        });
+
+
+
+                    } else if (name == 'cancel') {
+                        advancedEditWin.close();
+                    }
+                });
+            }
+
             function openEditPeriodWindow(rp) {
                 console.log(rp);
                 var dhxWins = new dhtmlXWindows();
                 dhxWins.attachViewportTo("body");
                 dhxWins.setSkin(lSkin);
-                advancedEditWin = dhxWins.createWindow("w1", 0, 0, 400, 155);
+                advancedEditWin = dhxWins.createWindow("w1", 0, 0, 400, 195);
 
                 if (rp) {
                     advancedEditWin.setText("Edit Period");
@@ -575,8 +1168,15 @@
                 advancedEditWinLayout.setSkin(lSkin);
                 advancedEditWinLayout.cells("a").hideHeader();
 
+                //console.log(rp.dataset.fdate);
 
-                var formContent = [{ type: "block", list: [{ type: "calendar", label: "Date", name: 'date', value: rp ? rp.dataset.fdate : '', required: true, skin: lSkin, dateFormat: "%Y-%m-%d", width: 240, offsetLeft: 40, offsetTop: 20 }] },
+                var formContent = [{
+                    type: "block", list: [
+                        { type: "calendar", label: "Date", name: 'date', value: (rp && rp.dataset.fdate ? rp.dataset.fdate : ''), skin: lSkin, dateFormat: "%Y-%m-%d", width: 240, labelWidth: 50, offsetLeft: 20, offsetTop: 20 },
+                        { type: "input", label: "Quarter", name: 'quarter', value: rp ? rp.dataset.fquat : '', skin: lSkin, width: 240, labelWidth: 50, offsetLeft: 20, offsetTop: 20 }
+
+                    ]
+                },
                 { type: "block", list: [{ type: "button", name: "save", value: "Save", offsetTop: 10, width: 80, offsetLeft: 90 }, { type: "newcolumn" }, { type: "button", name: "cancel", value: "Cancel", offsetTop: 10, width: 80, offsetLeft: 20 }] }
                 ];
 
@@ -584,11 +1184,30 @@
 
 
                 advancedEditWinForm.attachEvent("onButtonClick", function (name) {
-                    if (advancedEditWinForm.validate() && name == 'save') {
-                        let current_datetime = new Date(advancedEditWinForm.getItemValue('date'));
-                        let formatted_date = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
-                        var request = { Date__c: formatted_date };
-                        saveBoard(request, advancedEditWin, rp);
+                    if (name == 'save') {
+                        console.log(advancedEditWinForm.getItemValue('date'));
+                        console.log(advancedEditWinForm.getItemValue('quarter'));
+                        if (!advancedEditWinForm.getItemValue('date') && !advancedEditWinForm.getItemValue('quarter')) {
+                            dhtmlx.message({
+                                type: "alert-error",
+                                text: "Date or Quarter needs to be fiiled."
+                            });
+                        } else {
+                            var request = {};
+                            if (advancedEditWinForm.getItemValue('date')) {
+                                let current_datetime = new Date(advancedEditWinForm.getItemValue('date'));
+                                let formatted_date = current_datetime.getFullYear() + "-" + (current_datetime.getMonth() + 1) + "-" + current_datetime.getDate();
+                                request.Date__c = formatted_date;
+                            } else {
+                                request.Date__c = null;
+                            }
+                            if (advancedEditWinForm.getItemValue('quarter')) {
+                                request.Quarter__c = advancedEditWinForm.getItemValue('quarter');
+                            } else {
+                                request.Quarter__c = null;
+                            }
+                            saveBoard(request, advancedEditWin, rp);
+                        }
 
                     } else if (name == 'cancel') {
                         advancedEditWin.close();
@@ -602,7 +1221,7 @@
                 dhxWins.attachViewportTo("body");
                 dhxWins.setSkin(lSkin);
                 advancedEditWin = dhxWins.createWindow("w1", 0, 0, 400, 155);
-                advancedEditWin.setText("Save as Chart of Accounts Template");
+                advancedEditWin.setText("Save as Line Items Template");
                 advancedEditWin.center();
                 advancedEditWin.setModal(true);
                 advancedEditWin.button("park").hide();
@@ -612,9 +1231,11 @@
                 advancedEditWinLayout.cells("a").hideHeader();
 
 
+
+
                 var formContent = [{
                     type: "block", list: [{
-                        // type: "input", label: "Name", name: 'Name', value: accName + ' Chart of Accounts', required: true, skin: lSkin, width: 240, offsetLeft: 40, offsetTop: 20 
+                        // type: "input", label: "Name", name: 'Name', value: accName + ' Line Items', required: true, skin: lSkin, width: 240, offsetLeft: 40, offsetTop: 20 
                         type: "combo", label: "Name", className: "searchDropdown", required: true, inputWidth: 275, labelWidth: 50, offsetLeft: 40, name: "Name", filtering: true, offsetLeft: 0, offsetTop: 20
                     }]
                 },
@@ -630,10 +1251,10 @@
                         alert(event.message);
                     } else {
                         dhxCombo.load($('<div>').html(result).text());
-                        if (dhxCombo.getOptionByLabel(accName + ' Chart of Accounts') != null) {
-                            dhxCombo.setComboValue(dhxCombo.getOptionByLabel(accName + ' Chart of Accounts').value);
+                        if (dhxCombo.getOptionByLabel(accName + ' Line Items') != null) {
+                            dhxCombo.setComboValue(dhxCombo.getOptionByLabel(accName + ' Line Items').value);
                         } else {
-                            dhxCombo.setComboText(accName + ' Chart of Accounts');
+                            dhxCombo.setComboText(accName + ' Line Items');
                         }
 
                     }
@@ -702,7 +1323,7 @@
                 dhxWins.attachViewportTo("body");
                 dhxWins.setSkin(lSkin);
                 advancedEditWin = dhxWins.createWindow("w1", 0, 0, 600, 350);
-                advancedEditWin.setText("Apply Chart of Accounts Template");
+                advancedEditWin.setText("Apply Line Items Template");
                 advancedEditWin.center();
                 advancedEditWin.setModal(true);
                 advancedEditWin.button("park").hide();
@@ -718,6 +1339,11 @@
                 advancedEditWinLayout.cells("a").fixSize(true, false);
                 advancedEditWinLayout.cells("b").fixSize(true, false);
                 advancedEditWinLayout.cells("c").fixSize(true, true);
+
+                advancedEditWinLayout.forEachItem(function (cell) {
+                    // actions, for example:         
+                    cell.cell.classList.add("blueLayout");
+                });
 
                 var templGrid = advancedEditWinLayout.cells("a").attachGrid();
 
@@ -844,9 +1470,10 @@
                 Layout.cells("a").progressOn();
                 FinancialsFeatureDHTMLXController.getCapTableData(recordId, function (result, event) {
                     if (event.type == 'exception') {
-                        alert(event.message);
+                        alert('Financials are only available for Fintech Portal users. As an internal Salesforce user, please go to the Account Detail page to see Financials');
                     } else {
                         var data = result;
+                        console.log(data);
                         isCommunity = data.isCommunity;
                         isAllowEditing = data.allowEditByCommUser;
                         recordId = data.accId;
@@ -862,35 +1489,40 @@
                             Toolbar.setItemState("AllowEdits", true, false);
                         }
                         if (isAllowEditing || !isCommunity) {
+                            //Toolbar.showItem("Import");
                             Toolbar.showItem("new_board_meeting");
                             Toolbar.showItem("new_metric");
                             Toolbar.showItem("sep1");
                         }
+                        if (!isCommunity && data.RTname == 'Portfolio Company') {
+                            Toolbar.showItem("requestFinReport");
+                        }
 
                         jsRounds = data.rounds;
+                        jsFinCats = data.fins;
                         console.log(data);
 
                         try { CapSharesGrid.destructor(); } catch (e) { }
                         CapSharesGrid = Layout.cells("a").attachGrid();
 
-                        var TableHeaders = 'Chart of Accounts,Category';
+                        var TableHeaders = '#,Line Items,Category';
 
-                        var TableWidths = '200,""';
-                        var TableAligns = 'left,left';
-                        var TableColTypes = 'link,rotxt';
-                        var TableColSorting = 'str,str';
+                        var TableWidths = '30,200,""';
+                        var TableAligns = 'left,left,left';
+                        var TableColTypes = 'rotxt,link,rotxt';
+                        var TableColSorting = 'str,str,str';
                         //var SerializableColumns = 'true';
-                        var TotalRevenueFooter = 'Total Revenue,';
-                        var TotalExpenseFooter = 'Total Expenses,';
+                        var TotalRevenueFooter = ',Total Revenue,';
+                        var TotalExpenseFooter = ',Total Expenses,';
                         var TotalRevenueFooterStyles = ["color:#04844b", "color:#04844b"];
                         var TotalExpenseFooterStyles = ["color:#ff9a3c", "color:#ff9a3c"];
-                        var Groupings = ["#title"];
+                        var Groupings = ["", "#title"];
 
                         var i = 1;
                         var rowTotalCol = '';
 
                         rowTotalCol = 'ron[=';
-                        CapSharesGrid.setMathRound(0);
+                        //CapSharesGrid.setMathRound(0);
 
 
                         exportHeaderLabels = 'Metric,Category';
@@ -911,15 +1543,21 @@
 
 
 
+
                         for (let item of data.rounds) {
 
                             //SerializableColumns += ',true';
-                            let current_datetime = new Date(item.Date__c);
-                            let formatted_date = pad(current_datetime.getMonth() + 1) + "-" + pad(current_datetime.getDate()) + "-" + current_datetime.getFullYear().toString().substr(-2);
-                            let dhData = current_datetime.getFullYear() + "-" + pad(current_datetime.getMonth() + 1) + "-" + pad(current_datetime.getDate());
+                            let dhData = '';
+                            let formatted_date = '';
+                            if (item.Date__c) {
+                                let current_datetime = new Date(item.Date__c);
+                                formatted_date = pad(current_datetime.getMonth() + 1) + "-" + pad(current_datetime.getDate()) + "-" + current_datetime.getFullYear().toString().substr(-2);
+                                dhData = current_datetime.getFullYear() + "-" + pad(current_datetime.getMonth() + 1) + "-" + pad(current_datetime.getDate());
+                            }
+                            item.Quarter__c = item.Quarter__c ? item.Quarter__c.replaceAll(",", "\\,") : '';
 
-                            TableHeaders += ',' + '<div style="width:100%; text-align:left;position: absolute;height: 100%;" onmouseenter="showRoundTooltip(this)" onmouseleave="hideRoundTooltip(this)" data-fdate="' + dhData + '" id="' + item.Id + '">' + formatted_date;
-                            exportHeaderLabels += ',' + formatted_date;
+                            TableHeaders += ',' + '<div style="width:100%; text-align:left;position: absolute;height: 100%;" onmouseenter="showRoundTooltip(this)" onmouseleave="hideRoundTooltip(this)" data-fquat="' + item.Quarter__c + '"  data-fdate="' + dhData + '" id="' + item.Id + '">' + (item.Quarter__c ? item.Quarter__c : formatted_date);
+                            exportHeaderLabels += ',' + (item.Quarter__c ? ('"' + item.Quarter__c + '"') : formatted_date);
 
                             TableHeaders += '<div id="' + item.Id + '-popup" class="popupDiv" onclick="event.stopPropagation()"><div style="display:inline-block">';
 
@@ -932,7 +1570,7 @@
 
 
                             TableHeaders += '</div></div></div>';
-                            TableWidths += ',70';
+                            TableWidths += ',105';
                             TableAligns += ',left';
 
                             TableColTypes += ',edn';
@@ -940,25 +1578,25 @@
 
                             TableColSorting += ',int';
 
-                            TotalRevenueFooter += ',#stat_sumR';
-                            TotalExpenseFooter += ',#stat_sumE';
+                            //TotalRevenueFooter += ',#stat_sumR';
+                            //TotalExpenseFooter += ',#stat_sumE';
                             TotalRevenueFooterStyles.push("color:#04844b");
                             TotalExpenseFooterStyles.push("color:#ff9a3c");
-                            Groupings.push("#stat_total");
+                            //Groupings.push("#stat_total");
                             i++;
                         }
 
                         GridMenu = new dhtmlXMenuObject();
                         GridMenu.renderAsContextMenu();
                         GridMenu.attachEvent("onClick", GridMenuHandler);
-                        GridMenu.loadStruct('{items:[{id: "DeleteAccount", text: "Delete Account..."},{id: "EditAccount", text: "Edit Account..."}]}');
+                        GridMenu.loadStruct('{items:[{id: "DeleteAccount", text: "Delete Line Item..."},{id: "EditAccount", text: "Edit Line Item..."}]}');
 
                         if (!isCommunity || (isCommunity && isAllowEditing)) {
                             CapSharesGrid.enableContextMenu(GridMenu);
                         }
                         CapSharesGrid.setHeader(TableHeaders);
 
-
+                        /*
                         //calculation of the total Revenue
                         CapSharesGrid._in_header_stat_sumR = function (tag, index, data) {
                             var calc = function () {
@@ -986,7 +1624,7 @@
                                 return this._aplNF(sumE, 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                             }
                             this._stat_in_header(tag, calc, index, data);
-                        }
+                        }*/
 
                         // set values ofr Total
                         //console.log(TotalRevenueFooterStyles);
@@ -1007,29 +1645,83 @@
                         CapSharesGrid.enableRowsHover(true, 'grid_hover');
                         CapSharesGrid.setImagePath("{!URLFOR($Resource.DHTMLX)}" + '/skins/' + dhtmlxSkin + '/imgs/dhxgrid_' + dhtmlxSkin + '/');
                         CapSharesGrid.init();
+                        CapSharesGrid.setDateFormat("%m-%d-%y", "%Y-%m-%d");
 
                         CapSharesGrid.serializeToCSV(true);
 
-                        for (var i = 0; i < data.rounds.length + 1; i++) {
 
-                            CapSharesGrid.setNumberFormat("0,000", i + 1, ".", ",");
+
+
+
+                        for (var i = 0; i < data.rounds.length + 1; i++) {
+                            try {
+
+                                if (data.rounds[i].Quarter__c && data.rounds[i].Quarter__c.replaceAll('\\', '') === quarter) {
+                                    currentQuarterColNumber = i + 3;
+                                }
+                            } catch (e) { }
+                            //CapSharesGrid.setNumberFormat("0,000", i + 1, ".", ",");
+                            CapSharesGrid.setNumberFormat("$0,000.00", i + 2, ".", ",");
+
 
                         }
                         //CapSharesGrid.clearAll();
                         var res = data.data;
                         res = ($('<div>').html(res).text());
+                        //console.log(res);
                         CapSharesGrid.parse(res, "json");
                         Layout.cells("a").progressOff();
-                        CapSharesGrid.setColumnHidden(1, true);
-                        CapSharesGrid.groupBy(1, Groupings);
+                        CapSharesGrid.setColumnHidden(2, true);
+                        CapSharesGrid.groupBy(2, Groupings);
+
+
+
+
+
+                        CapSharesGrid.forEachRow(function (row_id) {
+                            CapSharesGrid.forEachCell(row_id, function (cellObj, col_index) {
+                                if (col_index > 1) {
+                                    let type = CapSharesGrid.getUserData(row_id, "Type");
+                                    if (type == 'Currency') {
+                                        CapSharesGrid.setCellExcellType(row_id, col_index, "edn");//price
+                                        CapSharesGrid.setNumberFormat("$0,000.00", col_index, ".", ",");
+                                        if (CapSharesGrid.cells(row_id, col_index).getValue() < 0) {
+                                            CapSharesGrid.setCellTextStyle(row_id, col_index, "color:red;text-align:right;");
+                                        } else {
+                                            CapSharesGrid.setCellTextStyle(row_id, col_index, "color:green;text-align:right;");
+                                        }
+                                    } else if (type == 'Number') {
+                                        CapSharesGrid.setCellExcellType(row_id, col_index, "edtxt");
+                                        CapSharesGrid.setCellTextStyle(row_id, col_index, "text-align:right;");
+                                        //CapSharesGrid.setNumberFormat("0,000", col_index, ".", ",");
+                                    } else if (type == 'Percentage') {
+                                        CapSharesGrid.setCellExcellType(row_id, col_index, "perc");
+                                        CapSharesGrid.setCellTextStyle(row_id, col_index, "text-align:right;");
+                                    } else if (type == 'Text') {
+                                        CapSharesGrid.setCellExcellType(row_id, col_index, "edtxt");
+                                    } else if (type == 'Date') {
+                                        CapSharesGrid.setCellExcellType(row_id, col_index, "dhxCalendar");
+                                    }
+                                }
+                            });
+                        });
+
+                        CapSharesGrid.selectCell(selectedCell.rId, selectedCell.cInd);
+
+                        if (/*isAllowEditing && */isCommunity && (window.parent.location.href).includes('showFinancialReportRequest=true') && !doNotShowRFRmodal) {
+                            doNotShowRFRmodal = true;
+                            showFinancialReportRequestWindow();
+                        }
 
 
                         CapSharesGrid.attachEvent("onCellChanged", function (rId, cInd, nValue) {
                             CapSharesGrid.callEvent("onGridReconstructed", []);
+
                         });
 
                         CapSharesGrid.attachEvent("onRowDblClicked", function (rId, cInd) {
-                            if ((!isCommunity || (isCommunity && isAllowEditing)) && (CapSharesGrid.cells(rId, 1).getValue() != 'Metric')) {
+
+                            if ((!isCommunity || (isCommunity && isAllowEditing)) && (CapSharesGrid.getUserData(rId, "CatType") != 'Calculated')) {
                                 return true;
                             }
                             return false;
@@ -1037,16 +1729,30 @@
 
                         CapSharesGrid.attachEvent("onEditCell", function (stage, rId, cInd, nValue, oValue) {
                             console.log(stage, rId, cInd, nValue, oValue);
-                            setDollarAmmount(stage, rId, cInd, nValue, oValue);
-                            if (stage == 1) {
+                            console.log(CapSharesGrid.getUserData(rId, "Type"));
+
+                            if (stage == 1 && this.editor.obj && cInd != 0 && CapSharesGrid.getUserData(rId, "Type") != 'Date') {
+                                this.editor.obj.select();
                                 this.editor.obj.onkeypress = function (e) {  //editor area
-                                    var ValidChars = "0123456789";
-                                    if (ValidChars.indexOf((String.fromCharCode((e || event).keyCode))) == -1)
-                                        return false;//allow
-                                    else
-                                        return true; //deny
+                                    var ValidChars = "-0123456789.";
+                                    var ValidCharsPerc = "0123456789";
+                                    if (CapSharesGrid.getUserData(rId, "Type") == 'Currency' || CapSharesGrid.getUserData(rId, "Type") == 'Number') {
+                                        if (ValidChars.indexOf((String.fromCharCode((e || event).keyCode))) == -1)
+                                            return false;//allow
+                                        else
+                                            return true; //deny
+                                    }
+                                    if (CapSharesGrid.getUserData(rId, "Type") == 'Percentage') {
+                                        if (ValidCharsPerc.indexOf((String.fromCharCode((e || event).keyCode))) == -1)
+                                            return false;//allow
+                                        else
+                                            return true; //deny
+                                    }
                                 }
                                 return true;
+                            } else if (stage == 2) {
+                                selectedCell = { rId: CapSharesGrid.getRowIndex(rId), cInd: cInd };
+                                setDollarAmmount(stage, rId, cInd, nValue, oValue);
                             }
                             return true;
                         });
@@ -1055,7 +1761,11 @@
 
                         CapSharesGrid.attachEvent("onBeforeContextMenu", function (id, ind) {
                             CapSharesGrid.selectRowById(id, true);
-                            if (ind != 0) {
+                            if (CapSharesGrid.getUserData(id, "DefaultLI") && !isAdminUser) {
+                                return false;
+                            }
+
+                            if (ind != 1) {
                                 GridMenu.hideItem('EditAccount');
                                 GridMenu.hideItem('DeleteAccount');
                             } else {
@@ -1070,6 +1780,127 @@
                     }
                 });
 
+            }
+
+            function drop(evt) {
+                console.log(evt.dataTransfer);
+                if (evt.dataTransfer) { //drag&drop
+
+                    var files = evt.dataTransfer.files;
+                    if (files.length > 0) {
+                        try {
+                            uploadFiles(files);
+                        } catch (error) {
+                            alert('An error occured in sfdc-dragndrop.js: ' + error);
+                        }
+                    }
+                } else {
+                    let file = document.getElementById("file");
+                    console.log(evt.target.files);
+                    if (evt.target.files.length > 0) {
+                        try {
+                            uploadFiles(evt.target.files);
+                        } catch (error) {
+                            alert('An error occured in sfdc-dragndrop.js: ' + error);
+                        }
+                    }
+                }
+
+            }
+
+            function uploadFiles(files) {
+                var count = files.length;
+                var filesIds = [];
+                for (var index = 0, file; file = files[index]; index++) {
+                    var reader = new FileReader();
+
+                    reader.onloadend =
+                        (function (file) {
+                            return function (evt) {
+                                try {
+                                    FinancialReportRequestWinLayout.cells("a").progressOn();
+                                    FinancialsFeatureDHTMLXController.prepareDocumentForUpload(file.name, recordId, quarter, function (result, event) {
+                                        if (event.type == 'exception') {
+                                            dhtmlx.message({
+                                                type: "error",
+                                                text: event.message,
+                                                expire: 5000,
+                                            });
+                                            FinancialReportRequestWinLayout.cells("a").progressOff();
+                                        } else {
+
+                                            client.createBlob('ContentVersion', {
+                                                Origin: 'C',
+                                                PathOnClient: file.name,
+                                                FirstPublishLocationId: result
+                                            }, file.name, 'VersionData', file, function (response) {
+                                                filesIds.push(result);
+                                                if (!--count) {
+                                                    FinancialReportRequestWinLayout.cells("a").progressOff();
+                                                    refreshUserFiles();
+
+                                                }
+                                            }, function (request, status, response) { },
+                                                function (request, status, response) { },
+                                                (communityName ? communityName : null));
+                                        }
+                                    });
+                                } catch (e) {
+                                    dhtmlx.message({
+                                        type: "alert-error",
+                                        text: file.name + " can't be uploaded. " + e
+                                    });
+                                    //dhtmlx.message.hide("UploadingBox");
+                                }
+
+                            };
+                        })(file);
+
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            function refreshUserFiles() {
+
+                FinancialsFeatureDHTMLXController.getUserFiles(recordId, function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        let files = [];
+                        files = result;
+                        console.log(files);
+                        var userDocsCont = $("#userDocs");
+                        userDocsCont.empty();
+                        for (let f of files) {
+                            var fileDiv = document.createElement('span');
+                            fileDiv.setAttribute("id", f.Id);
+                            fileDiv.className = "UserOrGroupSelected";
+                            fileDiv.innerHTML = '<span>' + f.Name__c + '</span>' + '<a class="UserOrGroupSelected-Badge" onclick="removeDoc(this)">X</a>';
+                            userDocsCont.append(fileDiv);
+                        }
+
+
+                    }
+                });
+
+
+            }
+
+            function deleteChartOfAccounts(id) {
+                FinancialsFeatureDHTMLXController.deleteChartOfAccounts(id, function (result, event) {
+                    if (event.type == 'exception') {
+                        alert(event.message);
+                    } else {
+                        refreshGrid();
+                    }
+                });
+            }
+
+            function removeDoc(d) {
+                $(d).parent().remove();
+                FinancialsFeatureDHTMLXController.removeDocument($(d).parent().attr('id'), function (result, event) {
+
+                });
             }
 
             function hideRoundTooltip(e) {

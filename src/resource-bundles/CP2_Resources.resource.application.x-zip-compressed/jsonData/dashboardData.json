@@ -1,0 +1,32 @@
+{
+	"totalComplete": "5/25",
+	"applicationComplete": "17/21",
+	"approvalComplete" : "2/12",
+	"closingComplete" : "10/13",
+	"issues": "3",
+	"welcomeMsg": "Welcome to the Live Oak Bank Customer Portal",
+	"story1Title": "A few things to know before you get started",
+	"story2Title": "Some quick tips",
+	"bonus1Title": "Did you know?",
+	"bonus1Body": "Most small business loan applications can take up to 4 weeks to process? Live Oak Bank does it in two days. How do we accomplish this magnificent feat? The answer may surprise you! Most small business loan applications can take up to 4 weeks to process? Live Oak Bank does it in two days. How do we accomplish this magnificent feat? The answer may surprise you!",
+	"story1Body": "Mauris sed hendrerit ante. Duis sollicitudin venenatis sem, eu tristique urna eleifend scelerisque. Donec leo velit, facilisis sit amet condimentum nec, auctor ac urna. Vestibulum vitae orci eu turpis lobortis viverra. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean erat lectus, pellentesque nec consectetur tempor, euismod vitae lacus. Suspendisse a metus non risus tempus vehicula. Nam non nulla et lectus aliquet condimentum. Sed vehicula malesuada tellus, id pulvinar libero lacinia porttitor. Etiam massa libero, blandit nec rutrum eu, malesuada eget enim. Sed dui massa, lobortis non dapibus fermentum, pulvinar vel ipsum. Vestibulum malesuada pellentesque lorem a iaculis. Vestibulum varius fringilla erat. Etiam in pulvinar nunc.",
+	"story2Body": "Curabitur rhoncus cursus justo bibendum dictum. In hac habitasse platea dictumst. Nulla felis lacus, feugiat et suscipit a, suscipit in purus. Nam vitae nisl a sapien sagittis ultricies. Phasellus leo velit, suscipit at tincidunt ut, fringilla eu purus. Sed iaculis magna vel risus facilisis vestibulum. In bibendum elementum ante ut mollis. Duis eget felis pulvinar risus mattis egestas ac a ligula. Sed ornare urna vitae ipsum ullamcorper semper. Maecenas euismod dictum mauris ac aliquet. Fusce laoreet metus et leo ornare eu feugiat risus luctus. Cras ullamcorper, lectus eget faucibus venenatis, nibh urna consequat nulla, non tristique lacus massa vel dui. Donec hendrerit urna diam, a gravida magna. Pellentesque imperdiet, nulla pharetra malesuada consectetur, velit justo convallis lectus, nec ornare tellus est id urna. Aenean eu justo erat. Donec dolor lectus, rhoncus nec laoreet nec, egestas non nisi.",
+	"RecentActivity":
+	[
+		{"title": "Taxes Ready"},
+		{"title": "Consectetur adipiscing elit"},	
+		{"title": "Integer molestie lorem at massa"},
+		{"title": "Received the forms"},
+		{"title": "Waiting on attorney"},
+		{"title": "Ready to go"}
+	],
+	"PriorityItems":
+	[
+		{"title": "Taxes Ready"},
+		{"title": "Consectetur adipiscing elit"},	
+		{"title": "Integer molestie lorem at massa"},
+		{"title": "Received the forms"},
+		{"title": "Waiting on attorney"},
+		{"title": "Ready to go"}
+	]
+}

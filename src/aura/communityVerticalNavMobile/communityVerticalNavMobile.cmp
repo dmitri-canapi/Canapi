@@ -5,6 +5,12 @@
     <aura:attribute name="UserHasTags" type="boolean" default="false" />
     <aura:attribute name="CommunityName" type="String" default="" />
     <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="CurrentUser" type="Object"/>
+    <force:recordData recordId="{!$SObjectType.CurrentUser.Id}"
+                  fields="Profile.Name"
+                  targetFields="{!v.CurrentUser}"/>
+    
 
     <div class="slds-grid slds-grid--vertical slds-navigation-list--vertical customNav" onmouseover="{!c.showLabels}"
         onmouseout="{!c.hideLabels}">

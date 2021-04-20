@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>UserContactTag__c$Name</field>
+    </columns>
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$Contact__c.Email</field>
+    </columns>
+    <columns>
+        <field>UserContactTag__c.UserContactTagAssociations__r$Contact__c.Phone</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>UserContactTag__c.UserContactTagAssociations__r$Contact__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>notEqual</operator>
+            <value></value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>UserContactTag__c.UserContactTagAssociations__r$Contact__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Tagged Contacts Report-group by Contact</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Org_Builder_Tagged_Contacts__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>UserContactTag__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>

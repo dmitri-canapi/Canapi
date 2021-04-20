@@ -1,0 +1,18 @@
+{
+    "Institution0": "Gregory",
+    "Institution1": "Wake Forest",
+	"Institution2": "JCRoe",
+    "Institution3": "Lake Forest",   
+	"InstitutionType0": "highschool",
+    "InstitutionType1": "university",
+    "InstitutionType2": "highschool",
+    "InstitutionType3": "university",
+	"EducationDateFrom0": "01/23/1982",
+    "EducationDateFrom1": "01/11/1996",
+	"EducationDateFrom2": "01/23/1982",
+    "EducationDateFrom3": "01/11/1996",   
+	"EducationDateTo0": "01/26/1995",
+    "EducationDateTo1": "01/23/2002",
+    "EducationDateTo2": "01/26/1995",
+    "EducationDateTo3": "01/23/2002"
+}

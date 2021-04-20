@@ -42,6 +42,8 @@
     <filter>
         <criteriaItems>
             <column>Account.Assessments__r$Review_Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>notEqual</operator>
             <value>Complete,Deferred,Approved Complete</value>
         </criteriaItems>
@@ -60,6 +62,8 @@
     <reportType>Account_with_Assessments_and_Review_Items__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <timeFrameFilter>
         <dateColumn>Account$CreatedDate</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>

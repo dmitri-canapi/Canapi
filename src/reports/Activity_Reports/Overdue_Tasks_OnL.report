@@ -24,6 +24,8 @@
     <filter>
         <criteriaItems>
             <column>DUE_DATE</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>lessThan</operator>
             <value>TODAY</value>
         </criteriaItems>
@@ -50,6 +52,8 @@
     <reportType>Activity</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>DUE_DATE</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

@@ -34,6 +34,8 @@
     <reportType>CCCCC__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Account$Name</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

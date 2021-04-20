@@ -1,0 +1,5 @@
+@mixin thick-border {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid $darkColor;
+}

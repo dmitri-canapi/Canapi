@@ -1,0 +1,15 @@
+<template>
+    <lightning-card title="Document Report">
+        <div class="slds-m-around_medium">
+            <lightning-input type="search" onchange={handleKeyChange} label="Filter By Account Name" value={searchKey}>
+            </lightning-input>
+            <lightning-tree-grid columns={gridColumns} data={gridData} key-field="docId" hide-checkbox-column=tru
+                onheaderaction={handleHeaderAction} onrowaction={handleRowAction}>
+            </lightning-tree-grid>
+        </div>
+        <c-paginator onprevious={previousHandler2} onnext={nextHandler2} onselected={changeHandler2}
+            onfirstpage={firstpagehandler} onlastpage={lastpagehandler}></c-paginator>
+    </lightning-card>
+    <br /><br />
+
+</template>

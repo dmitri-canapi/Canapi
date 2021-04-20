@@ -38,12 +38,14 @@ public class CapTableDHTMLXControllerTest {
         CapTableDHTMLXController.setDollarAmount(a.id,round.id,500,'Voting');
         CapTableDHTMLXController.setAllShares(a.id,round.id,500,700);
         system.debug(CapTableDHTMLXController.hasRounds(a.id));
-        CapTableDHTMLXController.addShareholder(a.id,'t e s t - 2019',a.id);
+        CapTableDHTMLXController.addShareholder(null, 't e s t - 2019', null, 'parent - 2021',  a.id);
         CapTableDHTMLXController.getInvestment(a.id,round.id);
         
         CapTableDHTMLXController.deleteSeries (round.Id);
         CapTableDHTMLXController.deleteShareholder (a.Id,a.Id);
         system.debug(CapTableDHTMLXController.getCommunityAccId());
+
+        CapTableDHTMLXController.fetchLookUpValues('test','Account');
         
         
         

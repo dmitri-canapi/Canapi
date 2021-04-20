@@ -39,6 +39,8 @@
     <filter>
         <criteriaItems>
             <column>review_item__c.Review_Item_Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>notEqual</operator>
             <value>Complete,Deferred</value>
         </criteriaItems>
@@ -57,6 +59,8 @@
     <reportType>CustomEntityCustomEntity$Assessment__c$review_item__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <timeFrameFilter>
         <dateColumn>Assessment__c.Review_Date__c</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>

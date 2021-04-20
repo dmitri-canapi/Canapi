@@ -12,6 +12,8 @@
     <filter>
         <criteriaItems>
             <column>Board_Meeting__c.Date__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>LAST_N_DAYS:30</value>
         </criteriaItems>
@@ -25,6 +27,8 @@
     <reportType>AccountCustomEntity$Board_Meeting__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Board_Meeting__c.Date__c</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

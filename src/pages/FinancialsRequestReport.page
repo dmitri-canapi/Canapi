@@ -1,0 +1,73 @@
+<apex:page standardController="Financials_Change_Request__c" extensions="FinancialsRequestReportController" renderAs="pdf"
+    standardStylesheets="false">
+
+
+    <body style="font-family: SansSerif;font-size:14px;">
+        <img src="{!URLFOR($Resource.canapiLogo)}" style="height:90px;" />
+
+        <br/>
+        <div style="font-size:28px;">Financials Change Request</div>
+        <br/>
+        <div style="line-height:30px;">
+            <br/> Date of the change: &nbsp;
+            <apex:outputText value="{0,date,MM'/'dd'/'yyyy HH:MM:SS}">
+                <apex:param value="{!Financials_Change_Request__c.CreatedDate}" />
+            </apex:outputText>
+            <br/> Account: &nbsp;
+            <apex:outputLink value="{!'/'+ Financials_Change_Request__c.Account__c}">{!Financials_Change_Request__c.Account__r.Name}</apex:outputLink>
+            <br/> Requestor - Community User: &nbsp;
+            <apex:outputLink value="{!'/'+ Financials_Change_Request__c.Requestor__c}">{!Financials_Change_Request__c.Requestor__r.Name}</apex:outputLink>
+        </div>
+
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <div style="font-size:24px;">Updated Line Items</div>
+        <table class="gridtable" border="1" cellspacing="0" cellpadding="0" syle="border-collapse:collapse;">
+            <tr style="font-weight:bold;">
+                <td width="310px" style=" padding: 5px;">Line Item</td>
+                <td width="200px" style=" padding: 5px;text-align:right;">Reporting Period</td>
+                <td width="170px" style=" padding: 5px;text-align:right;">Old Value</td>
+                <td width="170px" style="padding: 5px;text-align:right;">New Value</td>
+            </tr>
+            <tbody>
+                <apex:repeat value="{!Verifications}" var="v">
+                    <tr>
+                        <td style="padding: 5px;">{!v.Financials__r.Chart_of_Accounts__r.Name}</td>
+                        <td style=" padding: 5px;text-align:right;">{!v.Financials__r.Report_Period__r.Quarter__c}</td>
+                        <td style=" padding: 5px;text-align:right;">
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Currency',TRUE,FALSE)}" value="{0, Number, Currency}">
+                                <apex:param value="{!v.Value__c}" />
+                            </apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Number',TRUE,FALSE)}" value="{!v.Value__c}"></apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Text',TRUE,FALSE)}" value="{!v.TextValue__c}"></apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Percentage',TRUE,FALSE)}" value="{0, Number, 0}%">
+                                <apex:param value="{!v.Value__c}" />
+                            </apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Date',TRUE,FALSE)}" value="{0,date,MM'/'dd'/'yyyy}">
+                                <apex:param value="{!v.DateValue__c}" />
+                            </apex:outputText>
+
+
+                        </td>
+                        <td style=" padding: 5px;text-align:right;">
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Currency',TRUE,FALSE)}" value="{0, Number, Currency}">
+                                <apex:param value="{!v.Financials__r.Value__c}" />
+                            </apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Number',TRUE,FALSE)}" value="{!v.Financials__r.Value__c}"></apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Text',TRUE,FALSE)}" value="{!v.Financials__r.TextValue__c}"></apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Percentage',TRUE,FALSE)}" value="{0, Number, 0}%">
+                                <apex:param value="{!v.Financials__r.Value__c}" />
+                            </apex:outputText>
+                            <apex:outputText rendered="{!IF(v.Financials__r.Chart_of_Accounts__r.Type__c == 'Date',TRUE,FALSE)}" value="{0,date,MM'/'dd'/'yyyy}">
+                                <apex:param value="{!v.Financials__r.DateValue__c}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                </apex:repeat>
+            </tbody>
+        </table>
+    </body>
+
+</apex:page>

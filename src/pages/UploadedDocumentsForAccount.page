@@ -286,18 +286,22 @@
                     />
                     <span style="height: 100%; vertical-align: middle;">Refresh</span>
                 </div>
-                <div class="btnDiv" id="uploadBtn" onclick="openUploadWindow();openUploadWindow()">
+                <div class="btnDiv" id="uploadBtn">
                     <img style="vertical-align: middle;width: 20px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/plus.png')}" />
-                    <span style="height: 100%; vertical-align: middle;">Upload</span>
+                    <!--span style="height: 100%; vertical-align: middle;">Upload</span-->
+                    <form style="display: inline;">
+                        <label for="fileUpload" class="custom-file-upload">Upload</label>
+                        <input id="fileUpload" type="file" multiple="multiple" style="display: none;" />
+                    </form>
                 </div>
                 <div class="btnDiv" id="reApplyTagsBtn" onclick="reApplyTags()">
                     <img style="vertical-align: middle;width: 20px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/bolt.png')}" />
                     <span style="height: 100%; vertical-align: middle;">Auto Tag</span>
                 </div>
-                <div id="defaultSharingDiv" class="btnDiv" onclick="openDefaultSharing()">
+                <!--div id="defaultSharingDiv" class="btnDiv" onclick="openDefaultSharing()">
                     <img style="vertical-align: middle;width: 20px;" border="0" src="{!URLFOR($Resource.DHTMLX, '/customIcons/gear.png')}" />
                     <span style="height: 100%; vertical-align: middle;">Default Sharing</span>
-                </div>
+                </div-->
                 <div style="display: inline-block;/*width: calc(100% - 300px);*/ width: 340px;" id="drZone">
                     <input type="search" id="mixSearch" autocomplete="off" style="/*margin-left: calc(50% - 100px - 270px);*/ margin: 5px 5px 0px 10px; height: 23px; text-indent: 5px;max-width: 320px;width:100%"
                         placeHolder="Search Documents" onblur="hideSearchResults()" onsearch="clearResults(this)" onkeyup="search(this)"
@@ -344,6 +348,8 @@
                 drop(e);
             }, true);
 
+            $('#fileUpload').on("change", function (e) { drop(e); });
+
             function drop(evt) {
                 /*dhtmlx.message({
                     id:"UploadingBox",
@@ -352,16 +358,30 @@
                 });*/
 
                 if (!readOnlyMode) {
+                    if (evt.dataTransfer) { //drag&drop
 
-                    var files = evt.dataTransfer.files;
-
-                    if (files.length > 0) {
-                        try {
-                            uploadFiles(files);
-                        } catch (error) {
-                            alert('An error occured in sfdc-dragndrop.js: ' + error);
+                        var files = evt.dataTransfer.files;
+                        if (files.length > 0) {
+                            try {
+                                uploadFiles(files);
+                            } catch (error) {
+                                alert('An error occured in sfdc-dragndrop.js: ' + error);
+                            }
+                        }
+                    } else {
+                        let file = document.getElementById("fileUpload");
+                        console.log(evt.target.files);
+                        if (evt.target.files.length > 0) {
+                            try {
+                                uploadFiles(evt.target.files);
+                            } catch (error) {
+                                alert('An error occured in sfdc-dragndrop.js: ' + error);
+                            }
                         }
                     }
+
+
+
                 }
             }
 
@@ -385,6 +405,7 @@
                                                 expire: 5000,
                                             });
                                             myLayout.cells("b").progressOff();
+                                            $("#fileUpload").val('');
                                         } else {
 
                                             client.createBlob('ContentVersion', {
@@ -396,6 +417,8 @@
                                                 if (!--count) {
                                                     uploadComplete();
                                                     shareWithUsers(filesIds);
+                                                    $("#fileUpload").val('');
+
                                                     if (!isCommunity) {
                                                         dhtmlx.message.hide("AllUploadMessage");
                                                         dhtmlx.message({
@@ -460,7 +483,7 @@
             parent.postMessage('setBaseUrl' + '-del-' + document.location.href, url);
 
             window.addEventListener("message", function (event) {
-                if (event.data.includes('RefreshGrid')) {
+                if (event.data && event.data.includes('RefreshGrid')) {
                     filterDocs(null);
                 }
             }, false);
@@ -568,7 +591,7 @@
                         childRecordId = result.acc.Id;
                         AccName = result.acc.Name;
                         AccRecordTypeName = result.acc.RecordType.Name;
-                        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') {
+                        if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)' || AccRecordTypeName == 'Principal') {
                             myLayout.cells("c").expand();
                         }
                         var finalData = [];
@@ -580,7 +603,7 @@
                         var parents = [];
 
                         console.log(AccRecordTypeName);
-                        if (AccRecordTypeName != 'Limited Partner' && AccRecordTypeName != 'Bank' && AccRecordTypeName != 'LP (Individuals)') {
+                        if (AccRecordTypeName != 'Limited Partner' && AccRecordTypeName != 'Bank' && AccRecordTypeName != 'LP (Individuals)' && AccRecordTypeName != 'Principal') {
                             if (result.acc.Opportunities) {
                                 t = [];
                                 t.push('Opportunities');
@@ -614,7 +637,7 @@
                             }
                         }
 
-                        if (result.folders && (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)')) {
+                        if (result.folders && (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)' || AccRecordTypeName == 'Principal')) {
                             var t = [];
                             t.push('Documents');
                             t.push(result.acc.Id);
@@ -631,6 +654,86 @@
                                 }
                                 temp.push(result.folders[i].Name);
                                 finalData.push(temp);
+                            }
+
+                        }
+
+                        if (result.childAccounts.length > 0) {
+                            var t = [];
+                            t.push('RelatedAccounts');
+                            t.push(result.acc.Id);
+                            t.push('Related Accounts');
+                            finalData.push(t);
+                            for (var i = 0; i < result.childAccounts.length; i++) {
+                                var t = [];
+                                t.push(result.childAccounts[i].Id);
+                                t.push('RelatedAccounts');
+                                t.push(result.childAccounts[i].Name + ' (Account)');
+                                finalData.push(t);
+
+
+                                childAccRecordTypeName = result.childAccounts[i].RecordType.Name;
+
+                                //-- child objects
+                                if (childAccRecordTypeName != 'Limited Partner' && childAccRecordTypeName != 'Bank' && childAccRecordTypeName != 'LP (Individuals)' && childAccRecordTypeName != 'Principal') {
+                                    if (result.childAccounts[i].Opportunities) {
+                                        t = [];
+                                        t.push('Opportunities' + '-childAcc-' + result.childAccounts[i].Id);
+                                        t.push(result.childAccounts[i].Id);
+                                        t.push('Deals');
+                                        finalData.push(t);
+
+                                        for (let c of result.childAccounts[i].Opportunities) {
+                                            t = [];
+                                            t.push(c.Id);
+                                            t.push('Opportunities' + '-childAcc-' + result.childAccounts[i].Id);
+                                            t.push(c.Name);
+                                            finalData.push(t);
+                                        }
+                                    }
+
+                                    if (result.childAccounts[i].Board_Meetings__r) {
+                                        t = [];
+                                        t.push('Board_Meetings__r' + '-childAcc-' + result.childAccounts[i].Id);
+                                        t.push(result.childAccounts[i].Id);
+                                        t.push('Board Meetings');
+                                        finalData.push(t);
+                                        parents.push(t);
+                                        for (let c of result.childAccounts[i].Board_Meetings__r) {
+                                            t = [];
+                                            t.push(c.Id);
+                                            t.push('Board_Meetings__r' + '-childAcc-' + result.childAccounts[i].Id);
+                                            t.push(c.Name);
+                                            finalData.push(t);
+                                        }
+                                    }
+                                }
+                                //--
+
+                                //---childaccFolders
+                                if (result.childFolders && (childAccRecordTypeName == 'Limited Partner' || childAccRecordTypeName == 'Bank' || childAccRecordTypeName == 'LP (Individuals)' || childAccRecordTypeName == 'Principal')) {
+                                    var t = [];
+                                    t.push('Documents' + '-childAcc-' + result.childAccounts[i].Id);
+                                    t.push(result.childAccounts[i].Id);
+                                    t.push('Documents');
+                                    finalData.push(t);
+
+                                    for (var k = 0; k < result.childFolders[i].length; k++) {
+                                        var temp = [];
+                                        temp.push(result.childFolders[i][k].Id + '-childAcc-' + result.childAccounts[i].Id);
+                                        if (result.childFolders[i][k].Parent_Folder__c != null) {
+                                            temp.push(result.childFolders[i][k].Parent_Folder__c + '-childAcc-' + result.childAccounts[i].Id);
+                                        } else {
+                                            temp.push('Documents' + '-childAcc-' + result.childAccounts[i].Id);
+                                        }
+                                        temp.push(result.childFolders[i][k].Name);
+                                        finalData.push(temp);
+                                    }
+
+                                }
+
+                                //---------------
+
                             }
 
                         }
@@ -710,17 +813,29 @@
             });
 
             ObjectsTree.attachEvent("onDrag", function (sId, tId, id, sObject, tObject) {
+                console.log('' + sId + tId);
                 if (sObject.fldSort && (!readOnlyMode)) {
-                    if (tId == 'Board_Meetings__r' || tId == 'Contacts' || tId == 'Opportunities' || tId == 'Investment__r' || tId == 'Investments__r' || tId == 'Documents') {
+                    if (tId == 'Board_Meetings__r' || tId == 'Contacts' || tId == 'Opportunities' || tId == 'Investment__r' || tId == 'Investments__r' || tId == 'Documents' || tId.includes('Documents-childAcc-')) {
                         dhtmlx.message({
                             type: "error",
                             text: "Please, move the document(s) to the correct parent object."
+                        });
+                    } else if (ObjectsTreeId.includes('-childAcc-') || ObjectsTreeId == 'RelatedAccounts' || ObjectsTree.getParentId(ObjectsTreeId) == 'RelatedAccounts' ||
+                        tId.includes('-childAcc-') || tId == 'RelatedAccounts' || ObjectsTree.getParentId(tId) == 'RelatedAccounts'
+                    ) {
+                        dhtmlx.message({
+                            type: "error",
+                            text: "You can't move documents between accounts."
                         });
                     } else {
                         if (myGrid.cells(sId, 11).getValue() == 'true') {
                             CustomDocumentController.changeDocumentsParent(sId, tId, function (result, event) {
                                 if (event.type == 'exception') {
-                                    alert(event.message);
+                                    //alert(event.message);
+                                    dhtmlx.message({
+                                        type: "error",
+                                        text: event.message
+                                    });
                                 } else {
                                     dhtmlx.message({
                                         text: "Document " + myGrid.cells(sId, 1).getValue().split("^")[0] + " moved to " + ObjectsTree.getItemText(tId)
@@ -775,6 +890,10 @@
                             filterDocs(null);
                         }
                     });*/
+                } else if (menuitemId == 'hideFolder') {
+                    hideFolder(ObjectsTree.contextID, AccId);
+                } else if (menuitemId == 'showFolders') {
+                    showFolders(AccId);
                 }
             }
 
@@ -1081,6 +1200,12 @@
                     HirrMenu.setItemDisabled("exp_collapse");
                 }
 
+                if (ObjectsTree.getItemIdByIndex(0, 0) == itemId || ObjectsTree.getItemIdByIndex(ObjectsTree.getItemIdByIndex(0, 0), 0) == itemId || itemId == 'RelatedAccounts' || itemId.includes('Documents-childAcc-') || ObjectsTree.getParentId(itemId) == 'RelatedAccounts') {
+                    HirrMenu.setItemDisabled("hideFolder");
+                } else {
+                    HirrMenu.setItemEnabled("hideFolder");
+                }
+
                 return true;
             });
 
@@ -1347,25 +1472,33 @@
                     } else {
                         myLayout.cells("a").setText(ObjectsTree.getItemText(pId) + " (" + ObjectsTree.getItemText(ObjectsTreeId) + ")");
                     }
-
-                    if (ObjectsTree.getParentId(pId) == 'Documents') {
-                        pId = 'Documents';
-                    }
+                    //console.log(ObjectsTree.getIndexById(ObjectsTreeId));
+                    try {
+                        if (ObjectsTree.getParentId(pId) == 'Documents' || ObjectsTree.getParentId(pId).indexOf('Documents-childAcc-') > -1) {
+                            pId = 'Documents';
+                        }
+                    } catch (e) { }
 
                     var url = (window.location != window.parent.location) ? document.referrer : document.location.href;
-                    parent.postMessage('setFileParent' + '-del-' + ObjectsTreeId + '-del-' + pId + '-del-' + ObjectsTree.getItemText(ObjectsTreeId), url);
+                    let otreeId = '';
+                    if (ObjectsTreeId.includes('-childAcc-')) {
+                        otreeId = ObjectsTreeId.split('-childAcc-')[0];
+                    }
+                    parent.postMessage('setFileParent' + '-del-' + otreeId + '-del-' + pId + '-del-' + ObjectsTree.getItemText(ObjectsTreeId), url);
 
 
                 }
-                if (ObjectsTreeId == null || ObjectsTreeId == '') {
-                    ObjectsTreeId = recordId;
-                }
+
                 console.log('!!-' + childRecordId);
                 if (childRecordId) {
                     AccId = childRecordId;
                 } else {
                     AccId = recordId;
                 }
+                if (ObjectsTreeId == null || ObjectsTreeId == '') {
+                    ObjectsTreeId = recordId;
+                }
+
 
                 var searchText = ($("#SearchDocuments").val().length > 1) ? $("#SearchDocuments").val() : null;
                 TagTreeId = (TagTreeId.includes(',')) ? null : TagTreeId;
@@ -1720,7 +1853,7 @@
                 myGrid.setColumnHidden(9, false);
                 myGrid.setColumnHidden(12, false);
 
-                if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') {
+                if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)' || AccRecordTypeName == 'Principal') {
                     myLayout.cells("c").expand();
                     myLayout.cells("c").collapse();
                     myLayout.cells("c").expand();
@@ -1760,7 +1893,14 @@
                     HirrMenu = new dhtmlXMenuObject();
                     HirrMenu.renderAsContextMenu();
                     HirrMenu.attachEvent("onClick", ObjectsTreeMenuHandler);
-                    HirrMenu.loadStruct('{items:[{id: "exp_collapse", text: "Collapse All"},{id: "Refresh", text: "Refresh"},{id: "ShareMenuItem", text: "Share With...", items:' + shareItemsString + '}]}');
+                    HirrMenu.loadStruct('{items:[{id: "exp_collapse", text: "Collapse All"},{id: "Refresh", text: "Refresh"},{id: "ShareMenuItem", text: "Share With...", items:' + shareItemsString + '},{id: "hideFolder", text: "Hide Folder"},{id: "showFolders", text: "Show Hidden Folders"}]}');
+                    if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)' || AccRecordTypeName == 'Principal') {
+                        HirrMenu.addNewSeparator('ShareMenuItem', 'sep1');
+                    } else {
+                        HirrMenu.hideItem('hideFolder');
+                        HirrMenu.hideItem('showFolders');
+                    }
+
                     ObjectsTree.enableContextMenu(HirrMenu);
 
                 }
@@ -1774,6 +1914,7 @@
             myGrid.attachEvent("onBeforeContextMenu", function (id, ind) {
 
                 console.log(myGrid.getSelectedRowId());
+
                 if (myGrid.getSelectedRowId() != null && myGrid.getSelectedRowId().includes(id)) {
                     myGrid.selectRowById(id, true);
                 } else {
@@ -1781,9 +1922,9 @@
                 }
 
                 var data = myGrid.getSelectedRowId();
-                if (AccRecordTypeName != 'Limited Partner' && AccRecordTypeName != 'Bank' && AccRecordTypeName != 'LP (Individuals)') {
+                /*if (AccRecordTypeName != 'Limited Partner' && AccRecordTypeName != 'Bank' && AccRecordTypeName != 'LP (Individuals)' && AccRecordTypeName != 'Principal') {
                     GridMenu.hideItem('OwnAccount');
-                }
+                }*/
                 if (data.includes(',')) {
                     GridMenu.hideItem('Manage');
 
@@ -1791,7 +1932,7 @@
                     var idsArr = data.split(',');
                     for (var i = 0; i < idsArr.length; i++) {
                         console.log('#####', myGrid.cells(idsArr[i], 10).getValue());
-                        if ('{!$User.Id}' == myGrid.cells(idsArr[i], 10).getValue()) {
+                        if ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin' || '{!$User.Id}' == myGrid.cells(idsArr[i], 10).getValue() || JSON.parse(myGrid.cells(idsArr[i], 11).getValue())) {
                             isAllFilesOwner = true;
                         } else {
                             isAllFilesOwner = false;
@@ -1799,7 +1940,7 @@
                         }
                     }
 
-                    if ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin' || isAllFilesOwner) {
+                    if (isAllFilesOwner) {
                         GridMenu.showItem('Delete');
                         GridMenu.showItem('ShareMenuItem');
                     } else {
@@ -1810,13 +1951,17 @@
                     GridMenu.hideItem('Properties');
 
                 } else {
-                    if ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin' || '{!$User.Id}' == myGrid.cells(data, 10).getValue()) {
+                    if ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin' || '{!$User.Id}' == myGrid.cells(data, 10).getValue() || JSON.parse(myGrid.cells(data, 11).getValue())) {
                         GridMenu.showItem('ShareMenuItem');
                         GridMenu.showItem('Manage');
                         GridMenu.showItem('Delete');
                         GridMenu.showItem('Properties');
                     } else {
-                        return false;
+                        GridMenu.hideItem('Delete');
+                        GridMenu.hideItem('ShareMenuItem');
+                        GridMenu.hideItem('Manage');
+
+                        GridMenu.showItem('Properties');
                     }
                 }
 
@@ -2134,6 +2279,10 @@
                 }
                 var linkVal = 'https://canapi.force.com/alliance/s/contentdocument/' + myGrid.getUserData(currentDocId, "attachmentId");
 
+                var isFileOwner = ('{!$Profile.Name}' == 'System Administrator' || '{!$Profile.Name}' == 'Canapi System Admin' || '{!$User.Id}' == myGrid.cells(currentDocId, 10).getValue() || JSON.parse(myGrid.cells(currentDocId, 11).getValue()));
+
+
+
                 formData = [
                     { type: "settings", position: "label-left", labelWidth: 150, inputWidth: 345 },
                     {
@@ -2144,9 +2293,9 @@
                             { type: "newcolumn", offsetLeft: 0 },
                             { type: "button", value: "Copy", width: 55, name: "Copy", offsetLeft: 10, className: "copyButton", offsetTop: 9 },
                             { type: "newcolumn", offsetLeft: 0 },
-                            { type: "calendar", label: "Release Date", name: 'ReleaseDate', value: myGrid.getUserData(currentDocId, "ReleaseDate"), skin: lSkin, dateFormat: "%Y-%m-%d %H:%i", width: 250, enableTime: true, enableTodayButton: true },
-                            { type: "input", label: "Notes", name: 'Notes', value: myGrid.cells(currentDocId, 6).getValue(), rows: 4 },
-                            { type: "button", value: "Save", width: 134, name: "Save", offsetLeft: 100 }
+                            { type: "calendar", label: "Release Date", name: 'ReleaseDate', value: myGrid.getUserData(currentDocId, "ReleaseDate"), skin: lSkin, dateFormat: "%Y-%m-%d %H:%i", width: 250, enableTime: true, enableTodayButton: true, disabled: !isFileOwner },
+                            { type: "input", label: "Notes", name: 'Notes', value: myGrid.cells(currentDocId, 6).getValue(), rows: 4, disabled: !isFileOwner },
+                            { type: "button", value: "Save", width: 134, name: "Save", offsetLeft: 100, disabled: !isFileOwner }
                         ]
                     }
                 ];
@@ -2304,9 +2453,9 @@
                         dhxCombo.unSelectOption();
                         if (value == 'Groups') {
                             dhxCombo.load(groupsList);
-                            if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') {
+                            /*if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)' || AccRecordTypeName == 'Principal') {
                                 dhxCombo.addOption("OwnAccount", "Finance Team - This account only", null, null);
-                            }
+                            }*/
 
                         } else {
                             dhxCombo.load(usersList);
@@ -2603,7 +2752,7 @@
                 console.log(folders);
                 var folderList = [];
                 folderList.push({ value: "All", text: "All" });
-                if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)') {
+                if (AccRecordTypeName == 'Limited Partner' || AccRecordTypeName == 'Bank' || AccRecordTypeName == 'LP (Individuals)' || AccRecordTypeName == 'Principal') {
                     var folders = ObjectsTree.getAllSubItems('Documents').split(',');
                     for (var i = 0; i < folders.length; i++) {
                         folderList.push({ value: folders[i], text: ObjectsTree.getItemText(folders[i]) });
@@ -2654,10 +2803,14 @@
                     }
                     CustomDocumentController.sendEmail(usersAndGroups, AccId, MailActionWindowForm.getItemValue('Range'), MailActionWindowForm.getItemValue('Folder'), ObjectsTree.getItemText(MailActionWindowForm.getItemValue('Folder')), function (result, event) {
                         if (event.type == 'exception') {
-                            console.log();
-                        } else {
                             dhtmlx.message({
-                                text: 'Sent Updated Document Links to Alliance Users'
+                                type: "error",
+                                text: event.message
+                            });
+                        } else {
+
+                            dhtmlx.message({
+                                text: result ? result : 'Sent Updated Document Links to Alliance Users'
                             });
                             dhxWins2.window("w1").close();
                         }
@@ -2785,6 +2938,32 @@
                     if (myGrid.cells(rowId, 6).getValue() != null) {
                         myGrid.cellById(rowId, 6).close();
                         myGrid.cellById(rowId, 6).open();
+                    }
+                });
+            }
+
+            function hideFolder(folderId, AccId) {
+                CustomDocumentController.hideFolder(folderId, AccId, function (result, event) {
+                    if (event.type == 'exception') {
+                        dhtmlx.message({
+                            type: "error",
+                            text: event.message
+                        });
+                    } else {
+                        setObjectsTree();
+                    }
+                });
+            }
+
+            function showFolders(AccId) {
+                CustomDocumentController.showFolders(AccId, function (result, event) {
+                    if (event.type == 'exception') {
+                        dhtmlx.message({
+                            type: "error",
+                            text: event.message
+                        });
+                    } else {
+                        setObjectsTree();
                     }
                 });
             }

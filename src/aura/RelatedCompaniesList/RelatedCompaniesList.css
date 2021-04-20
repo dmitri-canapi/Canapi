@@ -1,0 +1,9 @@
+.THIS .slds-item{
+    display: inline-block !important;
+    border-bottom: none;
+    margin-right: 25px;
+    width: 30em;
+}
+.THIS .slds-item a{
+    font-size: 14px;
+}

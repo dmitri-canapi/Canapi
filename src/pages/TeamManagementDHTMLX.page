@@ -132,8 +132,12 @@
                                                 </div>
                                             </div>
                                             <apex:outputPanel rendered="{!if(rec.LastLoginDate!=null , true ,false)}">
-                                                <div style="font-size: 0.7rem; line-height: 0.9rem;  margin: 7px 5px;">
-                                                    Last Login: {!rec.LastLoginDate}
+                                                <div style="font-size: 0.7rem; line-height: 0.9rem;  text-align: left;padding-left: 25px;">
+                                                    Last Login:
+                                                    <br/>
+                                                    <apex:outputText value="{0,date,MMM' 'dd', 'HH:mm a}">
+                                                        <apex:param value="{!rec.LastLoginDate}" />
+                                                    </apex:outputText>
                                                 </div>
                                             </apex:outputPanel>
 
@@ -799,9 +803,11 @@
                 }
                 TeamManagementController.updateRecord(jQuery(f).data('rid'), jQuery(f).data('field'), f.value, function (result, event) {
                     if (event.type == 'exception') {
+                        let errmsg = event.message.includes('The username already exists in this or another') ? 'User with ' + f.value + ' login ID already exists. Please select another user name' : event.message;
+
                         dhtmlx.message({
                             type: "alert-error",
-                            text: event.message
+                            text: errmsg
                         });
                     } else {
                         if (jQuery(f).data('field') == 'name') {

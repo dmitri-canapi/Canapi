@@ -31,6 +31,8 @@
     <reportType>AccountActivity</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>LAST_UPDATE</sortColumn>
     <sortOrder>Desc</sortOrder>
     <timeFrameFilter>

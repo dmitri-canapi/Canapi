@@ -42,11 +42,12 @@ public class ReportsToEmailController {
                 rwd = (Reports.ReportFactWithDetails) results.getFactMap().get(key);
                 rwdList.addAll(rwd.getRows());
             } 
-        } else {
+        } else if (results.getFactMap().containsKey('T!T')){
             rwd = (Reports.ReportFactWithDetails) results.getFactMap().get('T!T');
             rwdList = rwd.getRows();
-            
         }
+        system.debug(results);
+        system.debug(results.getFactMap());
         wasTrimmed = false;
         if (rwdList.size() > = trimTo){
                 wasTrimmed = true;

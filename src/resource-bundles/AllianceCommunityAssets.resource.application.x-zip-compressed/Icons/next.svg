@@ -1,0 +1,15 @@
+<svg width="216" height="216" xmlns="http://www.w3.org/2000/svg">
+ <style type="text/css">.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#1D1933;}</style>
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="218" width="218" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <polyline stroke-linecap="round" id="svg_4" points="102.5,48.4375 101.5,48.4375 " stroke-width="0" stroke="#000" fill="none"/>
+  <ellipse ry="97" rx="97" id="svg_11" cy="111.4375" cx="106.5" stroke-width="9" stroke="#ffffff" fill="none"/>
+  <line stroke="#ffffff" stroke-linecap="null" stroke-linejoin="null" id="svg_12" y2="111.4375" x2="160.5" y1="57.268826" x1="81.500008" stroke-width="9" fill="none"/>
+  <line stroke="#ffffff" stroke-linecap="null" stroke-linejoin="null" id="svg_13" y2="110.4375" x2="157.5" y1="157.218319" x1="86.500006" stroke-width="9" fill="none"/>
+ </g>
+</svg>

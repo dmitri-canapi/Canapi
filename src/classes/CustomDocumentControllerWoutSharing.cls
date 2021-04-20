@@ -71,6 +71,11 @@ public without sharing class CustomDocumentControllerWoutSharing {
     
     public static String getCurrentPermissionsForObject (String accId, String DocumentParentObjectId){
         Profile p = [Select Name from Profile where Id =: userinfo.getProfileid()];
+        if (DocumentParentObjectId.contains('-childAcc')){
+            List<String> obj = DocumentParentObjectId.split('-childAcc-');
+            accId = obj[1];
+            DocumentParentObjectId = obj[0];
+        }
         String FullaccId = accId;
         accId = accId.substring(0, 15);
         List <Document__c> docList = new List <Document__c>();   
@@ -365,10 +370,10 @@ public without sharing class CustomDocumentControllerWoutSharing {
             }
             generator.writeEndObject();
         }
-        generator.writeStartObject();
+        /*generator.writeStartObject();
         generator.writeStringField('id', 'OwnAccount');
         generator.writeStringField('text', 'Finance Team - This account only');
-        generator.writeEndObject();
+        generator.writeEndObject();*/
 
         generator.writeStartObject();
         generator.writeStringField('id', 'RestrictAccess');
@@ -457,7 +462,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
 
     }
 
-    public static void sendEmail(List <String> usersAndGroups, String accId, String Range, String folder, String folderName){
+    public static String sendEmail(List <String> usersAndGroups, String accId, String Range, String folder, String folderName){
         String accName = [select Name from account where id =: accId].Name;
         EmailTemplate template;
         Set <String> allUsersIds = new set <string>();
@@ -487,6 +492,11 @@ public without sharing class CustomDocumentControllerWoutSharing {
             usersWithDocs.put(uId,New Set<Id>());
         }
 
+        Set <id>  folderBlackList = new Set <id>();
+        for (Document_Folder_BlackList__c fbl: [select Documents_Folder__c from Document_Folder_BlackList__c where Account__c =: accId]){
+            folderBlackList.add(fbl.Documents_Folder__c);
+        }
+
         String todayDate = DateTime.now().format('yyyy-MM-dd\'T\'hh:mm:ss\'Z\'');
 
 
@@ -498,11 +508,11 @@ public without sharing class CustomDocumentControllerWoutSharing {
         } else if (folder == 'Board_Meetings__r'){
             query += '(Board_Meeting__r.Account__c=:accId) and ';
         } else {
-            query += '(Account__c=:accId and (Documents_Folder_Template__c =: folder OR Documents_Folder_Template__r.Parent_Folder__c =: folder)) and '; 
+            query += '(Account__c=:accId and ((Documents_Folder_Template__c =: folder OR Documents_Folder_Template__r.Parent_Folder__c =: folder) and Documents_Folder_Template__c  NOT in:folderBlackList)) and '; 
         }
         
         if (Range == 'Today'){
-            query += '(CreatedDate >= ' + todayDate +  'OR LastModifiedDate >=  ' + todayDate + ')';
+            query += '(CreatedDate > YESTERDAY ' /*+ todayDate */+  'OR LastModifiedDate >  YESTERDAY' /*+ todayDate */+ ')';
         } else if (Range == 'This Week'){
             query += '(CreatedDate >= THIS_WEEK OR LastModifiedDate >= THIS_WEEK)';
         } else if (Range == '7 Days'){
@@ -574,7 +584,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
             usersWithDocs.put(userInfo.getUserId(), new Set <Id>());
         }
 
-
+        Set <String> usersWithoutDocs = new Set <String>();
 
         for(String Uid: usersWithDocs.KeySet()){
             if(usersWithDocs.get(Uid).size()>0 || Test.IsRunningTest()){
@@ -588,7 +598,7 @@ public without sharing class CustomDocumentControllerWoutSharing {
 
                 emailBody = emailBody.replace('{account}', accName);
 
-                string links = '<ul>';
+                string links = '<ul style="background-color:white;">';
                 for (String docId: usersWithDocs.get(Uid)){
                     if (docAttachmentMap.containsKey(docId))
                     links += '<li><a href="https://canapi.force.com/alliance/s/contentdocument/' + docAttachmentMap.get(docId) + '">' + docs.get(docId).Name__c + '</a> - ' + docs.get(docId).CreatedDate +  '</li>';
@@ -599,21 +609,35 @@ public without sharing class CustomDocumentControllerWoutSharing {
                 emailBody = emailBody.replace('{links}', links);
                 emailBody = emailBody.replace(']]>', '');
                 emailBody+='<br/>';
+
+                emailBody = emailBody.replaceAll('<!\\[CDATA\\[', '');
+                emailBody = emailBody.replaceAll('\\]\\]>', '');
+                /*emailBody = emailBody.replaceAll('<img .*?>', '').replaceAll('<img .*?</img>', '').replaceAll('<img .*?/>', '');*/
+                system.debug(emailBody);
                 message.setHTMLBody(emailBody);
 
                 messages.add(message);
 
+            } else {
+                usersWithoutDocs.add(Uid);
             }
 
         }
 
         if (messages.size() > 0){
             Messaging.SendEmailResult[] results = Messaging.sendEmail(messages);
+        } else {
+            throw new CustomDocumentController.applicationException('Users and/or Groups selected in the dialog will not see any updated documents for the folder and date range selected. Please update criteria or select different recipients');
         }
 
-        
+        String usersWithoutDocsNames = '';
+        for (User u: [select Name from User where id in: allUsersIds]){
+            if (usersWithoutDocs.contains(u.Id)) usersWithoutDocsNames += u.Name + '; ';
+
+        }
 
 
+        return usersWithoutDocsNames != ''? 'The following recipients will not see any updated documents for the folder and date range selected: Users: ' + usersWithoutDocsNames : null;
 
 
     }
@@ -715,10 +739,16 @@ public without sharing class CustomDocumentControllerWoutSharing {
     
     public static void addBulkPermission (String userOrGroupId,String accId, String DocumentParentObjectId, String AccessType){
         Profile p = [Select Name from Profile where Id =: userinfo.getProfileid()];
+        if (DocumentParentObjectId.contains('-childAcc')){
+            List<String> obj = DocumentParentObjectId.split('-childAcc-');
+            accId = obj[1];
+            DocumentParentObjectId = obj[0];
+        }
+
         String FullaccId = accId;
         accId = accId.substring(0, 15);
         List <Document__c> docList = new List <Document__c>();   
-        Default_Sharing__c ds = new Default_Sharing__c (Account__c = accId,UserOrGroup__c = userOrGroupId, Access__c = AccessType);
+        Default_Sharing__c ds = new Default_Sharing__c (Account__c = accId,UserOrGroup__c = userOrGroupId, Access__c = AccessType, CreatedBy__c = userInfo.getUserId());
         String dsQuery = 'select id from Default_Sharing__c where Account__c =: accId and UserOrGroup__c=: userOrGroupId';
         
         string query = 'select id, Name__c,UserRecordAccess.HasEditAccess, Owner.Name, OwnerId from Document__c where id!=null';
@@ -841,5 +871,19 @@ public without sharing class CustomDocumentControllerWoutSharing {
         } 
         update cdlList;
         
+    }
+
+    public static void deleteDocument(String DocId){
+        list <String> docs = DocId.split(',');
+        list <String> files = new List <String>();
+        for (ContentDocumentLink cdl: [SELECT ContentDocumentId,LinkedEntityId FROM ContentDocumentLink WHERE LinkedEntityId in:docs]){
+            files.add(cdl.ContentDocumentId);
+        }
+        List <ContentDocument>  cdList= [select id from ContentDocument where id in:files];
+        if (cdList.size()>0){
+            delete cdList;
+        }
+        
+        delete [select id from Document__c where id in : docs];
     }
 }

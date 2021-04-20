@@ -31,6 +31,8 @@
     <filter>
         <criteriaItems>
             <column>STAGE_NAME</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Closed Pass</value>
         </criteriaItems>
@@ -52,6 +54,8 @@
     <reportType>Opportunity</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>FULL_NAME</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

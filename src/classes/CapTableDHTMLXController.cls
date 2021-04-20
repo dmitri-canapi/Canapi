@@ -84,12 +84,13 @@ global without sharing class CapTableDHTMLXController {
             Close_Date__c
             from Round__c
             where Target_Company__c = :accountId
-            order by Close_Date__c ASC NULLS LAST,Id asc];
+            order by Round_Number__c ASC NULLS LAST, CreatedDate ASC];
         
         List<Investment__c> investments = [
             select Id,
             Investor__c,
             Investor__r.Name,
+            Investor__r.Parent.Name,
             Investor__r.Id,
             Investor__r.Total_Sum_Shares_Across_Series__c,
             Shares__c,
@@ -136,12 +137,14 @@ global without sharing class CapTableDHTMLXController {
             isCommunity=true;
         }
         
-        map <String, String> invNames = new map<String, String>();
+        map <String, Account> invNames = new map<String, Account>();
         map <String, Decimal> invAmmountInvest = new map<String, Decimal>();
         
         for (Investment__c inv: investments){
-            if(inv.Investor__c!=null)
-            invNames.put(inv.Investor__c, inv.Investor__r.Name);
+            if(inv.Investor__c!=null){
+                Account ac = inv.Investor__r;
+                invNames.put(inv.Investor__c, ac);
+            }
             invAmmountInvest.put(inv.Investor__c,0);
         }
          
@@ -150,9 +153,12 @@ global without sharing class CapTableDHTMLXController {
             generator.writeStringField('id', String.valueOf(investor));
             List<String> strlist = new List<String>();
             if (siteId == null){
-                strlist.add( invNames.get(investor)  + '^' + '/' + investor );
+                //strlist.add( invNames.get(investor).ParentId!=null ?  invNames.get(investor).Parent.Name  + '^' + '/' + invNames.get(investor).ParentId : '');
+                strlist.add( invNames.get(investor).ParentId!=null ?  invNames.get(investor).Parent.Name  + '^' + '/' + invNames.get(investor).ParentId : ' ^/ ');
+                strlist.add( invNames.get(investor).Name  + '^' + '/' + investor );
             } else {
-                strlist.add( invNames.get(investor)  + '^' + Network.communitiesLanding().getUrl() + 'detail/' + investor ); 
+                strlist.add( invNames.get(investor).ParentId!=null ?  invNames.get(investor).Parent.Name  + '^' + Network.communitiesLanding().getUrl() + 'detail/' + invNames.get(investor).ParentId : '');
+                strlist.add( invNames.get(investor).Name  + '^' + Network.communitiesLanding().getUrl() + 'detail/' + investor ); 
             }
             for (Round__c round: sortedRounds){
                 boolean isInvestmentForRound = false;
@@ -394,14 +400,27 @@ global without sharing class CapTableDHTMLXController {
         upsert investment;
 
     }
+
+    @RemoteAction
+    global static void updateRoundOrder (List <Round__c> rounds){
+        update rounds;
+    }
     
     @AuraEnabled
-    public static void addShareholder(String accountId, String AccName, String currentAcc) {
-        if (AccName!=null && AccName!=''){
-            account a = new account (name=AccName);
+    public static void addShareholder(String accountId, String AccName, String parentAccountId, String parentAccountName, String currentAcc) {
+        
+        if (parentAccountId == null && (parentAccountName != null && parentAccountName!= '')){
+            account a = new account (name=parentAccountName);
             insert a;
-            accountId=a.Id;
+            parentAccountId = a.Id;
         }
+        if (accountId == null || accountId == ''){
+            account a = new account (name=AccName, ParentId = parentAccountId);
+            insert a;
+            accountId = a.Id;
+        }
+
+
         //List<Investment__c> investments = [ select Id,Round__c from Investment__c where Round__r.Target_Company__c = :currentAcc order by Round__r.Close_Date__c DESC NULLS LAST];
         List<Round__c> rounds =  [select id from Round__c  where Target_Company__c = :currentAcc order by Close_Date__c DESC NULLS LAST];
         Investment__c inv = new Investment__c();
@@ -437,6 +456,23 @@ global without sharing class CapTableDHTMLXController {
     @AuraEnabled
     public static string getCommunityAccId(){
         return [select id,Account_Id__c from user where id=:UserInfo.getUserId()].Account_Id__c;
+    }
+
+    @AuraEnabled
+    public static List < sObject > fetchLookUpValues(String searchKeyWord, String ObjectName) {
+        system.debug('ObjectName-->' + ObjectName);
+        String searchKey = searchKeyWord + '%';
+        
+        List < sObject > returnList = new List < sObject > ();
+      
+        // Create a Dynamic SOQL Query For Fetch Record List with LIMIT 5   
+        String sQuery =  'select id, Name, Parent.Name from ' +ObjectName + ' where Name LIKE: searchKey order by createdDate DESC limit 5';
+        List < sObject > lstOfRecords = Database.query(sQuery);
+        
+        for (sObject obj: lstOfRecords) {
+            returnList.add(obj);
+        }
+        return returnList;
     }
 	
     public class CapTableControllerException extends Exception {}

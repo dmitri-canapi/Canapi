@@ -2,7 +2,7 @@ public class FF_CalculateFormulas {
     public static boolean firstRun = true;
     
     public static void recalculate(String AccId){
-        List <Chart_of_Accounts__c> allCharts = [select id, Name, Account__c, Category__c, Formula__c from Chart_of_Accounts__c where Account__c =: AccId];
+        List <Chart_of_Accounts__c> allCharts = [select id, Name, Account__c, Type__c, Financial_Category__r.Name,Financial_Category__r.Type__c, Formula__c from Chart_of_Accounts__c where Account__c =: AccId];
         List <Report_Period__c> allPeriods = [select id from Report_Period__c where Account__c =: AccId];
         List <Financials__c> financialsForUpdate = new List <Financials__c>();
         
@@ -14,7 +14,7 @@ public class FF_CalculateFormulas {
         }
         
         for (Chart_of_Accounts__c chart: allCharts){
-            if (chart.Category__c ==  'Metric' && chart.Formula__c != null){
+            if (chart.Financial_Category__r.Type__c ==  'Calculated' && chart.Formula__c != null && (chart.Type__c == 'Currency' || chart.Type__c == 'Percentage')){
                 for (Report_Period__c period : allPeriods){
                     if (financialsMap.containsKey ('' + chart.Id + period.Id)){
                         Financials__c fin = financialsMap.get('' + chart.Id + period.Id);

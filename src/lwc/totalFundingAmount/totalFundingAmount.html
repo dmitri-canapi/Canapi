@@ -1,0 +1,19 @@
+<template>
+
+    <div style="margin-left:13px;">
+        <lightning-radio-group label="Total Funding Amount" name="radioButtonGroup" onchange={handleChange}
+            options={options} value={selectedValue} type="radio" class="customRadioCls">
+        </lightning-radio-group>
+
+        <br />
+        <div if:true={selectedValue}>
+            <div class="slds-grid slds-wrap" style="max-width: 50%; padding: 0px 20px 0px 0px;">
+                <div class="slds-form-element slds-size_12-of-12">
+                    <lightning-input label="Value:" type="number" value={ammountVal} onblur={handleFundAmmountChange}
+                        disabled={isDisabled} variant="label-inline" step="0.01"></lightning-input>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</template>

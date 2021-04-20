@@ -1,0 +1,31 @@
+<template>
+    <lightning-layout class="slds-align_absolute-center">
+
+        <lightning-layout-item>
+            <lightning-button label="First Page" icon-name="utility:chevronleft" onclick={FirstPageHandler1}>
+            </lightning-button>
+        </lightning-layout-item>
+        <lightning-layout-item>
+            <lightning-button label="Previous" class="Previous" icon-name="utility:chevronleft"
+                onclick={previousHandler1}>
+            </lightning-button>
+        </lightning-layout-item>
+        <!--lightning-layout-item>
+            <select class="slds-select" name="optionSelect" onchange={changeHandler}>
+                <option value="">Page size</option>
+                <option selected value="20">20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+            </select>
+        </lightning-layout-item-->
+
+        <lightning-layout-item>
+            <lightning-button label="Next" class="Next" icon-name="utility:chevronright" icon-position="right"
+                onclick={nextHandler1}></lightning-button>
+        </lightning-layout-item>
+        <lightning-layout-item>
+            <lightning-button label="Last Page" icon-name="utility:chevronright" icon-position="right"
+                onclick={LastPageHandler1}></lightning-button>
+        </lightning-layout-item>
+    </lightning-layout>
+</template>

@@ -25,6 +25,8 @@
     <filter>
         <criteriaItems>
             <column>RECORDTYPE</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Account.Bank_LP</value>
         </criteriaItems>
@@ -38,6 +40,8 @@
     <reportType>AccountList</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Account.Assets__c</sortColumn>
     <sortOrder>Desc</sortOrder>
     <timeFrameFilter>

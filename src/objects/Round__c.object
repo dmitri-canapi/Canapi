@@ -5,7 +5,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>Accept</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>CancelEdit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -13,7 +33,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>Clone</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -21,7 +61,13 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
-        <actionName>Follow</actionName>
+        <actionName>Edit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -29,7 +75,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>List</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -37,16 +103,42 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>Tab</actionName>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
-        <actionName>View</actionName>
-        <comment>Action override created by Lightning App Builder during activation.</comment>
-        <content>Series_Record_Page</content>
+        <actionName>Tab</actionName>
         <formFactor>Large</formFactor>
-        <skipRecordTypeSelect>false</skipRecordTypeSelect>
-        <type>Flexipage</type>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
     </actionOverrides>
     <allowInChatterGroups>true</allowInChatterGroups>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
@@ -55,24 +147,12 @@
     <enableBulkApi>true</enableBulkApi>
     <enableFeeds>false</enableFeeds>
     <enableHistory>true</enableHistory>
+    <enableLicensing>false</enableLicensing>
     <enableReports>true</enableReports>
     <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>ControlledByParent</externalSharingModel>
-    <fields>
-        <fullName>Amount_Outstanding__c</fullName>
-        <externalId>false</externalId>
-        <formula>Target_Amount__c -  Total_Committed__c</formula>
-        <inlineHelpText>Amount outstanding to raise.</inlineHelpText>
-        <label>Amount Outstanding</label>
-        <precision>18</precision>
-        <required>false</required>
-        <scale>2</scale>
-        <trackHistory>false</trackHistory>
-        <trackTrending>false</trackTrending>
-        <type>Currency</type>
-    </fields>
     <fields>
         <fullName>Announcement_Date__c</fullName>
         <externalId>false</externalId>
@@ -81,6 +161,17 @@
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Date</type>
+    </fields>
+    <fields>
+        <fullName>Business_Status_During_Round__c</fullName>
+        <externalId>false</externalId>
+        <label>Business Status During Round</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
     </fields>
     <fields>
         <fullName>Character_for_Cap_Table__c</fullName>
@@ -103,6 +194,60 @@
         <type>Date</type>
     </fields>
     <fields>
+        <fullName>Created_From_Deal__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Created From Deal</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>DebtAmount1__c</fullName>
+        <externalId>false</externalId>
+        <label>DebtAmount1</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>9</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>DebtRaisedInRound__c</fullName>
+        <externalId>false</externalId>
+        <label>DebtRaisedInRound</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>9</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>DebtType__c</fullName>
+        <externalId>false</externalId>
+        <label>DebtType</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FinancingStatus__c</fullName>
+        <externalId>false</externalId>
+        <label>FinancingStatus</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Full_Name__c</fullName>
         <externalId>false</externalId>
         <formula>Series_Type__c</formula>
@@ -113,18 +258,6 @@
         <trackTrending>false</trackTrending>
         <type>Text</type>
         <unique>false</unique>
-    </fields>
-    <fields>
-        <fullName>Investor_del_del_del_del_del__c</fullName>
-        <deleteConstraint>SetNull</deleteConstraint>
-        <externalId>false</externalId>
-        <label>Investor</label>
-        <referenceTo>Account</referenceTo>
-        <relationshipName>Investments_del1</relationshipName>
-        <required>false</required>
-        <trackHistory>false</trackHistory>
-        <trackTrending>false</trackTrending>
-        <type>Lookup</type>
     </fields>
     <fields>
         <fullName>Liquidation_Preference__c</fullName>
@@ -161,6 +294,43 @@
         <type>Checkbox</type>
     </fields>
     <fields>
+        <fullName>PercentAcquired__c</fullName>
+        <externalId>false</externalId>
+        <label>PercentAcquired</label>
+        <precision>5</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>PostValuationStatus__c</fullName>
+        <externalId>false</externalId>
+        <label>PostValuationStatus</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Actual</fullName>
+                    <default>false</default>
+                    <label>Actual</label>
+                </value>
+                <value>
+                    <fullName>Estimated</fullName>
+                    <default>false</default>
+                    <label>Estimated</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
         <fullName>Post_Money_Valuation__c</fullName>
         <externalId>false</externalId>
         <inlineHelpText>Value of the company after this round of funding.</inlineHelpText>
@@ -194,63 +364,176 @@
         <type>Checkbox</type>
     </fields>
     <fields>
+        <fullName>Round_Number__c</fullName>
+        <externalId>false</externalId>
+        <label>Round Number</label>
+        <precision>4</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Round__c</fullName>
         <externalId>false</externalId>
         <label>Series</label>
-        <picklist>
-            <picklistValues>
-                <fullName>Seed</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Series A</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Series B</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Series C</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Series D</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Common Shares</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Options</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Warrants</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Unknown</fullName>
-                <default>true</default>
-            </picklistValues>
-            <restrictedPicklist>true</restrictedPicklist>
-            <sorted>false</sorted>
-        </picklist>
         <required>false</required>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Seed</fullName>
+                    <default>false</default>
+                    <label>Seed</label>
+                </value>
+                <value>
+                    <fullName>Series A</fullName>
+                    <default>false</default>
+                    <label>Series A</label>
+                </value>
+                <value>
+                    <fullName>Series B</fullName>
+                    <default>false</default>
+                    <label>Series B</label>
+                </value>
+                <value>
+                    <fullName>Series C</fullName>
+                    <default>false</default>
+                    <label>Series C</label>
+                </value>
+                <value>
+                    <fullName>Series D</fullName>
+                    <default>false</default>
+                    <label>Series D</label>
+                </value>
+                <value>
+                    <fullName>Common Shares</fullName>
+                    <default>false</default>
+                    <label>Common Shares</label>
+                </value>
+                <value>
+                    <fullName>Options</fullName>
+                    <default>false</default>
+                    <label>Options</label>
+                </value>
+                <value>
+                    <fullName>Warrants</fullName>
+                    <default>false</default>
+                    <label>Warrants</label>
+                </value>
+                <value>
+                    <fullName>PIU</fullName>
+                    <default>false</default>
+                    <label>PIU</label>
+                </value>
+                <value>
+                    <fullName>Unknown</fullName>
+                    <default>true</default>
+                    <label>Unknown</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Series_Class__c</fullName>
+        <externalId>false</externalId>
+        <label>Series_Class</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Series_Currency__c</fullName>
+        <externalId>false</externalId>
+        <label>Series Currency</label>
+        <length>128</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Series_Description__c</fullName>
+        <externalId>false</externalId>
+        <label>Series Description</label>
+        <length>32768</length>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Series_Status__c</fullName>
+        <externalId>false</externalId>
+        <label>Series Status</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Actual</fullName>
+                    <default>false</default>
+                    <label>Actual</label>
+                </value>
+                <value>
+                    <fullName>DealSizeStatus</fullName>
+                    <default>false</default>
+                    <label>DealSizeStatus</label>
+                </value>
+                <value>
+                    <fullName>Estimated</fullName>
+                    <default>false</default>
+                    <label>Estimated</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
+    </fields>
+    <fields>
+        <fullName>Series_Type2__c</fullName>
+        <externalId>false</externalId>
+        <label>Series_Type2</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
     </fields>
     <fields>
         <fullName>Series_Type__c</fullName>
         <externalId>false</externalId>
         <label>Series Name</label>
-        <length>255</length>
+        <length>40</length>
         <required>true</required>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Series_order__c</fullName>
+        <externalId>false</externalId>
+        <label>Series_order</label>
+        <precision>8</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
         <unique>false</unique>
     </fields>
     <fields>
@@ -280,30 +563,72 @@
         <fullName>Stage__c</fullName>
         <externalId>false</externalId>
         <label>Stage</label>
-        <picklist>
-            <picklistValues>
-                <fullName>Sourcing</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Due Diligence</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Closing</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Funded</fullName>
-                <default>false</default>
-            </picklistValues>
-            <restrictedPicklist>true</restrictedPicklist>
-            <sorted>false</sorted>
-        </picklist>
         <required>false</required>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Picklist</type>
+        <valueSet>
+            <restricted>true</restricted>
+            <valueSetDefinition>
+                <sorted>false</sorted>
+                <value>
+                    <fullName>Sourcing</fullName>
+                    <default>false</default>
+                    <label>Sourcing</label>
+                </value>
+                <value>
+                    <fullName>Due Diligence</fullName>
+                    <default>false</default>
+                    <label>Due Diligence</label>
+                </value>
+                <value>
+                    <fullName>Closing</fullName>
+                    <default>false</default>
+                    <label>Closing</label>
+                </value>
+                <value>
+                    <fullName>Funded</fullName>
+                    <default>false</default>
+                    <label>Funded</label>
+                </value>
+                <value>
+                    <fullName>Completed</fullName>
+                    <default>false</default>
+                    <label>Completed</label>
+                </value>
+                <value>
+                    <fullName>Announced/In Progress</fullName>
+                    <default>false</default>
+                    <label>Announced/In Progress</label>
+                </value>
+                <value>
+                    <fullName>Failed/Cancelled</fullName>
+                    <default>false</default>
+                    <label>Failed/Cancelled</label>
+                </value>
+                <value>
+                    <fullName>In Bidding Process</fullName>
+                    <default>false</default>
+                    <label>In Bidding Process</label>
+                </value>
+                <value>
+                    <fullName>Postponed</fullName>
+                    <default>false</default>
+                    <label>Postponed</label>
+                </value>
+                <value>
+                    <fullName>Upcoming</fullName>
+                    <default>false</default>
+                    <label>Upcoming</label>
+                </value>
+                <value>
+                    <fullName>Failed</fullName>
+                    <default>false</default>
+                    <isActive>false</isActive>
+                    <label>Failed</label>
+                </value>
+            </valueSetDefinition>
+        </valueSet>
     </fields>
     <fields>
         <fullName>Target_Amount__c</fullName>
@@ -322,13 +647,39 @@
         <externalId>false</externalId>
         <label>Target Company</label>
         <referenceTo>Account</referenceTo>
+        <relationshipLabel>Rounds</relationshipLabel>
         <relationshipName>Investment</relationshipName>
         <relationshipOrder>0</relationshipOrder>
-        <reparentableMasterDetail>false</reparentableMasterDetail>
+        <reparentableMasterDetail>true</reparentableMasterDetail>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>MasterDetail</type>
         <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>TotalInvestedEquity__c</fullName>
+        <externalId>false</externalId>
+        <label>TotalInvestedEquity</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>9</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Total_Committed_Folrmula__c</fullName>
+        <externalId>false</externalId>
+        <formula>Total_Shares__c *  Share_Price__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Total Committed $ Folrmula</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
     </fields>
     <fields>
         <fullName>Total_Committed_NonVoting_Shares__c</fullName>
@@ -365,21 +716,6 @@
         <type>Summary</type>
     </fields>
     <fields>
-        <fullName>Total_Invest_Dollars__c</fullName>
-        <externalId>false</externalId>
-        <formula>Total_Invest_Shares__c * Share_Price__c</formula>
-        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-        <inlineHelpText>The total $ amount the investor has committed to this series.</inlineHelpText>
-        <label>OLD Total Committed</label>
-        <precision>18</precision>
-        <required>false</required>
-        <scale>2</scale>
-        <trackHistory>false</trackHistory>
-        <trackTrending>false</trackTrending>
-        <type>Number</type>
-        <unique>false</unique>
-    </fields>
-    <fields>
         <fullName>Total_Invest_Shares__c</fullName>
         <description>The total number of investor shares.</description>
         <externalId>false</externalId>
@@ -392,17 +728,37 @@
         <type>Summary</type>
     </fields>
     <fields>
-        <fullName>Total_Round__c</fullName>
+        <fullName>Total_Investment_Dollars__c</fullName>
         <externalId>false</externalId>
-        <formula>Total_Invest_Shares__c *   Share_Price__c</formula>
-        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
-        <label>OLD Total Series</label>
-        <precision>18</precision>
-        <required>false</required>
-        <scale>2</scale>
+        <label>Total Committed Amount</label>
+        <summarizedField>Investment__c.Amount1__c</summarizedField>
+        <summaryForeignKey>Investment__c.Round__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
-        <type>Currency</type>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Total_Investment_Shares__c</fullName>
+        <externalId>false</externalId>
+        <label>Total Committed Shares</label>
+        <summarizedField>Investment__c.Shares1__c</summarizedField>
+        <summaryForeignKey>Investment__c.Round__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Total_Shares__c</fullName>
+        <externalId>false</externalId>
+        <label>Total Shares</label>
+        <summarizedField>Investment__c.Shares1__c</summarizedField>
+        <summaryForeignKey>Investment__c.Round__c</summaryForeignKey>
+        <summaryOperation>sum</summaryOperation>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Summary</type>
     </fields>
     <fields>
         <fullName>Total_Target_Shares__c</fullName>
@@ -418,6 +774,71 @@
         <type>Currency</type>
     </fields>
     <fields>
+        <fullName>Updating_By_Skyvia__c</fullName>
+        <defaultValue>false</defaultValue>
+        <externalId>false</externalId>
+        <label>Updating By Skyvia</label>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>pbk_Total_Investment_Dollars__c</fullName>
+        <externalId>false</externalId>
+        <label>Total Investment Dollars</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>pbk_VCRound__c</fullName>
+        <externalId>false</externalId>
+        <label>pbk_VCRound</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>pbk_dealid__c</fullName>
+        <externalId>true</externalId>
+        <label>pbk__dealid</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>pbk_pbId__c</fullName>
+        <externalId>false</externalId>
+        <label>pbk__pbId</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>pbk_raised_to_date__c</fullName>
+        <externalId>false</externalId>
+        <label>pbk_raised_to_date</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>9</scale>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>voting__c</fullName>
         <defaultValue>false</defaultValue>
         <description>This series is voting or non-voting rounds/series.</description>
@@ -427,9 +848,13 @@
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
     </fields>
-    <label>Series</label>
+    <label>Rounds</label>
     <listViews>
         <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Round__c</columns>
+        <columns>Target_Company__c</columns>
+        <columns>Total_Investment_Dollars__c</columns>
         <filterScope>Everything</filterScope>
         <label>All</label>
     </listViews>
@@ -439,17 +864,30 @@
         <columns>Target_Company__c</columns>
         <columns>Close_Date__c</columns>
         <columns>Share_Price__c</columns>
-        <columns>Total_Invest_Shares__c</columns>
+        <columns>Total_Investment_Shares__c</columns>
         <filterScope>Everything</filterScope>
         <label>Rounds</label>
     </listViews>
     <nameField>
-        <displayFormat>Round{00000}</displayFormat>
+        <displayFormat>S-{YY}-{000}</displayFormat>
         <label>Investment Series</label>
         <trackHistory>false</trackHistory>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Series</pluralLabel>
-    <searchLayouts/>
+    <pluralLabel>Rounds</pluralLabel>
+    <searchLayouts>
+        <lookupDialogsAdditionalFields>Announcement_Date__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Round__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Series_Type__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Share_Price__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Target_Company__c</lookupDialogsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>no_negative_share_price</fullName>
+        <active>true</active>
+        <errorConditionFormula>Share_Price__c &lt; 0</errorConditionFormula>
+        <errorMessage>Can&apos;t have a negative share price.</errorMessage>
+    </validationRules>
+    <visibility>Public</visibility>
 </CustomObject>

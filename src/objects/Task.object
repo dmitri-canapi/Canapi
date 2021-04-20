@@ -5,7 +5,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>CancelEdit</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>Close</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Close</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Close</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -13,7 +33,27 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>DeleteSeries</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>DeleteSeries</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>DeleteSeries</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -21,7 +61,13 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
-        <actionName>Follow</actionName>
+        <actionName>Edit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
@@ -29,11 +75,41 @@
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>NewTask</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>NewTask</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>SaveEdit</actionName>
         <type>Default</type>
     </actionOverrides>
     <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>SaveEdit</actionName>
+        <formFactor>Small</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
         <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <formFactor>Large</formFactor>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <formFactor>Small</formFactor>
         <type>Default</type>
     </actionOverrides>
     <compactLayoutAssignment>SYSTEM</compactLayoutAssignment>
@@ -85,19 +161,6 @@
     </fields>
     <fields>
         <fullName>Priority</fullName>
-        <picklist>
-            <picklistValues>
-                <fullName>High</fullName>
-                <default>false</default>
-                <highPriority>true</highPriority>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Normal</fullName>
-                <default>true</default>
-                <highPriority>false</highPriority>
-            </picklistValues>
-            <sorted>false</sorted>
-        </picklist>
         <type>Picklist</type>
     </fields>
     <fields>
@@ -108,42 +171,10 @@
     </fields>
     <fields>
         <fullName>Status</fullName>
-        <picklist>
-            <picklistValues>
-                <fullName>Open</fullName>
-                <default>true</default>
-                <closed>false</closed>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Completed</fullName>
-                <default>false</default>
-                <closed>true</closed>
-            </picklistValues>
-            <sorted>false</sorted>
-        </picklist>
         <type>Picklist</type>
     </fields>
     <fields>
         <fullName>Subject</fullName>
-        <picklist>
-            <picklistValues>
-                <fullName>Call</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Send Letter</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Send Quote</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Other</fullName>
-                <default>false</default>
-            </picklistValues>
-            <sorted>false</sorted>
-        </picklist>
         <type>Picklist</type>
     </fields>
     <fields>
@@ -151,21 +182,6 @@
     </fields>
     <fields>
         <fullName>Type</fullName>
-        <picklist>
-            <picklistValues>
-                <fullName>Call</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Meeting</fullName>
-                <default>false</default>
-            </picklistValues>
-            <picklistValues>
-                <fullName>Other</fullName>
-                <default>false</default>
-            </picklistValues>
-            <sorted>false</sorted>
-        </picklist>
         <type>Picklist</type>
     </fields>
     <fields>
@@ -177,61 +193,172 @@
         <type>Lookup</type>
     </fields>
     <listViews>
-        <fullName>MyActivities</fullName>
-        <columns>ACTIVITY_SUBTYPE</columns>
-        <columns>TASK.STATUS</columns>
-        <columns>TASK.SUBJECT</columns>
-        <columns>TASK.DUE_DATE</columns>
-        <columns>TASK.WHAT_NAME</columns>
-        <columns>TASK.WHO_NAME</columns>
-        <columns>EVENT.LOCATION</columns>
-        <filterScope>Mine</filterScope>
-        <label>My Activities</label>
-    </listViews>
-    <listViews>
-        <fullName>MyDelegatedActivities</fullName>
-        <filterScope>Delegated</filterScope>
-        <label>My Delegated Activities</label>
-    </listViews>
-    <listViews>
-        <fullName>MyTeamsActivities</fullName>
-        <filterScope>Team</filterScope>
-        <label>My Team&apos;s Activities</label>
-    </listViews>
-    <listViews>
-        <fullName>TodaysTasks</fullName>
+        <fullName>CompletedTasks</fullName>
+        <columns>SUBJECT</columns>
+        <columns>WHO_NAME</columns>
+        <columns>WHAT_NAME</columns>
+        <columns>DUE_DATE</columns>
+        <columns>STATUS</columns>
+        <columns>PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
         <filterScope>Mine</filterScope>
         <filters>
-            <field>TASK.CLOSED</field>
-            <operation>equals</operation>
-            <value>0</value>
-        </filters>
-        <filters>
-            <field>ACTIVITY.TASK</field>
+            <field>IS_CLOSED</field>
             <operation>equals</operation>
             <value>1</value>
         </filters>
         <filters>
-            <field>TASK.DUE_DATE</field>
-            <operation>lessThan</operation>
-            <value>TOMORROW</value>
-        </filters>
-        <label>Today&apos;s Tasks</label>
-    </listViews>
-    <listViews>
-        <fullName>UpcomingEvents</fullName>
-        <filterScope>Mine</filterScope>
-        <filters>
-            <field>ACTIVITY.TASK</field>
+            <field>IS_RECURRENCE</field>
             <operation>equals</operation>
             <value>0</value>
         </filters>
         <filters>
-            <field>TASK.DUE_DATE</field>
-            <operation>greaterThan</operation>
-            <value>YESTERDAY</value>
+            <field>LAST_UPDATE</field>
+            <operation>equals</operation>
+            <value>TODAY,LAST_N_DAYS:30</value>
         </filters>
-        <label>Upcoming Events</label>
+        <label>ENCODED:{!FilterNames.Task_CompletedTasks}</label>
+    </listViews>
+    <listViews>
+        <fullName>DelegatedTasks</fullName>
+        <columns>SUBJECT</columns>
+        <columns>WHO_NAME</columns>
+        <columns>WHAT_NAME</columns>
+        <columns>DUE_DATE</columns>
+        <columns>STATUS</columns>
+        <columns>PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Delegated</filterScope>
+        <label>ENCODED:{!FilterNames.Task_DelegatedTasks}</label>
+    </listViews>
+    <listViews>
+        <fullName>OpenTasks</fullName>
+        <columns>SUBJECT</columns>
+        <columns>WHO_NAME</columns>
+        <columns>WHAT_NAME</columns>
+        <columns>DUE_DATE</columns>
+        <columns>Percent_Complete__c</columns>
+        <columns>STATUS</columns>
+        <columns>PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>IS_RECURRENCE</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <label>Open Tasks</label>
+    </listViews>
+    <listViews>
+        <fullName>OverdueTasks</fullName>
+        <columns>SUBJECT</columns>
+        <columns>WHO_NAME</columns>
+        <columns>WHAT_NAME</columns>
+        <columns>DUE_DATE</columns>
+        <columns>STATUS</columns>
+        <columns>PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>IS_CLOSED</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>IS_RECURRENCE</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>DUE_DATE</field>
+            <operation>lessThan</operation>
+            <value>TODAY</value>
+        </filters>
+        <label>ENCODED:{!FilterNames.Task_OverdueTasks}</label>
+    </listViews>
+    <listViews>
+        <fullName>RecurringTasks</fullName>
+        <columns>SUBJECT</columns>
+        <columns>WHO_NAME</columns>
+        <columns>WHAT_NAME</columns>
+        <columns>DUE_DATE</columns>
+        <columns>STATUS</columns>
+        <columns>PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>IS_RECURRENCE</field>
+            <operation>equals</operation>
+            <value>1</value>
+        </filters>
+        <label>ENCODED:{!FilterNames.Task_RecurringTasks}</label>
+    </listViews>
+    <listViews>
+        <fullName>TodaysTasks</fullName>
+        <columns>SUBJECT</columns>
+        <columns>WHO_NAME</columns>
+        <columns>WHAT_NAME</columns>
+        <columns>DUE_DATE</columns>
+        <columns>STATUS</columns>
+        <columns>PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>IS_CLOSED</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>IS_RECURRENCE</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>DUE_DATE</field>
+            <operation>equals</operation>
+            <value>TODAY,LAST_N_DAYS:30</value>
+        </filters>
+        <label>ENCODED:{!FilterNames.z_TodaysTasks}</label>
+    </listViews>
+    <listViews>
+        <fullName>UnscheduledTasks</fullName>
+        <columns>SUBJECT</columns>
+        <columns>WHO_NAME</columns>
+        <columns>WHAT_NAME</columns>
+        <columns>DUE_DATE</columns>
+        <columns>STATUS</columns>
+        <columns>PRIORITY</columns>
+        <columns>CORE.USERS.ALIAS</columns>
+        <columns>LAST_UPDATE</columns>
+        <columns>UPDATEDBY_USER.ALIAS</columns>
+        <filterScope>Mine</filterScope>
+        <filters>
+            <field>IS_CLOSED</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>IS_RECURRENCE</field>
+            <operation>equals</operation>
+            <value>0</value>
+        </filters>
+        <filters>
+            <field>DUE_DATE</field>
+            <operation>equals</operation>
+        </filters>
+        <label>ENCODED:{!FilterNames.Task_UnscheduledTasks}</label>
     </listViews>
     <recordTypes>
         <fullName>LID__InMail</fullName>
@@ -239,6 +366,33 @@
         <compactLayoutAssignment>LID__Tasks</compactLayoutAssignment>
         <description>Record type for LinkedIn inMails (sent to non-connections)</description>
         <label>LinkedIn InMail</label>
+        <picklistValues>
+            <picklist>Meeting_Type__c</picklist>
+            <values>
+                <fullName>FinTech Alliance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FinTech Prospect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LP Fundraising</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Live Oak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Portfolio Company</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Spring Harbor</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
         <picklistValues>
             <picklist>Priority</picklist>
             <values>
@@ -280,6 +434,10 @@
             <picklist>Type</picklist>
             <values>
                 <fullName>Call</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Email</fullName>
                 <default>false</default>
             </values>
             <values>
@@ -299,6 +457,33 @@
         <description>Record type for LinkedIn messages (sent to connections)</description>
         <label>LinkedIn Message</label>
         <picklistValues>
+            <picklist>Meeting_Type__c</picklist>
+            <values>
+                <fullName>FinTech Alliance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FinTech Prospect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LP Fundraising</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Live Oak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Portfolio Company</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Spring Harbor</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
             <picklist>Priority</picklist>
             <values>
                 <fullName>High</fullName>
@@ -339,6 +524,10 @@
             <picklist>Type</picklist>
             <values>
                 <fullName>Call</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Email</fullName>
                 <default>false</default>
             </values>
             <values>
@@ -358,6 +547,33 @@
         <description>Record type for PointDrives created</description>
         <label>PointDrive Created</label>
         <picklistValues>
+            <picklist>Meeting_Type__c</picklist>
+            <values>
+                <fullName>FinTech Alliance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FinTech Prospect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LP Fundraising</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Live Oak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Portfolio Company</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Spring Harbor</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
             <picklist>Priority</picklist>
             <values>
                 <fullName>High</fullName>
@@ -398,6 +614,10 @@
             <picklist>Type</picklist>
             <values>
                 <fullName>Call</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Email</fullName>
                 <default>false</default>
             </values>
             <values>
@@ -417,6 +637,33 @@
         <description>Record type for PointDrives viewed</description>
         <label>PointDrive Viewed</label>
         <picklistValues>
+            <picklist>Meeting_Type__c</picklist>
+            <values>
+                <fullName>FinTech Alliance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FinTech Prospect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LP Fundraising</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Live Oak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Portfolio Company</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Spring Harbor</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
+        <picklistValues>
             <picklist>Priority</picklist>
             <values>
                 <fullName>High</fullName>
@@ -460,6 +707,10 @@
                 <default>false</default>
             </values>
             <values>
+                <fullName>Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
                 <fullName>Meeting</fullName>
                 <default>false</default>
             </values>
@@ -473,6 +724,33 @@
         <fullName>Task</fullName>
         <active>true</active>
         <label>Task</label>
+        <picklistValues>
+            <picklist>Meeting_Type__c</picklist>
+            <values>
+                <fullName>FinTech Alliance</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>FinTech Prospect</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>LP Fundraising</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Live Oak</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Portfolio Company</fullName>
+                <default>false</default>
+            </values>
+            <values>
+                <fullName>Spring Harbor</fullName>
+                <default>false</default>
+            </values>
+        </picklistValues>
         <picklistValues>
             <picklist>Priority</picklist>
             <values>
@@ -521,6 +799,10 @@
                 <default>false</default>
             </values>
             <values>
+                <fullName>Email</fullName>
+                <default>false</default>
+            </values>
+            <values>
                 <fullName>Meeting</fullName>
                 <default>false</default>
             </values>
@@ -530,7 +812,8 @@
             </values>
         </picklistValues>
     </recordTypes>
-    <sharingModel>Private</sharingModel>
+    <searchLayouts/>
+    <sharingModel>ControlledByParent</sharingModel>
     <validationRules>
         <fullName>LID__cannot_edit_Priority_on_Linkedin_Tasks</fullName>
         <active>false</active>

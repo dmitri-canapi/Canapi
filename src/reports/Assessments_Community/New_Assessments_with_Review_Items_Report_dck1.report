@@ -47,6 +47,8 @@
     <filter>
         <criteriaItems>
             <column>Assessment__c.Review_Status__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Complete</value>
         </criteriaItems>
@@ -70,6 +72,8 @@
     <reportType>CustomEntityCustomEntity$Assessment__c$review_item__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>false</showGrandTotal>
+    <showSubTotals>false</showSubTotals>
     <timeFrameFilter>
         <dateColumn>Assessment__c.Review_Date__c</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>

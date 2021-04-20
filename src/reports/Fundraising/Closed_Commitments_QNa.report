@@ -32,6 +32,7 @@
     <crossFilters>
         <criteriaItems>
             <column>Commitment_Stage__c</column>
+            <isUnlocked>false</isUnlocked>
             <operator>equals</operator>
             <value>Closed</value>
         </criteriaItems>
@@ -54,6 +55,8 @@
     <reportType>Commitments_Accounts__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Account$Name</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

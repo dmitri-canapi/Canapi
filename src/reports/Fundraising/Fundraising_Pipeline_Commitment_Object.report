@@ -58,6 +58,7 @@
     <crossFilters>
         <criteriaItems>
             <column>Commitment_Stage__c</column>
+            <isUnlocked>false</isUnlocked>
             <operator>equals</operator>
             <value>Interested,Verbal,Letter,SBA Letter,Closing</value>
         </criteriaItems>
@@ -80,6 +81,8 @@
     <reportType>Commitments_Accounts__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <sortColumn>Account$Owner</sortColumn>
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>

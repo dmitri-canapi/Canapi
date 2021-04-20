@@ -44,6 +44,8 @@
     <filter>
         <criteriaItems>
             <column>Account.Investment__r.Investments__r$Investor__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>Canapi</value>
         </criteriaItems>
@@ -62,6 +64,8 @@
     <reportType>Accounts_with_Rounds_with_Investments__c</reportType>
     <scope>organization</scope>
     <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
     <timeFrameFilter>
         <dateColumn>Account$CreatedDate</dateColumn>
         <interval>INTERVAL_CUSTOM</interval>
