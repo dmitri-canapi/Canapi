@@ -31,7 +31,7 @@
             <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
-            <value>LAST_N_DAYS:14</value>
+            <value>THIS_MONTH</value>
         </criteriaItems>
         <criteriaItems>
             <column>ASSIGNED</column>

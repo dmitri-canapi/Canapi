@@ -721,6 +721,8 @@ global with sharing class CustomDocumentController {
             query+=' AND (Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
         } else if(DocumentParentObjectId=='Documents'){
             query+= ' AND (Documents_Folder_Template__c != null and Account__c=:accId and Documents_Folder_Template__c  NOT in:folderBlackList)';
+        } else if(DocumentParentObjectId=='RelatedAccounts'){
+            query+=' AND ( Account__c in (select Child__c from Related_Account__c where Parent__c =: accId))';
         } else if(DocumentParentObjectId.contains('-childAcc-')){
             List<String> obj = DocumentParentObjectId.split('-childAcc-');
             folderBlackList = new Set <id>();
@@ -981,7 +983,8 @@ global with sharing class CustomDocumentController {
             } else {
                 query+=' AND (Account__c=:accId OR Opportunity__r.AccountId=:accId OR Contact__r.AccountId=:accId OR Board_Meeting__r.Account__c=:accId OR Round__r.Target_Company__c=:accId OR Investment__r.Investor__c=:accId or Investment__r.Round__r.Target_Company__c=:accId)'; 
             }*/
-            query+=' AND ((Documents_Folder_Template__c != null and Account__r.ParentId=:accId and Documents_Folder_Template__c  NOT in:folderBlackList) OR  (Account__r.ParentId=:accId OR Opportunity__r.Account.ParentId=:accId OR Contact__r.Account.ParentId=:accId OR Board_Meeting__r.Account__r.ParentId=:accId))'; 
+            //query+=' AND ((Documents_Folder_Template__c != null and Account__r.ParentId=:accId and Documents_Folder_Template__c  NOT in:folderBlackList) OR  (Account__r.ParentId=:accId OR Opportunity__r.Account.ParentId=:accId OR Contact__r.Account.ParentId=:accId OR Board_Meeting__r.Account__r.ParentId=:accId))'; 
+            query+=' AND ( Account__c in (select Child__c from Related_Account__c where Parent__c =: accId))';
         } else if(DocumentParentObjectId.contains('-childAcc-')){
             List<String> obj = DocumentParentObjectId.split('-childAcc-');
             folderBlackList = new Set <id>();
@@ -1256,7 +1259,7 @@ global with sharing class CustomDocumentController {
         
         Account a = [select Id,name,RecordType.Name,(select id,name from opportunities order by name asc), (select id, name from contacts order by name asc),(select id, name from Board_Meetings__r order by Date__c desc nulls last),(select id, name from Investment__r order by name asc),(select id, name from Investments__r order by name asc) from Account where id=:recId];
         List <Documents_Folder_Template__c> folders = [select id, Name, Parent_Folder__c from Documents_Folder_Template__c where id  NOT in (select Documents_Folder__c from Document_Folder_BlackList__c where Account__c =: recId) order by name];
-        List <Account> childAccs = [select Id,name,RecordType.Name,(select id,name from opportunities order by name asc), (select id, name from contacts order by name asc),(select id, name from Board_Meetings__r order by Date__c desc nulls last),(select id, name from Investment__r order by name asc),(select id, name from Investments__r order by name asc) from Account where parentId=:recId];
+        List <Account> childAccs = [select Id,name,RecordType.Name,(select id,name from opportunities order by name asc), (select id, name from contacts order by name asc),(select id, name from Board_Meetings__r order by Date__c desc nulls last),(select id, name from Investment__r order by name asc),(select id, name from Investments__r order by name asc) from Account where id in (select Child__c from Related_Account__c where Parent__c =: recId)];
         Set <String> chAccIdList = new Set <String>();
         for (Account ac: childAccs){
             chAccIdList.add(ac.Id);
@@ -1580,7 +1583,12 @@ global with sharing class CustomDocumentController {
 
     @RemoteAction
     global static void showFolders (String AccId){
-        delete [select id from Document_Folder_BlackList__c where Account__c =: AccId OR Account__r.ParentId =: AccId];
+        
+        Set <String> chAccIdList = new Set <String>();
+        for (Account ac: [select Id from Account where id in (select Child__c from Related_Account__c where  Parent__c =: AccId)]){
+            chAccIdList.add(ac.Id);
+        }
+        delete [select id from Document_Folder_BlackList__c where Account__c =: AccId OR Account__c in: chAccIdList];
     }
     
     @AuraEnabled

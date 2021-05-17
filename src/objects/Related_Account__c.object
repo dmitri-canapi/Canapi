@@ -148,18 +148,30 @@
     <enableFeeds>false</enableFeeds>
     <enableHistory>false</enableHistory>
     <enableLicensing>false</enableLicensing>
-    <enableReports>false</enableReports>
-    <enableSearch>true</enableSearch>
+    <enableReports>true</enableReports>
+    <enableSearch>false</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <externalSharingModel>ControlledByParent</externalSharingModel>
     <fields>
-        <fullName>Account__c</fullName>
+        <fullName>Child__c</fullName>
+        <deleteConstraint>Restrict</deleteConstraint>
+        <externalId>false</externalId>
+        <label>Related Account</label>
+        <referenceTo>Account</referenceTo>
+        <relationshipLabel>Parent Accounts</relationshipLabel>
+        <relationshipName>Child_Accounts</relationshipName>
+        <required>true</required>
+        <trackTrending>false</trackTrending>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Parent__c</fullName>
         <externalId>false</externalId>
         <label>Account</label>
         <referenceTo>Account</referenceTo>
-        <relationshipLabel>Chart of Accounts</relationshipLabel>
-        <relationshipName>Chart_of_Accounts</relationshipName>
+        <relationshipLabel>Related Companies</relationshipLabel>
+        <relationshipName>Related_Accounts</relationshipName>
         <relationshipOrder>0</relationshipOrder>
         <reparentableMasterDetail>false</reparentableMasterDetail>
         <trackTrending>false</trackTrending>
@@ -167,10 +179,10 @@
         <writeRequiresMasterRead>false</writeRequiresMasterRead>
     </fields>
     <fields>
-        <fullName>Category__c</fullName>
+        <fullName>Relationship__c</fullName>
         <externalId>false</externalId>
-        <label>Category</label>
-        <required>false</required>
+        <label>Relationship</label>
+        <required>true</required>
         <trackTrending>false</trackTrending>
         <type>Picklist</type>
         <valueSet>
@@ -178,19 +190,19 @@
             <valueSetDefinition>
                 <sorted>false</sorted>
                 <value>
-                    <fullName>Revenue</fullName>
+                    <fullName>Child</fullName>
                     <default>false</default>
-                    <label>Revenue</label>
+                    <label>Child</label>
                 </value>
                 <value>
-                    <fullName>Expense</fullName>
+                    <fullName>Investor</fullName>
                     <default>false</default>
-                    <label>Expense</label>
+                    <label>Investor</label>
                 </value>
                 <value>
-                    <fullName>Metric</fullName>
+                    <fullName>Investment Manager</fullName>
                     <default>false</default>
-                    <label>Metric</label>
+                    <label>Investment Manager</label>
                 </value>
                 <value>
                     <fullName>Other</fullName>
@@ -200,155 +212,13 @@
             </valueSetDefinition>
         </valueSet>
     </fields>
-    <fields>
-        <fullName>Default_Line_Item__c</fullName>
-        <defaultValue>false</defaultValue>
-        <externalId>false</externalId>
-        <label>Default Line Item</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
-    </fields>
-    <fields>
-        <fullName>Financial_Category__c</fullName>
-        <deleteConstraint>Restrict</deleteConstraint>
-        <externalId>false</externalId>
-        <label>Financial Category</label>
-        <referenceTo>Financial_Category__c</referenceTo>
-        <relationshipLabel>Chart of Accounts</relationshipLabel>
-        <relationshipName>Chart_of_Accounts</relationshipName>
-        <required>true</required>
-        <trackTrending>false</trackTrending>
-        <type>Lookup</type>
-    </fields>
-    <fields>
-        <fullName>Formula__c</fullName>
-        <externalId>false</externalId>
-        <label>Formula</label>
-        <length>2000</length>
-        <trackTrending>false</trackTrending>
-        <type>LongTextArea</type>
-        <visibleLines>3</visibleLines>
-    </fields>
-    <fields>
-        <fullName>Graph_Type__c</fullName>
-        <externalId>false</externalId>
-        <label>Graph Type</label>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Picklist</type>
-        <valueSet>
-            <restricted>true</restricted>
-            <valueSetDefinition>
-                <sorted>false</sorted>
-                <value>
-                    <fullName>None</fullName>
-                    <default>true</default>
-                    <label>None</label>
-                </value>
-                <value>
-                    <fullName>Bar Graph</fullName>
-                    <default>false</default>
-                    <label>Bar Graph</label>
-                </value>
-                <value>
-                    <fullName>Line Graph</fullName>
-                    <default>false</default>
-                    <label>Line Graph</label>
-                </value>
-            </valueSetDefinition>
-        </valueSet>
-    </fields>
-    <fields>
-        <fullName>Internal_Only__c</fullName>
-        <defaultValue>false</defaultValue>
-        <externalId>false</externalId>
-        <label>Internal Only</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
-    </fields>
-    <fields>
-        <fullName>Sequence_Number__c</fullName>
-        <externalId>false</externalId>
-        <label>Sequence Number</label>
-        <length>10</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
-    </fields>
-    <fields>
-        <fullName>Show_on_Graph__c</fullName>
-        <defaultValue>false</defaultValue>
-        <externalId>false</externalId>
-        <label>Show on Graph</label>
-        <trackTrending>false</trackTrending>
-        <type>Checkbox</type>
-    </fields>
-    <fields>
-        <fullName>TemplateId__c</fullName>
-        <externalId>false</externalId>
-        <label>TemplateId</label>
-        <length>18</length>
-        <required>false</required>
-        <trackTrending>false</trackTrending>
-        <type>Text</type>
-        <unique>false</unique>
-    </fields>
-    <fields>
-        <fullName>Type__c</fullName>
-        <externalId>false</externalId>
-        <label>Type</label>
-        <required>true</required>
-        <trackTrending>false</trackTrending>
-        <type>Picklist</type>
-        <valueSet>
-            <restricted>true</restricted>
-            <valueSetDefinition>
-                <sorted>false</sorted>
-                <value>
-                    <fullName>Currency</fullName>
-                    <default>true</default>
-                    <label>Currency</label>
-                </value>
-                <value>
-                    <fullName>Percentage</fullName>
-                    <default>false</default>
-                    <label>Percentage</label>
-                </value>
-                <value>
-                    <fullName>Date</fullName>
-                    <default>false</default>
-                    <label>Date</label>
-                </value>
-                <value>
-                    <fullName>Text</fullName>
-                    <default>false</default>
-                    <label>Text</label>
-                </value>
-                <value>
-                    <fullName>Number</fullName>
-                    <default>false</default>
-                    <label>Number</label>
-                </value>
-                <value>
-                    <fullName>Integer</fullName>
-                    <default>false</default>
-                    <label>Integer</label>
-                </value>
-            </valueSetDefinition>
-        </valueSet>
-    </fields>
-    <label>Chart of Accounts</label>
-    <listViews>
-        <fullName>All</fullName>
-        <filterScope>Everything</filterScope>
-        <label>All</label>
-    </listViews>
+    <label>Related Account</label>
     <nameField>
-        <label>Chart of Accounts Name</label>
-        <type>Text</type>
+        <displayFormat>RA - {00000}</displayFormat>
+        <label>Related Account Name</label>
+        <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Chart of Accounts</pluralLabel>
+    <pluralLabel>Related Accounts</pluralLabel>
     <searchLayouts/>
     <sharingModel>ControlledByParent</sharingModel>
     <visibility>Public</visibility>

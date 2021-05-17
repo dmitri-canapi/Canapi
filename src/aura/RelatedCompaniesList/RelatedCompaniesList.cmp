@@ -12,22 +12,24 @@
             <ul class="slds-has-dividers_bottom-space">
                 <aura:iteration items="{!v.data}" var="rec">
                     <li class="slds-item">
-                        <lightning:tile label="{!rec.Name}" href="{! '/alliance/s/detail/' + rec.Id}">
+                        <lightning:tile label="{!rec.Child__r.Name}" href="{! '/alliance/s/detail/' + rec.Child__c}">
                             <aura:set attribute="media">
                                 <div
                                     style="height:100%;display: table-cell; vertical-align: middle;  text-align: center;">
-                                    <aura:if isTrue="{!rec.External_Logo__c!=null}">
+                                    <aura:if isTrue="{!rec.Child__r.External_Logo__c!=null}">
                                         <img style="width:32px"
-                                            src="{! 'data:image/png;base64,' + rec.External_Logo__c + rec.External_Logo2__c + rec.External_Logo3__c}" />
+                                            src="{! 'data:image/png;base64,' + rec.Child__r.External_Logo__c + rec.Child__r.External_Logo2__c + rec.Child__r.External_Logo3__c}" />
                                         <aura:set attribute="else">
                                             <img style="width:32px"
-                                                src="{! '/alliance/services/images/photo/' + rec.Id}" />
+                                                src="{! '/alliance/services/images/photo/' + rec.Child__c}" />
                                         </aura:set>
                                     </aura:if>
                                 </div>
                             </aura:set>
                             <ul class="slds-list_horizontal slds-has-dividers_right">
-                                <li class="slds-item" style="font-size: 13px;">Type: {!rec.Type}</li>
+                                <li class="slds-item" style="font-size: 13px;">Type: Fintech Relationship:
+                                    {!rec.Relationship__c}
+                                </li>
                             </ul>
                         </lightning:tile>
                     </li>

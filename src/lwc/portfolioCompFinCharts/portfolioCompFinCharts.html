@@ -1,0 +1,18 @@
+<template>
+    <lightning-card>
+        <div class="slds-clearfix">
+            <div class="slds-p-around_x-small slds-form_horizontal slds-float_right slds-col slds-size_2-of-5">
+                <lightning-combobox name="progress" label="Reporting Period" value={qValue} options={qOptions}
+                    onchange={handleChange}></lightning-combobox>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid--vertical-align-center slds-grid--align-center mainChartsDiv slds-p-around_small"
+            lwc:dom="manual" style=" display: block;text-align: center;">
+
+        </div>
+    </lightning-card>
+    <lightning-layout-item size="12">
+        <iframe height="500px" width="100%" style="border:none;" src={vfSrc}></iframe>
+    </lightning-layout-item>
+
+</template>

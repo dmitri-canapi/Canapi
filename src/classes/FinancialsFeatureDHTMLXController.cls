@@ -238,6 +238,7 @@ global class FinancialsFeatureDHTMLXController {
     
     @RemoteAction
     global static void createChartOfAccounts(String numb, String name, String Cat, String type, String formula, Boolean IntOnly, String ShowOnGraph, String chAccId, String id){
+        system.debug(type);
         Chart_of_Accounts__c chart = new Chart_of_Accounts__c();
         chart.Sequence_Number__c = numb;
         chart.Name = name;
@@ -312,7 +313,7 @@ global class FinancialsFeatureDHTMLXController {
             fin.Report_Period__c = repId;
             fin.Chart_of_Accounts__c = chartId;
         }
-        if (type == 'Currency' || type == 'Percentage' || type == 'Number'){
+        if (type == 'Currency' || type == 'Percentage' || type == 'Number' || type == 'Integer'){
             fin.Value__c = Decimal.ValueOf(val);
         }
         if (type == 'Date'){
@@ -526,7 +527,7 @@ global class FinancialsFeatureDHTMLXController {
             } else {
                 strlist.add( chr.Name  + '^' + '/' + chr.Id );
             }
-            if (chr.Type__c == 'Currency' || chr.Type__c == 'Percentage' || chr.Type__c == 'Number'){
+            if (chr.Type__c == 'Currency' || chr.Type__c == 'Percentage' || chr.Type__c == 'Number' || chr.Type__c == 'Integer'){
                 rows.add(chr.Name);
             }
             strlist.add(chr.Financial_Category__r.Name);
@@ -534,8 +535,15 @@ global class FinancialsFeatureDHTMLXController {
                 boolean isInvestmentForRound = false;
                 for (Financials__c fin: financials){
                     if (fin.Chart_of_Accounts__c == chr.Id && fin.Report_Period__c == rp.Id ){
-                        if ((chr.Type__c == 'Currency' || chr.Type__c == 'Percentage' || chr.Type__c == 'Number')  && fin.Value__c!=null){
-                            strlist.add(String.valueOf(fin.Value__c));//.setScale(0)
+                        if ((chr.Type__c == 'Currency' || chr.Type__c == 'Percentage' || chr.Type__c == 'Number' || chr.Type__c == 'Integer')  && fin.Value__c!=null){
+                            if(chr.Type__c == 'Percentage'){
+                                strlist.add(String.valueOf(fin.Value__c.setScale(1)));
+                            } else if (chr.Type__c == 'Integer'){
+                                strlist.add(String.valueOf(fin.Value__c.setScale(0)));
+                            } else {
+                                strlist.add(String.valueOf(fin.Value__c));
+                            }
+                            
                             isInvestmentForRound = true;
                             break;
                         } else if (chr.Type__c == 'Date' && fin.DateValue__c!=null){
@@ -550,11 +558,31 @@ global class FinancialsFeatureDHTMLXController {
                     }   
                 }
                 if (!isInvestmentForRound){
-                    if (chr.Type__c == 'Currency' || chr.Type__c == 'Percentage' || chr.Type__c == 'Number'){
-                        strlist.add('0.00');
+                   switch on chr.Type__c {
+                        when 'Currency', 'Number' {	
+                            strlist.add('0.00');
+                        }
+                        when 'Percentage' {
+                            strlist.add('0.0');
+                        }	
+                        when 'Integer' {
+                            strlist.add('0');
+                        }
+                        when 'Date', 'Text' {
+                            strlist.add('');
+                        }
+                        
+                    }
+
+                    /*if (chr.Type__c == 'Currency' || chr.Type__c == 'Percentage' || chr.Type__c == 'Number'){
+                       if(chr.Type__c == 'Percentage'){
+                            strlist.add('0.0');
+                        } else {
+                            strlist.add('0.00');
+                        }
                     } else if (chr.Type__c == 'Date' || chr.Type__c == 'Text'){
                         strlist.add('');
-                    } 
+                    } */
                 }
             }
             

@@ -297,6 +297,11 @@
                     <default>false</default>
                     <label>Number</label>
                 </value>
+                <value>
+                    <fullName>Integer</fullName>
+                    <default>false</default>
+                    <label>Integer</label>
+                </value>
             </valueSetDefinition>
         </valueSet>
     </fields>

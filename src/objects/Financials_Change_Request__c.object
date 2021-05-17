@@ -214,6 +214,15 @@
         <filterScope>Everything</filterScope>
         <label>All</label>
     </listViews>
+    <listViews>
+        <fullName>Financials_Change_Reviewers_Financials_Change_Request</fullName>
+        <filterScope>Queue</filterScope>
+        <label>Financials Change Reviewers</label>
+        <queue>Financials_Change_Reviewers</queue>
+        <sharedTo>
+            <allInternalUsers></allInternalUsers>
+        </sharedTo>
+    </listViews>
     <nameField>
         <displayFormat>FCR - {00000}</displayFormat>
         <label>Financials Change Request Name</label>

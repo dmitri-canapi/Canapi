@@ -832,7 +832,7 @@
                         { type: "input", name: "Numb", label: "Sequence Number", offsetTop: 10, value: accId != null ? CapSharesGrid.cells(accId, 0).getValue() : '' },
                         { type: "input", name: "Name", label: "Line Item Name", required: true, value: accId != null ? CapSharesGrid.cells(accId, 1).getValue().split("^")[0] : '' },
                         { type: "select", name: "Category", id: "Category", label: "Category", value: accId != null ? selectedValue : "", required: true, options: cats },
-                        { type: "select", name: "Type", id: "Type", label: "Data Type", value: accId != null ? CapSharesGrid.getUserData(accId, "Type") : "", required: true, options: [{ value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Date", label: "Date" }, { value: "Text", label: "Text" }] },
+                        { type: "select", name: "Type", id: "Type", label: "Data Type", value: accId != null ? CapSharesGrid.getUserData(accId, "Type") : "", required: true, options: [{ value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Integer", label: "Integer" }, { value: "Date", label: "Date" }, { value: "Text", label: "Text" }] },
                         {
                             type: "input", className: "formulaInput", name: "Formula", label: "Formula", rows: 3, hidden: (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated') ? false : true,
                             required: (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated') ? true : false,
@@ -850,7 +850,7 @@
 
                 if (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated') {
                     advancedEditWinForm.reloadOptions("Type", [
-                        { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }
+                        { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Integer", label: "Integer" }
                     ]);
                 }
 
@@ -879,13 +879,13 @@
                             advancedEditWinForm.showItem('Formula');
                             advancedEditWinForm.setRequired('Formula', true);
                             advancedEditWinForm.reloadOptions("Type", [
-                                { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }
+                                { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Integer", label: "Integer" }
                             ]);
                         } else {
                             advancedEditWinForm.hideItem('Formula');
                             advancedEditWinForm.setRequired('Formula', false);
                             advancedEditWinForm.reloadOptions("Type", [
-                                { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Date", label: "Date" }, { value: "Text", label: "Text" }
+                                { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Integer", label: "Integer" }, { value: "Date", label: "Date" }, { value: "Text", label: "Text" }
                             ]);
                         }
                     }
@@ -941,7 +941,7 @@
                             inp.dateFormat = "%m-%d-%y";
                             inp.serverDateFormat = "%Y-%m-%d";//%m-%d-%y
                             inp.style = "text-align: right;";
-                        } else if (CapSharesGrid.getUserData(id, "Type") == 'Currency' || CapSharesGrid.getUserData(id, "Type") == 'Percentage' || CapSharesGrid.getUserData(id, "Type") == 'Number') {
+                        } else if (CapSharesGrid.getUserData(id, "Type") == 'Currency' || CapSharesGrid.getUserData(id, "Type") == 'Percentage' || CapSharesGrid.getUserData(id, "Type") == 'Number' || CapSharesGrid.getUserData(id, "Type") == 'Integer') {
                             inp.style = "text-align: right;";
                         }
 
@@ -1048,7 +1048,7 @@
 
                 advancedEditWinForm.attachEvent("onKeyUp", function (inp, ev, name, value) {
                     let type = name.split('-cut-')[2];
-                    if (type == 'Currency' || type == 'Percentage' || type == 'Number') {
+                    if (type == 'Currency' || type == 'Percentage' || type == 'Number' || type == 'Integer') {
                         advancedEditWinForm.setItemValue(name, advancedEditWinForm.getItemValue(name).replace(/[^\d.-]/g, ''));
                     }
                 });
@@ -1115,7 +1115,7 @@
                                 console.log(type);
                                 fin.Chart_of_Accounts__c = name.split('-cut-')[1];
                                 fin.Report_Period__c = currentQuarterColNumber ? jsRounds[currentQuarterColNumber - 3].Id : quarter;
-                                if (type == 'Currency' || type == 'Percentage' || type == 'Number') {
+                                if (type == 'Currency' || type == 'Percentage' || type == 'Number' || type == 'Integer') {
                                     fin.Value__c = isNaN(advancedEditWinForm.getItemValue(name)) ? 0 : Number(advancedEditWinForm.getItemValue(name));
                                 } else if (type == 'Date') {
                                     fin.DateValue__c = advancedEditWinForm.getItemValue(name) ? Date.parse(advancedEditWinForm.getItemValue(name, true)) : 0;
@@ -1656,7 +1656,7 @@
                         for (var i = 0; i < data.rounds.length + 1; i++) {
                             try {
 
-                                if (data.rounds[i].Quarter__c && data.rounds[i].Quarter__c.replaceAll('\\', '') === quarter) {
+                                if (data.rounds[i].Quarter__c && data.rounds[i].Quarter__c.replaceAll('\\', '') === quarter || data.rounds[i].Quarter__c && data.rounds[i].Quarter__c.replaceAll('\\', '') === quarter.replaceAll(',', '')) {
                                     currentQuarterColNumber = i + 3;
                                 }
                             } catch (e) { }
@@ -1690,7 +1690,7 @@
                                         } else {
                                             CapSharesGrid.setCellTextStyle(row_id, col_index, "color:green;text-align:right;");
                                         }
-                                    } else if (type == 'Number') {
+                                    } else if (type == 'Number' || type == 'Integer') {
                                         CapSharesGrid.setCellExcellType(row_id, col_index, "edtxt");
                                         CapSharesGrid.setCellTextStyle(row_id, col_index, "text-align:right;");
                                         //CapSharesGrid.setNumberFormat("0,000", col_index, ".", ",");
@@ -1735,6 +1735,7 @@
                                 this.editor.obj.select();
                                 this.editor.obj.onkeypress = function (e) {  //editor area
                                     var ValidChars = "-0123456789.";
+                                    var ValidCharsInt = "-0123456789";
                                     var ValidCharsPerc = "0123456789";
                                     if (CapSharesGrid.getUserData(rId, "Type") == 'Currency' || CapSharesGrid.getUserData(rId, "Type") == 'Number') {
                                         if (ValidChars.indexOf((String.fromCharCode((e || event).keyCode))) == -1)
@@ -1744,6 +1745,12 @@
                                     }
                                     if (CapSharesGrid.getUserData(rId, "Type") == 'Percentage') {
                                         if (ValidCharsPerc.indexOf((String.fromCharCode((e || event).keyCode))) == -1)
+                                            return false;//allow
+                                        else
+                                            return true; //deny
+                                    }
+                                    if (CapSharesGrid.getUserData(rId, "Type") == 'Integer') {
+                                        if (ValidCharsInt.indexOf((String.fromCharCode((e || event).keyCode))) == -1)
                                             return false;//allow
                                         else
                                             return true; //deny
@@ -1911,7 +1918,11 @@
 
             function showRoundTooltip(e) {
                 if (isAllowEditing || !isCommunity) {
+                    //console.log(e.getBoundingClientRect().left);
                     $("#" + e.id + '-popup').show();
+                    //$("#" + e.id + '-popup').css({ left: xPos - 20 });
+                    $("#" + e.id + '-popup').css({ left: e.getBoundingClientRect().left + 10 });
+
                 }
             }
 
