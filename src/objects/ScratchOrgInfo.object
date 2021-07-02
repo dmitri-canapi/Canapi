@@ -210,6 +210,10 @@
         <trackHistory>true</trackHistory>
     </fields>
     <fields>
+        <fullName>SourceOrg</fullName>
+        <trackHistory>true</trackHistory>
+    </fields>
+    <fields>
         <fullName>Status</fullName>
         <trackHistory>true</trackHistory>
     </fields>

@@ -92,6 +92,9 @@ function createConfig(chartd, chartl, col, median) {
                 xAxes: [{
                     gridLines: {
                         display: false
+                    },
+                    ticks: {
+                        autoSkip: false
                     }
                 }]
             },
@@ -133,14 +136,7 @@ function createConfig(chartd, chartl, col, median) {
 }
 
 export default class PortfolioCompFinCharts extends LightningElement {
-    @track
-    qValue = 'Q' + Math.floor(((new Date()).getMonth() + 3) / 3) + ', ' + (new Date()).getFullYear();
 
-    //@track
-    //vfSrc = `/apex/PortfolioCompanyFinancials?skin=terrace&amp;componentHeight=400&amp;quarter=${this.qValue}`;
-    get vfSrc() {
-        return `/apex/PortfolioCompanyFinancials?skin=terrace&componentHeight=400&quarter=${this.qValue}`;
-    }
 
     get qOptions() {
         let today = new Date();
@@ -160,6 +156,16 @@ export default class PortfolioCompFinCharts extends LightningElement {
         }
 
         return options;
+    }
+
+    @track
+    qValue = this.qOptions[1].value;
+    //qValue = 'Q' + Math.floor(((new Date()).getMonth() + 3) / 3) + ', ' + (new Date()).getFullYear();
+
+    //@track
+    //vfSrc = `/apex/PortfolioCompanyFinancials?skin=terrace&amp;componentHeight=400&amp;quarter=${this.qValue}`;
+    get vfSrc() {
+        return `/apex/PortfolioCompanyFinancials?skin=terrace&componentHeight=400&quarter=${this.qValue}`;
     }
 
     handleChange(event) {

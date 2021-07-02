@@ -232,6 +232,15 @@
     <externalSharingModel>Private</externalSharingModel>
     <fields>
         <fullName>AccountId</fullName>
+        <lookupFilter>
+            <active>true</active>
+            <filterItems>
+                <field>$Source.StageName</field>
+                <operation>equals</operation>
+                <value>Closed Won</value>
+            </filterItems>
+            <isOptional>true</isOptional>
+        </lookupFilter>
         <trackFeedHistory>true</trackFeedHistory>
         <trackTrending>false</trackTrending>
         <type>Lookup</type>
@@ -608,6 +617,29 @@
         <type>Checkbox</type>
     </fields>
     <fields>
+        <fullName>Reserve_Amount__c</fullName>
+        <externalId>false</externalId>
+        <formula>Amount *  Reserve_Percent__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Reserve Amount</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
+    </fields>
+    <fields>
+        <fullName>Reserve_Percent__c</fullName>
+        <externalId>false</externalId>
+        <label>Reserve Percent</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackTrending>false</trackTrending>
+        <type>Percent</type>
+    </fields>
+    <fields>
         <fullName>Series__c</fullName>
         <externalId>false</externalId>
         <label>Series</label>
@@ -666,6 +698,17 @@
                 </value>
             </valueSetDefinition>
         </valueSet>
+    </fields>
+    <fields>
+        <fullName>Share_Price__c</fullName>
+        <externalId>false</externalId>
+        <label>Share Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackTrending>false</trackTrending>
+        <type>Currency</type>
     </fields>
     <fields>
         <fullName>Size_Standard__c</fullName>

@@ -77,7 +77,25 @@ global class FinancialsFeatureDHTMLXController {
         }
         List<Financial_Category__c> newCats = new List<Financial_Category__c>();
 
-        for (Chart_of_Accounts_Template_Item__c ch: [select Category_Name__c, Category_type__c from Chart_of_Accounts_Template_Item__c where Chart_of_Accounts_Template__c =:templId]){
+        Set <String> existingCharts = New Set <String>();
+        for (Chart_of_Accounts__c ch: [select name from Chart_of_Accounts__c where Account__c =: accountId]){
+            existingCharts.add(ch.Name);
+        }
+        List <Chart_of_Accounts_Template_Item__c> chTemplates = [select 
+            Name, 
+            Category_Name__c, 
+            Formula__c, 
+            Category_type__c, 
+            Type__c,
+            Sequence_Number__c, 
+            Internal_Only__c 
+            from Chart_of_Accounts_Template_Item__c 
+            where 
+            Chart_of_Accounts_Template__c =:templId
+            And Name Not IN: existingCharts
+        ];
+        
+        for (Chart_of_Accounts_Template_Item__c ch: chTemplates){
             if (!catsMap.ContainsKey(ch.Category_Name__c)){
                 newCats.add(new Financial_Category__c(Name = ch.Category_Name__c, Type__c = ch.Category_type__c, Account__c = accountId));
                 catsMap.put(ch.Category_Name__c, new Financial_Category__c());
@@ -89,7 +107,7 @@ global class FinancialsFeatureDHTMLXController {
             catsMap.put(finCat.Name, finCat);
         }
 
-        for (Chart_of_Accounts_Template_Item__c ch: [select Name, Category_Name__c, Formula__c, Category_type__c, Type__c,Sequence_Number__c, Internal_Only__c from Chart_of_Accounts_Template_Item__c where Chart_of_Accounts_Template__c =:templId]){
+        for (Chart_of_Accounts_Template_Item__c ch: chTemplates){
             Chart_of_Accounts__c newCh = new Chart_of_Accounts__c();
             newCh.Name = ch.Name;
             newCh.Financial_Category__c = catsMap.get(ch.Category_Name__c).Id;
@@ -598,6 +616,183 @@ global class FinancialsFeatureDHTMLXController {
         
         CapTableDataDhtmlx retData = new CapTableDataDhtmlx(periods,generator.getAsString(),rows, isCommunity, a);
         return retData;
+    }
+
+    @RemoteAction
+    global static String importFile (String inpBlob, String recId){
+        String message = '';
+        String noLineItemsMessage = 'Unable to find line item(s): ';
+        system.debug(inpBlob);
+        system.debug(EncodingUtil.base64Decode(inpBlob).toString());
+        String infoFromFile = EncodingUtil.base64Decode(inpBlob).toString();
+        List <String> valuesFromFile = new List <String> ();
+        List <List <String>> formatedValuesFromFile = new List <List <String>> ();
+        List <String> header = new List <String> ();
+        Map <String, String> reps = new Map <String, String>();
+        for (Report_Period__c rp: [select id,Quarter__c, Date__c from Report_Period__c where Account__c =: recId]){
+            reps.put((rp.Quarter__c!= null ? rp.Quarter__c : String.valueOf(rp.Date__c)), rp.Id);
+        }
+        system.debug(reps);
+        Pattern p = Pattern.compile('(,|\n|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\",\n]*))');
+        Matcher pm = p.matcher( infoFromFile );
+        while (pm.find()) {
+            valuesFromFile.add(pm.group());
+        }
+        boolean isHeaderDetected = false;
+        List <String> rowValues = new List <String>();
+
+
+        for (String value : valuesFromFile) {
+            //system.debug(value);
+            String formatedValue;
+            if (value.startsWith('\n') && isHeaderDetected){
+                formatedValuesFromFile.add(rowValues);
+                rowValues = new List <String> ();
+            }
+            if(value.startsWith(',') || value.startsWith('\n')){
+                formatedValue = value.substring(1);
+            } else {
+                formatedValue = value;
+            }
+            if(formatedValue.startsWith('"') && formatedValue.endsWith('"')){
+                formatedValue = formatedValue.substring( 1, formatedValue.length() - 1 );
+            }
+            formatedValue = formatedValue.replace('\n','').replace('\r', '');
+            
+            if (!isHeaderDetected) {
+                if (value.startsWith('\n')){
+                    isHeaderDetected = true;
+                    rowValues.add(formatedValue);
+                    continue;
+                }
+                if (formatedValue.startsWithIgnoreCase('Q')){
+                    header.add(formatedValue);
+                } else {
+                    try{
+                        header.add(String.ValueOf(date.parse(formatedValue)));
+                    } catch(exception e){
+                        header.add(formatedValue);
+                    }
+                }
+                
+            } else {
+                rowValues.add(formatedValue);
+            }
+            
+        }
+
+                
+        List <Report_Period__c> newReps = new List <Report_Period__c>();
+        for (Integer i = 4; i < header.size(); i++) {
+            //reps
+            if (!reps.ContainsKey(header[i])){
+                Report_Period__c r = new Report_Period__c();
+                r.Account__c = recId;
+                if (header[i].startsWithIgnoreCase('Q')){
+                    r.Quarter__c = header[i];
+                } else {
+                    try{
+                        r.Date__c = Date.valueOf(header[i]);
+                    } catch(exception e){
+                        throw new CapTableControllerException(header[i] + ' is not a valid Date value');
+                    }
+                }
+                newReps.add(r);
+            }
+            system.debug('\'' + header[i] + '\'');
+        }
+
+        if (newReps.size()>0){
+            insert newReps;
+            for (Report_Period__c rp: [select id,Quarter__c, Date__c from Report_Period__c where Account__c =: recId]){
+                reps.put((rp.Quarter__c!= null ? rp.Quarter__c : String.valueOf(rp.Date__c)), rp.Id);
+            }
+        }
+        system.debug(reps.size());
+
+        Map <String,String> finMap = new Map <String,String>();
+        List <Financials__c> fins = new List <Financials__c>();
+        Map <String,Chart_of_Accounts__c> chartsMap = new Map <String,Chart_of_Accounts__c>();
+
+        for (Financials__c f: [select id, Chart_of_Accounts__c, Chart_of_Accounts__r.Type__c, Report_Period__c from Financials__c where Chart_of_Accounts__r.Account__c =: recId]){
+            finMap.put('' + f.Chart_of_Accounts__c + f.Report_Period__c, f.Id);
+        }
+
+        for (Chart_of_Accounts__c ch: [select id, Name, Type__c,Financial_Category__r.Type__c from Chart_of_Accounts__c where Account__c =: recId]){
+            chartsMap.put(ch.Name, ch);
+        }
+
+        List <Chart_of_Accounts__c> charts = new List <Chart_of_Accounts__c>();
+
+        if(!Test.isRunningTest())
+        for (Integer i = 0; i < formatedValuesFromFile.size(); i++) {
+            system.debug(formatedValuesFromFile[i]);
+            if (!chartsMap.containsKey(formatedValuesFromFile[i][2])){
+                noLineItemsMessage += formatedValuesFromFile[i][2] + ', ';
+                continue;
+
+            }
+
+            if(chartsMap.get(formatedValuesFromFile[i][2]).Financial_Category__r.Type__c == 'Calculated'){
+                continue;
+            }
+            charts.add(new Chart_of_Accounts__c(
+                Sequence_Number__c = formatedValuesFromFile[i][0],
+                Id = chartsMap.get(formatedValuesFromFile[i][2]).Id, 
+                Name = formatedValuesFromFile[i][2]
+            ));
+            for (Integer j = 4; j < formatedValuesFromFile[i].size(); j++) {
+                Financials__c fin = new Financials__c();
+                fin.Report_Period__c = reps.get(header[j]);
+                fin.Chart_of_Accounts__c = chartsMap.get(formatedValuesFromFile[i][2]).Id;
+                if (finMap.containsKey(chartsMap.get(formatedValuesFromFile[i][2]).Id +  reps.get(header[j]))){
+                    fin.Id = finMap.get(chartsMap.get(formatedValuesFromFile[i][2]).Id +  reps.get(header[j]));
+                }
+                if (chartsMap.get(formatedValuesFromFile[i][2]).Type__c == 'Currency'   ||
+                    chartsMap.get(formatedValuesFromFile[i][2]).Type__c == 'Number'     ||
+                    chartsMap.get(formatedValuesFromFile[i][2]).Type__c == 'Integer'    ||
+                    chartsMap.get(formatedValuesFromFile[i][2]).Type__c ==  'Percentage'
+                ){
+                    try{
+                        fin.Value__c = Decimal.ValueOf(formatedValuesFromFile[i][j]);
+                    } catch(exception e){
+                        fin.Value__c = 0;
+                        message += 'Invalid number "' + formatedValuesFromFile[i][j] + '" found in ' + formatedValuesFromFile[i][2] + ' for ' + header[j] + '. It will be replaced by zero.<br/>';
+                    }
+                    
+                    //message
+                } else if (chartsMap.get(formatedValuesFromFile[i][2]).Type__c ==  'Date'){
+                    if (formatedValuesFromFile[i][j] == null || formatedValuesFromFile[i][j] == ''){
+                        fin.DateValue__c = null;
+                    } else {
+                        try{
+                            fin.DateValue__c = date.parse(formatedValuesFromFile[i][j]);
+                        } catch(exception e){
+                            try{
+                                fin.DateValue__c = Date.valueOf(formatedValuesFromFile[i][j]);
+                            } catch(exception e2){
+                                fin.DateValue__c = null;
+                                message += 'Invalid Date value "' + formatedValuesFromFile[i][j] + '" found in ' + formatedValuesFromFile[i][2] + ' for ' + header[j] + '. It will be replaced by null.<br/>';
+                            }
+                        }
+                    }
+                    
+                } else {
+                    fin.TextValue__c = formatedValuesFromFile[i][j];
+                }
+                system.debug(fin);
+                fins.add(fin);
+            }
+            
+        }
+        system.debug(fins.size());
+        update charts;
+        upsert fins;
+
+
+
+        return message + (noLineItemsMessage == 'Unable to find line item(s): ' ? '' : (noLineItemsMessage.removeEnd(', ') + '<br/>'));
+
     }
     
     private static String getAccountId(){

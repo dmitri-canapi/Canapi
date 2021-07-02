@@ -35,7 +35,7 @@
                 childmmenus.push(helper.createObj('Fintech Companies', '18-Canapi-Icons-32.svg', 'fintech-companies'));
                 childmmenus.push(helper.createObj('Portfolio Companies', '18-Canapi-Icons-05.svg', 'portfolio'));
                 childmmenus.push(helper.createObj('Maps', '18-Canapi-Icons-42.svg', 'map'));
-                if (!isLimitedPartner) childmmenus.push(helper.createObj('Alliance Contacts', '18-Canapi-Icons-10.svg', 'people'));
+                // if (!isLimitedPartner) childmmenus.push(helper.createObj('Alliance Contacts', '18-Canapi-Icons-10.svg', 'people'));
                 menus.push(helper.createObj('Fintech Directory', '18-Canapi-Icons-32.svg', null, childmmenus));
 
                 childmmenus = [];
@@ -75,18 +75,18 @@
                 if (response.getReturnValue().AccRecTypeName == 'Fintech' || response.getReturnValue().AccRecTypeName == 'Portfolio Company' || response.getReturnValue().IsExternalGrader) {
                     menus.push(helper.createObj('DD Checklists', '18-Canapi-Icons-37.svg', 'dd-checklists'));
                 }*/
-                
-                if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal'){
-                        menus.push(helper.createObj('Documents', '18-Canapi-Icons-05.svg', 'documents'));
+
+                if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal') {
+                    menus.push(helper.createObj('Documents', '18-Canapi-Icons-05.svg', 'documents'));
                 }
                 if (response.getReturnValue().AccRecTypeName != 'Fintech') {
-                   // menus.push(helper.createObj('Milestones', '18-Canapi-Icons-25.svg', 'milestone/milestone__c/00B6A0000074msgUAA'));
-                    if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal'){
-                       //menus.push(helper.createObj('Cap Table', '18-Canapi-Icons-15.svg', 'cap-table'));
+                    // menus.push(helper.createObj('Milestones', '18-Canapi-Icons-25.svg', 'milestone/milestone__c/00B6A0000074msgUAA'));
+                    if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal') {
+                        //menus.push(helper.createObj('Cap Table', '18-Canapi-Icons-15.svg', 'cap-table'));
                         menus.push(helper.createObj('Financials', '18-Canapi-Icons-04.svg', 'financials'));
                     }
                     //menus.push(helper.createObj( 'DD Checklists', '18-Canapi-Icons-37.svg', 'assessment/Assessment__c/00B6A0000074mJqUAI'));
-                    
+
                     //menus.push(helper.createObj('Pending', '18-Canapi-Icons-31.svg', 'review-item/review_item__c/00B6A000006OfBzUAK'));
                 }
             }

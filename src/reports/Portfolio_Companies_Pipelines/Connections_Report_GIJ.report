@@ -7,17 +7,26 @@
         <field>Connection__c.Connection__c</field>
     </columns>
     <columns>
-        <field>DUE_DATE</field>
+        <field>RECORDTYPE</field>
     </columns>
     <columns>
         <field>Connection__c.Stage__c</field>
     </columns>
     <columns>
-        <aggregateTypes>Sum</aggregateTypes>
-        <field>Connection__c.ACV__c</field>
+        <field>CUST_CREATED_DATE</field>
+    </columns>
+    <columns>
+        <field>CUST_LAST_UPDATE</field>
     </columns>
     <columns>
         <field>Connection__c.Owner__c</field>
+    </columns>
+    <columns>
+        <field>Connection__c.Connection_Type__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>Connection__c.ACV__c</field>
     </columns>
     <columns>
         <field>Connection__c.Notes__c</field>

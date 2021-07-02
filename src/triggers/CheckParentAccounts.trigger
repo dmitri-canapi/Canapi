@@ -1,4 +1,5 @@
 trigger CheckParentAccounts on Account (after insert, after update, after delete, after undelete) {
+   /*
     List<Account> accounts = new List<Account>();   
     List<Account> WOparentAccounts = new List<Account>();  
     Set<Id> custord = new Set<Id>();
@@ -34,5 +35,5 @@ trigger CheckParentAccounts on Account (after insert, after update, after delete
       cust1.Has_Child_Accounts__c  = true;     
       accounts.add(cust1);      
     }   
-    update accounts;
+    update accounts;*/
  }

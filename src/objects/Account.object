@@ -421,6 +421,17 @@
         <unique>false</unique>
     </fields>
     <fields>
+        <fullName>Canapi_ownership__c</fullName>
+        <externalId>false</externalId>
+        <label>Canapi ownership</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Percent</type>
+    </fields>
+    <fields>
         <fullName>Categories__c</fullName>
         <externalId>false</externalId>
         <label>Categories</label>
@@ -596,6 +607,19 @@
         <trackHistory>false</trackHistory>
         <type>Text</type>
         <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Current_Valuation__c</fullName>
+        <description>The most current valuation for the company.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The most current valuation for the company.</inlineHelpText>
+        <label>Valuation</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Currency</type>
     </fields>
     <fields>
         <fullName>Delisted_Date__c</fullName>
@@ -1997,6 +2021,19 @@
         </valueSet>
     </fields>
     <fields>
+        <fullName>Share_Price__c</fullName>
+        <description>Current Share price.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Current Share price.</inlineHelpText>
+        <label>Share Price</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>2</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Currency</type>
+    </fields>
+    <fields>
         <fullName>ShippingAddress</fullName>
         <trackFeedHistory>false</trackFeedHistory>
         <trackHistory>false</trackHistory>
@@ -3082,7 +3119,7 @@
     <fields>
         <fullName>Total_Funding_Amount__c</fullName>
         <externalId>false</externalId>
-        <label>Total Funding Amount</label>
+        <label>Canapi Total Investment</label>
         <precision>18</precision>
         <required>false</required>
         <scale>2</scale>
@@ -3108,6 +3145,17 @@
         <summaryOperation>sum</summaryOperation>
         <trackHistory>false</trackHistory>
         <type>Summary</type>
+    </fields>
+    <fields>
+        <fullName>Total_Raised__c</fullName>
+        <externalId>false</externalId>
+        <label>Total Raised</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <type>Currency</type>
     </fields>
     <fields>
         <fullName>Total_Shares_Across_Rounds__c</fullName>
@@ -4406,7 +4454,10 @@
         <columns>ACCOUNT.URL</columns>
         <columns>ACCOUNT.ADDRESS2_CITY</columns>
         <columns>ACCOUNT.ADDRESS2_STATE</columns>
-        <columns>Total_Funding_Amount_Rollup__c</columns>
+        <columns>Total_Funding_Amount__c</columns>
+        <columns>Canapi_ownership__c</columns>
+        <columns>Total_Raised__c</columns>
+        <columns>Last_Funding_Amount__c</columns>
         <filterScope>Everything</filterScope>
         <filters>
             <field>ACCOUNT.RECORDTYPE</field>

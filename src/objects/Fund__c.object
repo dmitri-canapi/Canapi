@@ -128,16 +128,22 @@
     </actionOverrides>
     <actionOverrides>
         <actionName>View</actionName>
-        <type>Default</type>
-    </actionOverrides>
-    <actionOverrides>
-        <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>Fund_Record_Page</content>
         <formFactor>Large</formFactor>
-        <type>Default</type>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
     </actionOverrides>
     <actionOverrides>
         <actionName>View</actionName>
+        <comment>Action override created by Lightning App Builder during activation.</comment>
+        <content>Fund_Record_Page</content>
         <formFactor>Small</formFactor>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Flexipage</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
         <type>Default</type>
     </actionOverrides>
     <allowInChatterGroups>false</allowInChatterGroups>
@@ -210,6 +216,11 @@
         <externalId>false</externalId>
         <label>Total Commitment</label>
         <summarizedField>Commitment__c.Target_Commitment__c</summarizedField>
+        <summaryFilterItems>
+            <field>Commitment__c.Commitment_Stage__c</field>
+            <operation>equals</operation>
+            <value>Closed</value>
+        </summaryFilterItems>
         <summaryForeignKey>Commitment__c.Fund__c</summaryForeignKey>
         <summaryOperation>sum</summaryOperation>
         <trackTrending>false</trackTrending>
@@ -218,6 +229,11 @@
     <label>Fund</label>
     <listViews>
         <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Total_Amount__c</columns>
+        <columns>Target_Fund_Amount__c</columns>
+        <columns>Total_Commitment__c</columns>
+        <columns>Remaining_Amount__c</columns>
         <filterScope>Everything</filterScope>
         <label>All</label>
     </listViews>
@@ -226,7 +242,22 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Funds</pluralLabel>
-    <searchLayouts/>
+    <profileSearchLayouts>
+        <fields>NAME</fields>
+        <fields>OBJECT_ID</fields>
+        <fields>Target_Fund_Amount__c</fields>
+        <fields>Total_Amount__c</fields>
+        <fields>Total_Commitment__c</fields>
+        <fields>Remaining_Amount__c</fields>
+        <profileName>Canapi User</profileName>
+    </profileSearchLayouts>
+    <searchLayouts>
+        <searchResultsAdditionalFields>OBJECT_ID</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Total_Amount__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Target_Fund_Amount__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Total_Commitment__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Remaining_Amount__c</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
     <visibility>Public</visibility>
 </CustomObject>

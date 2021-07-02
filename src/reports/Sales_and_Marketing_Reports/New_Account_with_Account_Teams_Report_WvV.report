@@ -27,13 +27,13 @@
             <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
-            <value>Hot,On Fire</value>
+            <value>Warm,Hot,On Fire</value>
         </criteriaItems>
     </filter>
     <format>Summary</format>
     <groupingsDown>
         <dateGranularity>Day</dateGranularity>
-        <field>ACCOUNT_OWNER_NAME</field>
+        <field>Account.Referred_by__c</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
     <name>Partner Watchlist 2.0</name>

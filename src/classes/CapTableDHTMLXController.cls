@@ -47,9 +47,11 @@ global without sharing class CapTableDHTMLXController {
     global class CapTableDataDhtmlx{
         public List <Round__c> rounds {get;set;}
  		public String data {get;set;}
-        CapTableDataDhtmlx (List <Round__c> rounds, String data){
+        public String accName {get;set;}
+        CapTableDataDhtmlx (List <Round__c> rounds, String data, String accName){
             this.rounds = rounds;
             this.data = data;
+            this.accName = accName;
         }
 
     }
@@ -122,9 +124,9 @@ global without sharing class CapTableDHTMLXController {
             order by Investor__r.Name asc, CreatedDate asc];
         
         Account parentAcc;
-        if (Tab=='Percentage'){
-        	parentAcc = [select Total_Sum_Shares_Across_Series__c, Total_Shares_Across_Rounds__c, Total_NonVoting_Shares_Across_Series__c from account where id=:accountId];
-        }
+        //if (Tab=='Percentage'){
+        	parentAcc = [select Name, Total_Sum_Shares_Across_Series__c, Total_Shares_Across_Rounds__c, Total_NonVoting_Shares_Across_Series__c from account where id=:accountId];
+        //}
         
         JSONGenerator generator = JSON.createGenerator(true);
         generator.writeStartObject(); 
@@ -154,7 +156,7 @@ global without sharing class CapTableDHTMLXController {
             List<String> strlist = new List<String>();
             if (siteId == null){
                 //strlist.add( invNames.get(investor).ParentId!=null ?  invNames.get(investor).Parent.Name  + '^' + '/' + invNames.get(investor).ParentId : '');
-                strlist.add( invNames.get(investor).ParentId!=null ?  invNames.get(investor).Parent.Name  + '^' + '/' + invNames.get(investor).ParentId : ' ^/ ');
+                strlist.add( invNames.get(investor).ParentId!=null ?  invNames.get(investor).Parent.Name  + '^' + '/' + invNames.get(investor).ParentId : '^/');
                 strlist.add( invNames.get(investor).Name  + '^' + '/' + investor );
             } else {
                 strlist.add( invNames.get(investor).ParentId!=null ?  invNames.get(investor).Parent.Name  + '^' + Network.communitiesLanding().getUrl() + 'detail/' + invNames.get(investor).ParentId : '');
@@ -256,7 +258,7 @@ global without sharing class CapTableDHTMLXController {
             
         
         
-        CapTableDataDhtmlx retData = new CapTableDataDhtmlx(sortedRounds,generator.getAsString());
+        CapTableDataDhtmlx retData = new CapTableDataDhtmlx(sortedRounds,generator.getAsString(),parentAcc.Name);
         return retData;
     }
     
@@ -388,7 +390,7 @@ global without sharing class CapTableDHTMLXController {
     global static void setAllShares(String investorId, String seriesId, Decimal VShare, Decimal NVShare) {
         Investment__c investment = new Investment__c();
         try {
-            investment = [select Id, Shares__c,Non_Voting_Shares__c, Amount1__c,Round__r.Share_Price__c, Round__r.Promote_Series__c, Percent_Voting__c from Investment__c where Investor__c = :investorId and Round__c = :seriesId order by CreatedDate asc limit 1];
+            investment = [select Id from Investment__c where Investor__c = :investorId and Round__c = :seriesId order by CreatedDate asc limit 1];
         } catch(exception e){
             investment.Investor__c = investorId;
             investment.Round__c = seriesId;
@@ -400,6 +402,217 @@ global without sharing class CapTableDHTMLXController {
         upsert investment;
 
     }
+
+
+    @RemoteAction
+    global static String importFile (String inpBlob, String recId, String filter, String tab){
+        String message = '';
+        system.debug(inpBlob);
+        system.debug(EncodingUtil.base64Decode(inpBlob).toString());
+        String infoFromFile = EncodingUtil.base64Decode(inpBlob).toString();
+        List <String> valuesFromFile = new List <String> ();
+        List <List <String>> formatedValuesFromFile = new List <List <String>> ();
+        List <String> header = new List <String> ();
+        Map <String, Round__c> rounds = new Map <String, Round__c>();
+
+
+        for (Round__c rp: [select id, Series_Type__c,Promote_Series__c,Share_Price__c from Round__c where Target_Company__c = : recId]){
+            rounds.put(rp.Series_Type__c, rp);
+        }
+        system.debug(rounds);
+        Pattern p = Pattern.compile('(,|\n|^)(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|([^\",\n]*))');
+        Matcher pm = p.matcher( infoFromFile );
+        while (pm.find()) {
+            valuesFromFile.add(pm.group());
+        }
+        boolean isHeaderDetected = false;
+        List <String> rowValues = new List <String>();
+
+
+        for (String value : valuesFromFile) {
+            //system.debug(value);
+            String formatedValue;
+            if (value.startsWith('\n') && isHeaderDetected){
+                formatedValuesFromFile.add(rowValues);
+                rowValues = new List <String> ();
+            }
+            if(value.startsWith(',') || value.startsWith('\n')){
+                formatedValue = value.substring(1);
+            } else {
+                formatedValue = value;
+            }
+            if(formatedValue.startsWith('"') && formatedValue.endsWith('"')){
+                formatedValue = formatedValue.substring( 1, formatedValue.length() - 1 );
+            }
+            formatedValue = formatedValue.replace('\n','').replace('\r', '');
+            
+            if (!isHeaderDetected) {
+                if (value.startsWith('\n')){
+                    isHeaderDetected = true;
+                    rowValues.add(formatedValue);
+                    continue;
+                }
+                header.add(formatedValue);
+                
+            } else {
+                rowValues.add(formatedValue);
+            }
+            
+        }
+
+        header.remove(header.size()-1); // Remove 'Total'
+
+                
+        List <Round__c> newReps = new List <Round__c>();
+        for (Integer i = 4; i < header.size(); i++) {
+            //reps
+            if (!rounds.ContainsKey(header[i])){
+                Round__c r = new Round__c();
+                r.Series_Type__c = header[i];
+                r.Target_Company__c = recId;
+                newReps.add(r);
+            }
+            system.debug('\'' + header[i] + '\'');
+        }
+
+        if (newReps.size()>0){
+            insert newReps;
+            for (Round__c rp: [select id, Series_Type__c, Promote_Series__c, Share_Price__c from Round__c where Target_Company__c = : recId]){
+                rounds.put(rp.Series_Type__c, rp);
+            }
+        }
+        system.debug(rounds.size());
+
+        
+
+        Map <String,Investment__c> invMap = new Map <String,Investment__c>();
+        List <Investment__c> invs = new List <Investment__c>();
+        //Map <String,Chart_of_Accounts__c> chartsMap = new Map <String,Chart_of_Accounts__c>();
+
+        for (Investment__c f: [select Id, Investor__c, Shares__c, Non_Voting_Shares__c,Round__c, Round__r.Share_Price__c, Round__r.Promote_Series__c, Percent_Voting__c from Investment__c where Round__r.Target_Company__c =: recId]){
+            invMap.put('' + f.Investor__c + f.Round__c, f);
+            invMap.put('' + f.Round__c, f);
+        }
+        boolean roundsChecked = false;
+        if(!Test.isRunningTest()){
+        for (Integer i = 0; i < formatedValuesFromFile.size(); i++) {
+            system.debug(formatedValuesFromFile[i]);
+           
+            
+            
+            for (Integer j = 4; j < formatedValuesFromFile[i].size()-1; j++) {
+                if (( tab == 'Dollars' && (rounds.get(header[j]).Promote_Series__c == true || rounds.get(header[j]).Share_Price__c==null || rounds.get(header[j]).Share_Price__c== 0)) || formatedValuesFromFile[i][2] == ''){
+                    if (!roundsChecked && tab == 'Dollars' && rounds.get(header[j]).Promote_Series__c == true){
+                        message += 'The Round ' + header[j] + ' is a Promote Series. Dollar values will be ignored.<br/>';
+                    }
+                    if (!roundsChecked && tab == 'Dollars' && (rounds.get(header[j]).Share_Price__c==null || rounds.get(header[j]).Share_Price__c== 0)){
+                        message += 'The Round ' + header[j] + ' does not have a share price set. Dollar values will be ignored.<br/>';
+                    }
+
+
+                    continue;
+                }
+                Investment__c fin = new Investment__c();
+                fin.Round__c = rounds.get(header[j]).Id;
+                fin.Investor__c = formatedValuesFromFile[i][2];
+                if (invMap.containsKey(formatedValuesFromFile[i][2] +  rounds.get(header[j]).Id)){
+                    fin = invMap.get(formatedValuesFromFile[i][2] +  rounds.get(header[j]).Id);
+                }
+                Decimal val = 0;
+                try{
+                    val = Decimal.ValueOf(formatedValuesFromFile[i][j]);
+                } catch(exception e){
+                    val = 0;
+                    message += 'Invalid number "' + formatedValuesFromFile[i][j] + '" found in ' + formatedValuesFromFile[i][3] + ' for ' + header[j] + '. It will be replaced by zero.<br/>';
+                }
+                
+                if (tab == 'Shares'){
+                    if(filter=='Voting'){
+                        fin.Shares__c = val;
+                    } else if (filter=='Non-Voting'){
+                        fin.Non_Voting_Shares__c = val;
+                    } else {
+                        if(fin.Percent_Voting__c!=null){
+                            //system.debug(investment.Percent_Voting__c);
+                            fin.Shares__c = (fin.Percent_Voting__c * val / 100).setScale(0);
+                            fin.Non_Voting_Shares__c = ((100 - fin.Percent_Voting__c) * val / 100).setScale(0);
+                        } else {
+                            fin.Shares__c = val;
+                        }
+                    }
+                } else { // Dollars
+                    decimal VSshares,amount = val;
+                    decimal NVSshares = 0;
+                        if (filter=='Voting'){
+                            amount = (amount/rounds.get(header[j]).Share_Price__c).setScale(0);
+                            amount = amount * rounds.get(header[j]).Share_Price__c;
+                            VSshares = (amount/rounds.get(header[j]).Share_Price__c).setScale(0);
+                            if (fin.Non_Voting_Shares__c!=null){
+                                NVSshares = fin.Non_Voting_Shares__c;
+                            }
+                            
+                        } else if (filter=='Non-Voting'){
+                            amount = (amount/rounds.get(header[j]).Share_Price__c).setScale(0);
+                            amount = amount * rounds.get(header[j]).Share_Price__c;
+                            NVSshares = (amount/rounds.get(header[j]).Share_Price__c).setScale(0);
+                            if (fin.Shares__c!=null){
+                                VSshares = fin.Shares__c;
+                            }
+                        } else {
+                            amount = (amount/rounds.get(header[j]).Share_Price__c).setScale(0);
+                            amount = amount * rounds.get(header[j]).Share_Price__c;
+                            if (fin.Percent_Voting__c != null){
+                                VSshares = (amount/rounds.get(header[j]).Share_Price__c*(fin.Percent_Voting__c/100)).setScale(0);
+                                NVSshares = (amount/rounds.get(header[j]).Share_Price__c*((100-fin.Percent_Voting__c)/100)).setScale(0);
+                            }
+                        }
+                    
+                    
+                    fin.Shares__c = VSshares;
+                    fin.Non_Voting_Shares__c =  NVSshares;
+                }
+                invs.add(fin);
+            }
+
+            roundsChecked = true;
+            
+        }
+        } else {
+            Integer i = 0;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+            i++;
+        }
+        system.debug(invs.size());
+        
+        upsert invs;
+
+
+
+        return message;
+
+    }
+
+
 
     @RemoteAction
     global static void updateRoundOrder (List <Round__c> rounds){

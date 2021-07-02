@@ -153,7 +153,7 @@
     <enableSearch>true</enableSearch>
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
-    <externalSharingModel>Private</externalSharingModel>
+    <externalSharingModel>ReadWrite</externalSharingModel>
     <fields>
         <fullName>Begin_Date__c</fullName>
         <description>The date and time that the function starts.</description>
@@ -228,6 +228,37 @@
         </valueSet>
     </fields>
     <fields>
+        <fullName>Meeting_Id__c</fullName>
+        <externalId>true</externalId>
+        <label>Meeting Id</label>
+        <length>80</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Meeting_Password__c</fullName>
+        <externalId>false</externalId>
+        <label>Meeting Password</label>
+        <length>20</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Registration_URL__c</fullName>
+        <externalId>false</externalId>
+        <label>Registration URL</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Url</type>
+    </fields>
+    <fields>
         <fullName>Zoom_User_ID__c</fullName>
         <description>User ID that will create the Webinar and used in the OAUTH workflow</description>
         <externalId>false</externalId>
@@ -240,9 +271,26 @@
         <type>Text</type>
         <unique>false</unique>
     </fields>
+    <fields>
+        <fullName>join_url__c</fullName>
+        <externalId>false</externalId>
+        <label>Join Url</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
     <label>Function</label>
     <listViews>
         <fullName>All</fullName>
+        <columns>NAME</columns>
+        <columns>Begin_Date__c</columns>
+        <columns>End_Date__c</columns>
+        <columns>join_url__c</columns>
+        <columns>CREATEDBY_USER</columns>
+        <columns>LAST_UPDATE</columns>
         <filterScope>Everything</filterScope>
         <label>All</label>
     </listViews>
@@ -252,7 +300,22 @@
         <type>Text</type>
     </nameField>
     <pluralLabel>Functions</pluralLabel>
-    <searchLayouts/>
+    <searchLayouts>
+        <searchResultsAdditionalFields>Function_Description__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Begin_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>End_Date__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Meeting_Id__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>CREATEDBY_USER</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>LAST_UPDATE</searchResultsAdditionalFields>
+    </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>End_Date_Must_be_greater_than_Start_Date</fullName>
+        <active>true</active>
+        <description>End Date Must be greater than Start Date</description>
+        <errorConditionFormula>End_Date__c  &lt;=  Begin_Date__c</errorConditionFormula>
+        <errorDisplayField>End_Date__c</errorDisplayField>
+        <errorMessage>End Date Must be greater than Start Date</errorMessage>
+    </validationRules>
     <visibility>Public</visibility>
 </CustomObject>

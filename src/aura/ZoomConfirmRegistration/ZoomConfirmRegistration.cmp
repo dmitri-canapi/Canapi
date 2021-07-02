@@ -1,0 +1,59 @@
+<aura:component controller="FunctionTriggerHandler"
+    implements="force:appHostable,flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes"
+    access="global">
+    <aura:attribute name="userRegistrationStatus" type="String" default="" />
+    <aura:attribute name="functionContId" type="String" default="" />
+    <aura:attribute name="functionContact" type="Function_Contact__c" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+
+
+    <div style="max-width:500px;margin: 0 auto;padding: 20px;">
+        <div class="slds-text-heading_medium">
+            <lightning:icon size="large" iconName="utility:date_time" alternativeText="Event Registration"
+                title="Event Registration" /> &nbsp;&nbsp;Event Registration<br /><br />
+
+        </div>
+        <aura:if isTrue="{!v.userRegistrationStatus == 'Registered'}">
+            <div class="demo-only" style="height:4rem">
+                <div class="slds-notify_container slds-is-relative" style="z-index: 0;">
+                    <div class="slds-notify slds-notify_toast slds-theme_info" role="status"
+                        style="background-color: #6b6d708c !important;">
+                        <div class="slds-notify__content">
+                            <h3 class="slds-text-heading_small" style="color: black;font-size: 12px;">
+                                You are already registered for this event.
+                            </h3>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </aura:if>
+        <div class="slds-text-heading_small">
+            <b>Event:</b> &nbsp; &nbsp;{!v.functionContact.Function__r.Name}<br /><br />
+            <b>Time:</b> &nbsp; &nbsp;
+            <lightning:formattedDateTime value="{!v.functionContact.Start_Time__c}" year="numeric" month="numeric"
+                day="numeric" hour="2-digit" minute="2-digit" timeZone="America/New_York" timeZoneName="long"
+                hour12="true" /><br /><br />
+            <b>Description:</b> &nbsp; &nbsp;
+            <ui:outputRichText class="slds-text-longform"
+                value="{!v.functionContact.Function__r.Function_Description__c}" />
+        </div>
+        <br /><br /><br /><br />
+        <div class="slds-align_absolute-center">
+            <aura:if isTrue="{!v.userRegistrationStatus == 'NotRegistered'}">
+                <lightning:button variant="brand" label="Register" onclick="{!c.register}" />
+            </aura:if>
+        </div>
+        <!--aura:if isTrue="{!v.userRegistrationStatus == 'Registered'}">
+            <div class="slds-align_absolute-center slds-text-heading_large">
+                Thank you for registration.
+            </div>
+
+        </aura:if-->
+    </div>
+
+
+
+</aura:component>

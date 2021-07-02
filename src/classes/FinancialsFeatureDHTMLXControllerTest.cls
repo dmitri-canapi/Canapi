@@ -73,8 +73,11 @@ public class FinancialsFeatureDHTMLXControllerTest {
 
         FinancialsFeatureDHTMLXController.deleteCategory(fc.Id);
         FinancialsFeatureDHTMLXController.getUserFiles(UserInfo.getUserId());
-        FinancialsFeatureDHTMLXController.prepareDocumentForUpload('text.txt', acc.Id, 'Q1, 2021');
+        String doc = FinancialsFeatureDHTMLXController.prepareDocumentForUpload('text.txt', acc.Id, 'Q1, 2021');
 
+        FinancialsFeatureDHTMLXController.removeDocument(doc);
+
+        FinancialsFeatureDHTMLXController.importFile('U2VxdWVuY2UgTnVtYmVyLFJlY29yZCBJRCxDaGFydCBvZiBBY2NvdW50cyxDYXRlZ29yeSwzLzI2LzIwMjEsIlExLCAyMDIwIiwiUTIsIDIwMjAiLCJRMywgMjAyMCIsIlE0LCAyMDIwIiwiUTEsIDIwMjEiLCJRMiwgMjAyMSINCjQsYTByMWgwMDAwMDF2dzJUQUFRLGRzNTQsZHNmZHNmZHNmLDQsNCw0LDQsNCw0LDQNCixhMHIxaDAwMDAwMlZaWUtBQTQsaTMsZHNmZHNmZHNmLDAsMCwwLDAsMCwwLDANCixhMHIxaDAwMDAwMkRuYWJBQUMsQVJSLEV4cGVuc2UsMTAuNDUsMjAwLDUsNDAwLDUwMCw5MDAsOTAwDQosYTByMWgwMDAwMDJWWlk1QUFPLEFSUiBZT1ksRXhwZW5zZSwwLDAsMCwwLDAsMCwwDQosYTByMWgwMDAwMDF2dzJSQUFRLGV4cCxFeHBlbnNlLDAs',acc.Id);
         
         
     }

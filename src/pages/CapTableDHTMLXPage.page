@@ -126,6 +126,17 @@
         .ftr table {
             padding-right: 0px !important;
         }
+
+        .dhtmlx_modal_box {
+            max-height: 300px !important;
+
+        }
+
+        .dhtmlx_modal_box span {
+            max-height: 240px !important;
+            display: block !important;
+            overflow: auto !important;
+        }
     </style>
 
     <body>
@@ -137,6 +148,7 @@
             <br/>
             <br/>
             <br/>
+            <div id="fileWrapper" style="display:none;"></div>
         </div>
 
         <script type="text/javascript">
@@ -256,6 +268,8 @@
             var componentHeight = vars["componentHeight"];
             var isAllowEditing = JSON.parse(vars["isAllowEditing"]);
 
+            var accName = '';
+
             var jsRounds;
             var advancedEditWin;
             var RoundTooltip;
@@ -291,7 +305,7 @@
                 } else if (id == "new_series") {
                     parent.postMessage('new_series', ParentUrl);
                 } else if (id == "Export") {
-                    var csv = 'Parent Account ID, Parent tAccount Name,Record ID,' + exportHeaderLabels + ', Total Investment' + '\n';
+                    var csv = 'Parent Account ID,Parent Account Name,Record ID,' + exportHeaderLabels + ',Total Investment' + '\n';
                     var columnDivider = ',';
                     CapSharesGrid.setCSVDelimiter("Æ");
                     s = CapSharesGrid.serializeToCSV().replaceAll('_blank', '');
@@ -308,32 +322,46 @@
 
                         }
                         if (cell.includes('^/')) {
-                            csv += cell.substring(cell.indexOf('^/') + 2, cell.lastIndexOf('^')) + ',"' + cell.substring(0, cell.indexOf('^/')) + '",'
+                            csv += cell.substring(cell.indexOf('^/') + 2, cell.lastIndexOf('^')) + (cell.substring(0, cell.indexOf('^/')).includes(',') ? ',"' + cell.substring(0, cell.indexOf('^/')) + '",' : ',' + cell.substring(0, cell.indexOf('^/')) + ',')
                         } else if (!isNaN(cell) && cell.toString().indexOf('.') != -1) {
                             var val = parseFloat(cell).toFixed(2);
                             csv += val + ',';
                         } else {
-                            console.log(cell);
-
-                            if (csv == '') {
-                                csv += cell + ',,';
-                            } else {
-                                csv += cell + ',';
-                            }
+                            csv += cell + ',';
                         }
 
                     }
-
+                    console.log(csv);
+                    csv = str = csv.replace(/,\s*$/, "");
                     csv += '\n,';
                     for (var i = 0; i < CapSharesGrid.getColumnsNum(); i++) {
-                        csv += ',' + CapSharesGrid.getFooterLabel(i).replaceAll(',', '').replaceAll('$', '').replaceAll('%', '');
+                        if (i == 0) {
+                            csv += ',';
+                        } else {
+                            csv += ',' + CapSharesGrid.getFooterLabel(i).replaceAll(',', '').replaceAll('$', '').replaceAll('%', '');
+                        }
                     }
+                    var tInfo = getToolbarInfo();
+
                     var hiddenElement = document.createElement('a');
                     hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
                     hiddenElement.target = '_self'; // 
-                    hiddenElement.download = 'CapTable.csv';  // CSV file Name* you can change it.[only name not .csv] 
+                    hiddenElement.download = 'CapTable - ' + accName + ' - By ' + tInfo.tab + '.csv';  // CSV file Name* you can change it.[only name not .csv] 
                     document.body.appendChild(hiddenElement); // Required for FireFox browser
                     hiddenElement.click();
+                } else if (id == "Import") {
+                    var tInfo = getToolbarInfo();
+                    dhtmlx.confirm({
+                        text: "Importing " + (tInfo.tab == 'Dollars' ? 'Dollar Values' : 'Shares') + " into CapTable. Values you are about to import will overwrite data in the CapTable",
+                        ok: "Import",
+                        cancel: "Cancel",
+                        callback: function (res) {
+                            if (res) {
+                                importCsv();
+                            }
+                        }
+                    });
+
                 }
             });
 
@@ -360,7 +388,11 @@
 
             //Toolbar.addSeparator("sep2", 9);
             Toolbar.addSpacer("Non-Voting");
-            Toolbar.addButton("Export", 10, "Export", "excel.ico");
+            //Toolbar.addButton("Export", 10, "Export", "excel.ico");
+            var impExp = Array(Array('Export', 'obj', 'Export', null), Array('Import', 'obj', ' Import', null));
+            Toolbar.addButtonSelect("Export", 10, "Export", impExp, "excel.ico", "excel.ico", true, false, 3, false);
+            Toolbar.hideListOption("Export", "Import");
+
             if (!isCommunity) {
                 Toolbar.addButtonTwoState("AllowEdits", 11, "Editable on the Portal", "pencil.png");
             }
@@ -392,16 +424,19 @@
                     refreshGrid(tInfo.filter, id);
                     Toolbar.setItemState("Dollars", false, false);
                     Toolbar.setItemState("Percentage", false, false);
+                    if (!isCommunity || (isCommunity && isAllowEditing)) Toolbar.showListOption("Export", "Import");
                 }
                 if (id == 'Dollars') {
                     refreshGrid(tInfo.filter, id);
                     Toolbar.setItemState("Shares", false, false);
                     Toolbar.setItemState("Percentage", false, false);
+                    if (!isCommunity || (isCommunity && isAllowEditing)) Toolbar.showListOption("Export", "Import");
                 }
                 if (id == 'Percentage') {
                     refreshGrid(tInfo.filter, id);
                     Toolbar.setItemState("Shares", false, false);
                     Toolbar.setItemState("Dollars", false, false);
+                    Toolbar.hideListOption("Export", "Import");
                 }
 
                 if (id == 'AllowEdits') {
@@ -618,6 +653,7 @@
                     } else {
                         var data = result;
                         jsRounds = data.rounds;
+                        accName = data.accName;
 
                         try { CapSharesGrid.destructor(); } catch (e) { }
                         CapSharesGrid = Layout.cells("a").attachGrid();
@@ -657,7 +693,9 @@
                         TableHeaders += '<div id="shareholder-popup" class="popupDiv" style="margin: 0 !important;min-height: 20px; min-width: 170px;" onclick="event.stopPropagation()"><div style="display:inline-block"><input type="checkbox" id="showShareholderCheckbox"/> Show Parent Account</div></div></div>';
 
                         for (let item of data.rounds) {
-                            exportHeaderLabels += ',"' + item.Series_Type__c + '"';
+                            //exportHeaderLabels += ',"' + item.Series_Type__c + '"';
+                            exportHeaderLabels += ',' + (item.Series_Type__c.includes(',') ? ('"' + item.Series_Type__c.replace('\\', '') + '"') : item.Series_Type__c.replace('\\', ''));
+
                             columnMoveSetting += ',true';
                             columnIds += ',' + item.Id;
                             //SerializableColumns += ',true';
@@ -667,12 +705,12 @@
                                 var d = new Date(item.Close_Date__c);
                                 var clDate = ' (' + d.getShortMonthName() + '-' + d.getFullYear().toString().substr(-2) + ')';
                                 TableHeaders += clDate;
-                                exportHeaderLabels += clDate;
+                                //exportHeaderLabels += clDate;
                             }
 
                             TableHeaders += '<div id="' + item.Id + '-popup" class="popupDiv" onclick="event.stopPropagation()"><div style="display:inline-block">';
 
-                            TableHeaders += '<div style="float:left;clear: both;min-width: 120px; text-transform: uppercase; text-align: left; "><a style="color:   #006dcc !important;" href="/' + item.Id + '">' + item.Series_Type__c.replaceAll(",", "\\,") + '</a></div>';
+                            TableHeaders += '<div style="float:left;clear: both;min-width: 120px; text-transform: uppercase; text-align: left; "><a style="color:	#006dcc !important;" href="/' + item.Id + '">' + item.Series_Type__c.replaceAll(",", "\\,") + '</a></div>';
                             var postmv = 0;
                             if (!isCommunity || (isCommunity && isAllowEditing)) {
                                 TableHeaders += '<div style="float:left;margin-left: 15px;float: right;text-transform: capitalize; font-size: 11px; margin-bottom: 5px;  cursor: pointer;" onclick="deleteSeries(\'' + item.Series_Type__c.replaceAll(",", "\\,") + '\'\\,\'' + item.Id + '\')">Delete Series</div>';
@@ -894,7 +932,74 @@
                 });
             }
 
+            var container = document.getElementById("fileWrapper");
+            var inpFile = document.createElement('input');
+            inpFile.setAttribute("type", "file");
+            inpFile.setAttribute("name", "files[]");
+            inpFile.setAttribute("id", "csvFile");
+            //inpFile.setAttribute("multiple", "multiple");
 
+            container.appendChild(inpFile);
+
+            $('#csvFile').on("change", function (e) {
+                //console.log(e);
+                var file = e.target.files[0];
+                var reader = new FileReader();
+
+                reader.onloadend =
+                    (function (file) {
+                        return function (evt) {
+                            try {
+                                console.log(evt.target.result);
+                                var base64 = 'base64,';
+                                var dataStart = evt.target.result.indexOf(base64) + base64.length;
+
+                                var fileContents = evt.target.result.substring(dataStart);
+
+                                Layout.cells("a").progressOn();
+                                var tInfo = getToolbarInfo();
+
+                                CapTableDHTMLXController.importFile(fileContents, recordId, tInfo.filter, tInfo.tab, function (result, event) {
+                                    if (event.type == 'exception') {
+                                        dhtmlx.message({
+                                            type: "error",
+                                            text: event.message,
+                                            expire: 5000,
+                                        });
+                                    } else {
+
+                                        if (result != '')
+                                            dhtmlx.message({
+                                                title: "Warning",
+                                                type: "alert-warning",
+                                                text: $('<div>').html(result).text()
+                                            });
+
+                                        var tInfo = getToolbarInfo();
+                                        refreshGrid(tInfo.filter, tInfo.tab);
+
+                                    }
+                                    $('#csvFile').val(null);
+                                });
+                            } catch (e) {
+                                Layout.cells("a").progressOff();
+                                dhtmlx.message({
+                                    type: "alert-error",
+                                    text: file.name + " can't be uploaded. " + e
+                                });
+                                //dhtmlx.message.hide("UploadingBox");
+                            }
+
+                        };
+                    })(file);
+
+                reader.readAsDataURL(file);
+
+            });
+
+            function importCsv() {
+                $('#csvFile').show().focus().click().hide();
+            }
 
             function hideRoundTooltip(e) {
                 $("#" + e.id + '-popup').hide();

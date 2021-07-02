@@ -166,6 +166,18 @@
         <type>Checkbox</type>
     </fields>
     <fields>
+        <fullName>Contact_Name__c</fullName>
+        <externalId>false</externalId>
+        <formula>Contact__r.FirstName &amp; &quot; &quot; &amp; Contact__r.LastName</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Contact Name</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Contact__c</fullName>
         <externalId>false</externalId>
         <label>Contact</label>
@@ -245,6 +257,18 @@
         <type>DateTime</type>
     </fields>
     <fields>
+        <fullName>Join_Url__c</fullName>
+        <externalId>false</externalId>
+        <formula>Function__r.join_url__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Join Url</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Leave_Time__c</fullName>
         <externalId>false</externalId>
         <label>Leave Time</label>
@@ -252,6 +276,18 @@
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Meeting_Password__c</fullName>
+        <externalId>false</externalId>
+        <formula>Function__r.Meeting_Password__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Meeting Password</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
     </fields>
     <fields>
         <fullName>Panelist__c</fullName>
@@ -262,6 +298,37 @@
         <trackHistory>false</trackHistory>
         <trackTrending>false</trackTrending>
         <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Start_Time__c</fullName>
+        <externalId>false</externalId>
+        <formula>Function__r.Begin_Date__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Start Time</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>join_url_unique__c</fullName>
+        <externalId>false</externalId>
+        <label>join url unique</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Url</type>
+    </fields>
+    <fields>
+        <fullName>registrant_id__c</fullName>
+        <externalId>false</externalId>
+        <label>registrant id</label>
+        <length>255</length>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
     </fields>
     <label>Function Contact</label>
     <nameField>

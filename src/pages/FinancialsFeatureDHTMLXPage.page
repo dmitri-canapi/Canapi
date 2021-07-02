@@ -260,6 +260,21 @@
             opacity: 0;
             position: absolute;
         }
+
+        .dhtmlx_modal_box {
+            max-height: 300px !important;
+
+        }
+
+        .dhtmlx_modal_box span {
+            max-height: 240px !important;
+            display: block !important;
+            overflow: auto !important;
+        }
+
+        .buttons_cont {
+            min-width: 138px !important;
+        }
     </style>
 
     <body id="body">
@@ -271,6 +286,7 @@
             <br/>
             <br/>
             <br/>
+            <div id="fileWrapper" style="display:none;"></div>
         </div>
 
         <script type="text/javascript">
@@ -403,12 +419,15 @@
                     openEditCatsWindow();
                 } else if (id == 'new_metric') {
                     openAccountWindow(null);
+                } else if (id == "Import") {
+                    importCsv();
                 } else if (id == "Export") {
-                    var csv = 'Record ID,' + exportHeaderLabels + '\n';
+                    var csv = 'Sequence Number,Record ID,' + exportHeaderLabels + '\n';
                     var columnDivider = ',';
                     CapSharesGrid.setCSVDelimiter("Æ");
                     s = CapSharesGrid.serializeToCSV().replaceAll('_blank', '');
                     var arrayOfStrings = s.split('Æ');
+                    console.log(arrayOfStrings);
 
                     for (let cell of arrayOfStrings) {
                         if (cell.includes('\n')) {
@@ -421,13 +440,16 @@
 
                         }
                         if (cell.includes('^/')) {
-                            csv += cell.substring(cell.indexOf('^/') + 2, cell.lastIndexOf('^')) + ',"' + cell.substring(0, cell.indexOf('^/')) + '",'
+
+                            csv += cell.substring(cell.indexOf('^/') + 2, cell.lastIndexOf('^')) + (cell.substring(0, cell.indexOf('^/')).includes(',') ? ',"' + cell.substring(0, cell.indexOf('^/')) + '",' : ',' + cell.substring(0, cell.indexOf('^/')) + ',')
                         } else if (!isNaN(cell) && cell.toString().indexOf('.') != -1) {
                             var val = parseFloat(cell).toFixed(2);
                             csv += val + ',';
                         } else {
                             csv += cell + ',';
                         }
+
+
 
                     }
 
@@ -481,9 +503,9 @@
             //}
             Toolbar.addButton("new_board_meeting", 9, "New Period", "calendar.webp");
 
-            /*var impExp = Array(Array('Export', 'obj', 'Export', null), Array('Import', 'obj', ' Import', null));
-            Toolbar.addButtonSelect("Export", 10, "Export and Import", impExp, "excel.ico", "excel.ico", true, false, 3, false);*/
-            Toolbar.addButton("Export", 10, "Export", "excel.ico");
+            var impExp = Array(Array('Export', 'obj', 'Export', null), Array('Import', 'obj', ' Import', null));
+            Toolbar.addButtonSelect("Export", 10, "Export and Import", impExp, "excel.ico", "excel.ico", true, false, 3, false);
+            //Toolbar.addButton("Export", 10, "Export", "excel.ico");
 
             Toolbar.addButton("requestFinReport", 9, "Request Financial Report", "requestFR.png");
 
@@ -595,7 +617,7 @@
                         });
                     } else {
                         dhtmlx.message({
-                            text: accId ? 'Metric updated successfully.' : 'Metric created successfully.'
+                            text: accId ? 'Chart of Accounts updated successfully.' : 'Chart of Accounts created successfully.'
                         });
                         advancedEditWin.close();
                         refreshGrid();
@@ -848,7 +870,7 @@
 
                 tribute.attach(document.querySelectorAll('.formulaInput textarea'));
 
-                if (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated') {
+                if (accId != null && CapSharesGrid.getUserData(accId, "CatType") == 'Calculated' || (accId == null && cats.length > 0 && JSON.parse(cats[0].value).type == 'Calculated')) {
                     advancedEditWinForm.reloadOptions("Type", [
                         { value: "Currency", label: "Currency" }, { value: "Percentage", label: "Percentage" }, { value: "Number", label: "Number" }, { value: "Integer", label: "Integer" }
                     ]);
@@ -1445,22 +1467,30 @@
                 advancedEditWinForm.attachEvent("onButtonClick", function (name) {
                     if (advancedEditWinForm.validate() && name == 'save') {
 
-                        FinancialsFeatureDHTMLXController.applyTemplate(templGrid.getSelectedRowId(), recordId, function (result, event) {
-                            if (event.type == 'exception') {
-                                var err = event.message;
-                                err = err.replace(err.substring(0, err.indexOf('Unable to')), '').replace(': [Name]', '');
-                                dhtmlx.message({
-                                    type: "alert-error",
-                                    text: err
-                                });
-                            } else {
-                                dhtmlx.message({
-                                    text: 'Template was loaded successfully.'
-                                });
-                                advancedEditWin.close();
-                                refreshGrid();
-                            }
+                        let msg = '';
+                        previewGrid.forEachRow(function (row_id) {
+                            CapSharesGrid.forEachRow(function (capRowId) {
+                                console.log(previewGrid.cells(row_id, 0).getValue());
+                                if (previewGrid.cells(row_id, 0).getValue() == CapSharesGrid.cells(capRowId, 1).getValue().split("^")[0]) {
+                                    msg += '"' + previewGrid.cells(row_id, 0).getValue() + '", '
+                                }
+
+                            });
+
                         });
+
+                        if (msg != '') {
+                            msg = 'Unable to create Line Item(s). Line Item(s) named ' + msg.replace(/,\s*$/, "") + ' already exists. Please delete or rename existing Line Item(s) and try again.'
+
+                            confirmDialog(msg)
+                                .then(() => applyTemplate(templGrid.getSelectedRowId()))
+                                .catch()
+                        } else {
+                            applyTemplate(templGrid.getSelectedRowId());
+                        }
+
+                        console.log('!!');
+
 
                     }
                 });
@@ -1516,7 +1546,7 @@
                         var TotalExpenseFooter = ',Total Expenses,';
                         var TotalRevenueFooterStyles = ["color:#04844b", "color:#04844b"];
                         var TotalExpenseFooterStyles = ["color:#ff9a3c", "color:#ff9a3c"];
-                        var Groupings = ["", "#title"];
+                        var Groupings = ["", "#title", ""];
 
                         var i = 1;
                         var rowTotalCol = '';
@@ -1525,7 +1555,7 @@
                         //CapSharesGrid.setMathRound(0);
 
 
-                        exportHeaderLabels = 'Metric,Category';
+                        exportHeaderLabels = 'Chart of Accounts,Category';
 
                         var rows = [];
                         for (let row of data.rows) {
@@ -1557,7 +1587,7 @@
                             item.Quarter__c = item.Quarter__c ? item.Quarter__c.replaceAll(",", "\\,") : '';
 
                             TableHeaders += ',' + '<div style="width:100%; text-align:left;position: absolute;height: 100%;" onmouseenter="showRoundTooltip(this)" onmouseleave="hideRoundTooltip(this)" data-fquat="' + item.Quarter__c + '"  data-fdate="' + dhData + '" id="' + item.Id + '">' + (item.Quarter__c ? item.Quarter__c : formatted_date);
-                            exportHeaderLabels += ',' + (item.Quarter__c ? ('"' + item.Quarter__c + '"') : formatted_date);
+                            exportHeaderLabels += ',' + (item.Quarter__c ? (item.Quarter__c.includes(',') ? ('"' + item.Quarter__c.replace('\\', '') + '"') : item.Quarter__c.replace('\\', '')) : dhData);
 
                             TableHeaders += '<div id="' + item.Id + '-popup" class="popupDiv" onclick="event.stopPropagation()"><div style="display:inline-block">';
 
@@ -1671,8 +1701,9 @@
                         //console.log(res);
                         CapSharesGrid.parse(res, "json");
                         Layout.cells("a").progressOff();
-                        CapSharesGrid.setColumnHidden(2, true);
+
                         CapSharesGrid.groupBy(2, Groupings);
+                        CapSharesGrid.setColumnHidden(2, true);
 
 
 
@@ -1680,7 +1711,7 @@
 
                         CapSharesGrid.forEachRow(function (row_id) {
                             CapSharesGrid.forEachCell(row_id, function (cellObj, col_index) {
-                                if (col_index > 1) {
+                                if (col_index > 2) {
                                     let type = CapSharesGrid.getUserData(row_id, "Type");
                                     if (type == 'Currency') {
                                         CapSharesGrid.setCellExcellType(row_id, col_index, "edn");//price
@@ -1758,6 +1789,7 @@
                                 }
                                 return true;
                             } else if (stage == 2) {
+                                console.log(CapSharesGrid.cells(rId, 1).getValue());
                                 selectedCell = { rId: CapSharesGrid.getRowIndex(rId), cInd: cInd };
                                 setDollarAmmount(stage, rId, cInd, nValue, oValue);
                             }
@@ -1893,6 +1925,79 @@
 
             }
 
+
+            var container = document.getElementById("fileWrapper");
+            var inpFile = document.createElement('input');
+            inpFile.setAttribute("type", "file");
+            inpFile.setAttribute("name", "files[]");
+            inpFile.setAttribute("id", "csvFile");
+            //inpFile.setAttribute("multiple", "multiple");
+
+            container.appendChild(inpFile);
+
+            $('#csvFile').on("change", function (e) {
+                //console.log(e);
+                var file = e.target.files[0];
+                var reader = new FileReader();
+
+                reader.onloadend =
+                    (function (file) {
+                        return function (evt) {
+                            try {
+                                console.log(evt.target.result);
+                                var base64 = 'base64,';
+                                var dataStart = evt.target.result.indexOf(base64) + base64.length;
+
+                                var fileContents = evt.target.result.substring(dataStart);
+
+                                Layout.cells("a").progressOn();
+                                FinancialsFeatureDHTMLXController.importFile(fileContents, recordId, function (result, event) {
+                                    if (event.type == 'exception') {
+                                        dhtmlx.message({
+                                            type: "error",
+                                            text: event.message,
+                                            expire: 5000,
+                                        });
+                                        //FinancialReportRequestWinLayout.cells("a").progressOff();
+                                    } else {
+
+                                        if (result != '')
+                                            dhtmlx.message({
+                                                title: "Warning",
+                                                type: "alert-warning",
+                                                text: $('<div>').html(result).text()
+                                            });
+
+                                        refreshGrid();
+
+                                        // FinancialReportRequestWinLayout.cells("a").progressOff();
+
+                                    }
+                                    $('#csvFile').val(null);
+                                });
+                            } catch (e) {
+                                dhtmlx.message({
+                                    type: "alert-error",
+                                    text: file.name + " can't be uploaded. " + e
+                                });
+                                //dhtmlx.message.hide("UploadingBox");
+                            }
+
+                        };
+                    })(file);
+
+                reader.readAsDataURL(file);
+
+            });
+
+
+            function importCsv() {
+
+                $('#csvFile').show().focus().click().hide();
+
+
+            }
+
             function deleteChartOfAccounts(id) {
                 FinancialsFeatureDHTMLXController.deleteChartOfAccounts(id, function (result, event) {
                     if (event.type == 'exception') {
@@ -1907,6 +2012,42 @@
                 $(d).parent().remove();
                 FinancialsFeatureDHTMLXController.removeDocument($(d).parent().attr('id'), function (result, event) {
 
+                });
+            }
+
+            function confirmDialog(msg) {
+                return new Promise(function (resolve, reject) {
+                    dhtmlx.confirm({
+                        type: "confirm-error",
+                        text: msg,
+                        callback: function (res) {
+                            console.log(res);
+                            return res ? resolve(true) : reject(false);
+                        }
+                    });
+
+                    //let confirmed = window.confirm(msg);
+
+                    //return confirmed ? resolve(true) : reject(false);
+                });
+            }
+
+            function applyTemplate(templId) {
+                FinancialsFeatureDHTMLXController.applyTemplate(templId, recordId, function (result, event) {
+                    if (event.type == 'exception') {
+                        var err = event.message;
+                        err = err.replace(err.substring(0, err.indexOf('Unable to')), '').replace(': [Name]', '');
+                        dhtmlx.message({
+                            type: "alert-error",
+                            text: err
+                        });
+                    } else {
+                        dhtmlx.message({
+                            text: 'Template was loaded successfully.'
+                        });
+                        advancedEditWin.close();
+                        refreshGrid();
+                    }
                 });
             }
 

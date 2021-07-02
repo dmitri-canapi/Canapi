@@ -9,15 +9,6 @@
     <columns>
         <field>CONTACT</field>
     </columns>
-    <columns>
-        <field>EMAIL</field>
-    </columns>
-    <columns>
-        <field>PHONE1</field>
-    </columns>
-    <columns>
-        <field>PRIORITY</field>
-    </columns>
     <filter>
         <criteriaItems>
             <column>Activity.Meeting_Type__c</column>
@@ -32,13 +23,6 @@
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
             <value>FinTech Alliance</value>
-        </criteriaItems>
-        <criteriaItems>
-            <column>ASSIGNED</column>
-            <columnToColumn>false</columnToColumn>
-            <isUnlocked>true</isUnlocked>
-            <operator>contains</operator>
-            <value>Walker Forehand,Dan Beldy,Neil Underwood,Jeffrey Reitman,Nadou Lawson</value>
         </criteriaItems>
     </filter>
     <format>Summary</format>
@@ -57,7 +41,7 @@
         <field>ACCOUNT</field>
         <sortOrder>Asc</sortOrder>
     </groupingsDown>
-    <name>FTA Engagement Report</name>
+    <name>FA Engagement Report</name>
     <params>
         <name>closed</name>
         <value>closed</value>
@@ -79,6 +63,6 @@
     <sortOrder>Asc</sortOrder>
     <timeFrameFilter>
         <dateColumn>DUE_DATE</dateColumn>
-        <interval>INTERVAL_LAST120</interval>
+        <interval>INTERVAL_LASTTHISMONTH</interval>
     </timeFrameFilter>
 </Report>

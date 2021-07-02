@@ -1014,6 +1014,7 @@
         <customTabListAdditionalFields>ACCOUNT.NAME</customTabListAdditionalFields>
         <customTabListAdditionalFields>CONTACT.PHONE1</customTabListAdditionalFields>
         <customTabListAdditionalFields>CONTACT.PHONE3</customTabListAdditionalFields>
+        <customTabListAdditionalFields>FTA__c</customTabListAdditionalFields>
         <lookupDialogsAdditionalFields>FULL_NAME</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>ACCOUNT.NAME</lookupDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>FULL_NAME</lookupPhoneDialogsAdditionalFields>

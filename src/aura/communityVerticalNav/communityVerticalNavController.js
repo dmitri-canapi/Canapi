@@ -7,7 +7,7 @@
         } else {
             component.set("v.CommunityName", 'fintech');
         }
-	console.log('2');
+        console.log('2');
         if (window.location.href.includes('https://canapi.force.com/' + component.get("v.CommunityName") + '/s/settings/' + $A.get("$SObjectType.CurrentUser.Id"))) {
             component.set("v.renderMenu", false);
         }
@@ -19,91 +19,91 @@
         action.setCallback(this, function (response) {
             var state = response.getState();
             if (state === "SUCCESS") {
-                
-            console.log('5');
-            console.log(response.getReturnValue());
-            var groups = [];
-            groups = response.getReturnValue().groups;
-            var menus = [];
-            var isLimitedPartner = false;
-            if (response.getReturnValue().accName.includes('(individual)') || response.getReturnValue().AccRecTypeName == 'Limited Partner' || response.getReturnValue().AccRecTypeName == 'LP (Individuals)') {
-                isLimitedPartner = true;
-            }
 
-            if (component.get("v.CommunityName") == 'alliance') {
-
-                var childmmenus = [];
-                childmmenus.push(helper.createObj(component, 'Feed', '18-Canapi-Icons-32.svg', 'fintech-companies', null, 12));
-                childmmenus.push(helper.createObj(component, 'Subscriptions', '18-Canapi-Icons-10.svg', 'subscriptions', null, 11));
-                menus.push(helper.createObj(component, 'Home', '18-Canapi-Icons-28.svg', 'https://canapi.force.com/alliance/s/', childmmenus, 0));
-
-                var childmmenus = [];
-                childmmenus.push(helper.createObj(component, 'Fintech Companies', '18-Canapi-Icons-32.svg', 'fintech-companies', null, 1));
-                childmmenus.push(helper.createObj(component, 'Portfolio Companies', '18-Canapi-Icons-05.svg', 'portfolio', null, 2));
-                childmmenus.push(helper.createObj(component, 'Maps', '18-Canapi-Icons-42.svg', 'map', null, 3));
-                if (!isLimitedPartner) childmmenus.push(helper.createObj(component, 'Alliance Contacts', '18-Canapi-Icons-10.svg', 'people', null, 4));
-                childmmenus.push(helper.createObj(component, 'Canapi Contacts', '18-Canapi-Icons-10.svg', 'canapi-contacts'));
-                if (!isLimitedPartner) childmmenus.push(helper.createObj(component, 'Connections', '18-Canapi-Icons-10.svg', 'connections'));
-                menus.push(helper.createObj(component, 'Fintech Directory', '18-Canapi-Icons-32.svg', 'fintech-companies', childmmenus, 1));
-
-                childmmenus = [];
-                for (let gr of groups) {
-                    childmmenus.push(helper.createObj(component, gr.Name, '18-Canapi-Icons-08.svg', 'group/' + gr.Id));
+                console.log('5');
+                console.log(response.getReturnValue());
+                var groups = [];
+                groups = response.getReturnValue().groups;
+                var menus = [];
+                var isLimitedPartner = false;
+                if (response.getReturnValue().accName.includes('(individual)') || response.getReturnValue().AccRecTypeName == 'Limited Partner' || response.getReturnValue().AccRecTypeName == 'LP (Individuals)') {
+                    isLimitedPartner = true;
                 }
 
-                menus.push(helper.createObj(component, 'Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
+                if (component.get("v.CommunityName") == 'alliance') {
 
-                menus.push(helper.createObj(component, 'Messages', '18-Canapi-Icons-16.svg', 'messages/Home'));
-                //menus.push(helper.createObj(component, 'Calendar', 'Calendar.png', 'calendar'));
-                menus.push(helper.createObj(component, 'Files', '18-Canapi-Icons-27.svg', 'files'));
+                    var childmmenus = [];
+                    childmmenus.push(helper.createObj(component, 'Feed', '18-Canapi-Icons-32.svg', 'fintech-companies', null, 12));
+                    childmmenus.push(helper.createObj(component, 'Subscriptions', '18-Canapi-Icons-10.svg', 'subscriptions', null, 11));
+                    menus.push(helper.createObj(component, 'Home', '18-Canapi-Icons-28.svg', 'https://canapi.force.com/alliance/s/', childmmenus, 0));
 
-                if (!isLimitedPartner) menus.push(helper.createObj(component, 'Reports', '18-Canapi-Icons-32.svg', 'reports'));//report/Report/Recent/Report/?queryScope=everything
-                if (!isLimitedPartner) menus.push(helper.createObj(component, 'Dashboards', '18-Canapi-Icons-39.svg', 'dashboard/01Z3u000000TAJVEA4'));//, null, 7));
+                    var childmmenus = [];
+                    childmmenus.push(helper.createObj(component, 'Fintech Companies', '18-Canapi-Icons-32.svg', 'fintech-companies', null, 1));
+                    childmmenus.push(helper.createObj(component, 'Portfolio Companies', '18-Canapi-Icons-05.svg', 'portfolio', null, 2));
+                    childmmenus.push(helper.createObj(component, 'Maps', '18-Canapi-Icons-42.svg', 'map', null, 3));
+                    // if (!isLimitedPartner) childmmenus.push(helper.createObj(component, 'Alliance Contacts', '18-Canapi-Icons-10.svg', 'people', null, 4));
+                    childmmenus.push(helper.createObj(component, 'Canapi Contacts', '18-Canapi-Icons-10.svg', 'canapi-contacts'));
+                    if (!isLimitedPartner) childmmenus.push(helper.createObj(component, 'Connections', '18-Canapi-Icons-10.svg', 'connections'));
+                    menus.push(helper.createObj(component, 'Fintech Directory', '18-Canapi-Icons-32.svg', 'fintech-companies', childmmenus, 1));
 
-                childmmenus = [];
-                var userId = $A.get("$SObjectType.CurrentUser.Id");
-                childmmenus.push(helper.createObj(component, 'My Profile', '18-Canapi-Icons-14.svg', 'profile/' + userId, null, 9));
-                childmmenus.push(helper.createObj(component, 'My Settings', '18-Canapi-Icons-09.svg', 'mysettings'));
-                childmmenus.push(helper.createObj(component, 'My Company', '18-Canapi-Icons-31.svg', 'MY', null, 14));
-                if (!isLimitedPartner) childmmenus.push(helper.createObj(component, 'Alliance Enrollment', '18-Canapi-Icons-27.svg', 'AllianceEnrollment', null, 13));
-                menus.push(helper.createObj(component, 'Setup', '18-Canapi-Icons-09.svg', 'settings/' + userId, childmmenus));
-
-                menus.push(helper.createObj(component, 'Logout', '18-Canapi-Icons-06.svg', '../secur/logout.jsp', null, 'logout'));
-
-            } else if (component.get("v.CommunityName") == 'fintech') {
-                menus.push(helper.createObj(component, 'Home', '18-Canapi-Icons-28.svg', 'https://canapi.force.com/fintech/s/', null, 0));
-
-                /*childmmenus = [];
-                for (let gr of groups) {
-                    childmmenus.push(helper.createObj(component, gr.Name, '18-Canapi-Icons-08.svg', 'group/' + gr.Id));
-                }
-                menus.push(helper.createObj(component, 'Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
-                
-                if (response.getReturnValue().AccRecTypeName == 'Fintech' || response.getReturnValue().AccRecTypeName == 'Portfolio Company' || response.getReturnValue().IsExternalGrader) {
-                    menus.push(helper.createObj(component, 'DD Checklists', '18-Canapi-Icons-37.svg', 'dd-checklists'));
-                }*/
-                console.log(component.get('v.CurrentUser')['Profile'].Name);
-                if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal'){
-                	menus.push(helper.createObj(component, 'Documents', '18-Canapi-Icons-05.svg', 'documents'));
-                }
-                if (response.getReturnValue().AccRecTypeName != 'Fintech') {
-                    //menus.push(helper.createObj(component, 'Milestones', '18-Canapi-Icons-25.svg', 'milestone/milestone__c/00B6A0000074msgUAA'));
-                    if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal'){
-                    	//menus.push(helper.createObj(component, 'Cap Table', '18-Canapi-Icons-15.svg', 'cap-table'));
-                        menus.push(helper.createObj(component, 'Financials', '18-Canapi-Icons-04.svg', 'financials'));
+                    childmmenus = [];
+                    for (let gr of groups) {
+                        childmmenus.push(helper.createObj(component, gr.Name, '18-Canapi-Icons-08.svg', 'group/' + gr.Id));
                     }
-                    //menus.push(helper.createObj(component, 'DD Checklists', '18-Canapi-Icons-37.svg', 'assessment/Assessment__c/00B6A0000074mJqUAI'));
-                    //menus.push(helper.createObj(component, 'Pending', '18-Canapi-Icons-31.svg', 'review-item/review_item__c/00B6A000006OfBzUAK'));
+
+                    menus.push(helper.createObj(component, 'Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
+
+                    menus.push(helper.createObj(component, 'Messages', '18-Canapi-Icons-16.svg', 'messages/Home'));
+                    //menus.push(helper.createObj(component, 'Calendar', 'Calendar.png', 'calendar'));
+                    menus.push(helper.createObj(component, 'Files', '18-Canapi-Icons-27.svg', 'files'));
+
+                    if (!isLimitedPartner) menus.push(helper.createObj(component, 'Reports', '18-Canapi-Icons-32.svg', 'reports'));//report/Report/Recent/Report/?queryScope=everything
+                    if (!isLimitedPartner) menus.push(helper.createObj(component, 'Dashboards', '18-Canapi-Icons-39.svg', 'dashboard/01Z3u000000TAJVEA4'));//, null, 7));
+
+                    childmmenus = [];
+                    var userId = $A.get("$SObjectType.CurrentUser.Id");
+                    childmmenus.push(helper.createObj(component, 'My Profile', '18-Canapi-Icons-14.svg', 'profile/' + userId, null, 9));
+                    childmmenus.push(helper.createObj(component, 'My Settings', '18-Canapi-Icons-09.svg', 'mysettings'));
+                    childmmenus.push(helper.createObj(component, 'My Company', '18-Canapi-Icons-31.svg', 'MY', null, 14));
+                    if (!isLimitedPartner) childmmenus.push(helper.createObj(component, 'Alliance Enrollment', '18-Canapi-Icons-27.svg', 'AllianceEnrollment', null, 13));
+                    menus.push(helper.createObj(component, 'Setup', '18-Canapi-Icons-09.svg', 'settings/' + userId, childmmenus));
+
+                    menus.push(helper.createObj(component, 'Logout', '18-Canapi-Icons-06.svg', '../secur/logout.jsp', null, 'logout'));
+
+                } else if (component.get("v.CommunityName") == 'fintech') {
+                    menus.push(helper.createObj(component, 'Home', '18-Canapi-Icons-28.svg', 'https://canapi.force.com/fintech/s/', null, 0));
+
+                    /*childmmenus = [];
+                    for (let gr of groups) {
+                        childmmenus.push(helper.createObj(component, gr.Name, '18-Canapi-Icons-08.svg', 'group/' + gr.Id));
+                    }
+                    menus.push(helper.createObj(component, 'Forums', '18-Canapi-Icons-08.svg', '#news2', childmmenus));
+                    
+                    if (response.getReturnValue().AccRecTypeName == 'Fintech' || response.getReturnValue().AccRecTypeName == 'Portfolio Company' || response.getReturnValue().IsExternalGrader) {
+                        menus.push(helper.createObj(component, 'DD Checklists', '18-Canapi-Icons-37.svg', 'dd-checklists'));
+                    }*/
+                    console.log(component.get('v.CurrentUser')['Profile'].Name);
+                    if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal') {
+                        menus.push(helper.createObj(component, 'Documents', '18-Canapi-Icons-05.svg', 'documents'));
+                    }
+                    if (response.getReturnValue().AccRecTypeName != 'Fintech') {
+                        //menus.push(helper.createObj(component, 'Milestones', '18-Canapi-Icons-25.svg', 'milestone/milestone__c/00B6A0000074msgUAA'));
+                        if (component.get('v.CurrentUser')['Profile'].Name == 'Community: Fintech Portal') {
+                            //menus.push(helper.createObj(component, 'Cap Table', '18-Canapi-Icons-15.svg', 'cap-table'));
+                            menus.push(helper.createObj(component, 'Financials', '18-Canapi-Icons-04.svg', 'financials'));
+                        }
+                        //menus.push(helper.createObj(component, 'DD Checklists', '18-Canapi-Icons-37.svg', 'assessment/Assessment__c/00B6A0000074mJqUAI'));
+                        //menus.push(helper.createObj(component, 'Pending', '18-Canapi-Icons-31.svg', 'review-item/review_item__c/00B6A000006OfBzUAK'));
+                    }
                 }
-            }
-            component.set('v.menus', menus);
-            component.set('v.UserHasTags', response.getReturnValue().hasTags);
-            }else if (state === "ERROR") {
+                component.set('v.menus', menus);
+                component.set('v.UserHasTags', response.getReturnValue().hasTags);
+            } else if (state === "ERROR") {
                 var errors = response.getError();
                 if (errors) {
                     if (errors[0] && errors[0].message) {
-                        console.log("Error message: " + 
-                                 errors[0].message);
+                        console.log("Error message: " +
+                            errors[0].message);
                     }
                 } else {
                     console.log("Unknown error");

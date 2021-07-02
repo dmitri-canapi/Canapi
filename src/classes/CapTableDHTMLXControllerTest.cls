@@ -6,6 +6,10 @@ public class CapTableDHTMLXControllerTest {
     private static void testgetCapTableData() {
         account a = new account(name='test');
         insert a;
+        account a2 = new account(name='test2');
+        insert a2;
+        account a3 = new account(name='test3');
+        insert a3;
         
         CapTableDHTMLXController.AllowEditingUpdate(a.Id,true);
         
@@ -23,6 +27,7 @@ public class CapTableDHTMLXControllerTest {
         CapTableDHTMLXController.setShares(a.id,round.id,500,'All');
         CapTableDHTMLXController.setShares(a.id,round.id,500,'Voting');
         CapTableDHTMLXController.setShares(a.id,round.id,500,'Non-Voting');
+        CapTableDHTMLXController.setShares(a2.id,round.id,500,'All');
 
         CapTableDHTMLXController.getCapTableData(a.id,'All','Shares');
         CapTableDHTMLXController.getCapTableData(a.id,'Voting','Dollars');
@@ -37,15 +42,22 @@ public class CapTableDHTMLXControllerTest {
         CapTableDHTMLXController.getCapTableData(a.id,'Non-Voting' ,'Shares');
         CapTableDHTMLXController.setDollarAmount(a.id,round.id,500,'Voting');
         CapTableDHTMLXController.setAllShares(a.id,round.id,500,700);
+        CapTableDHTMLXController.setAllShares(a3.id,round.id,500,700);
         system.debug(CapTableDHTMLXController.hasRounds(a.id));
+        system.debug(CapTableDHTMLXController.hasRounds(round.id));
         CapTableDHTMLXController.addShareholder(null, 't e s t - 2019', null, 'parent - 2021',  a.id);
         CapTableDHTMLXController.getInvestment(a.id,round.id);
+
+        CapTableDHTMLXController.updateRoundOrder(New List<Round__c>{round});
+
+        CapTableDHTMLXController.importFile('U2VxdWVuY2UgTnVtYmVyLFJlY29yZCBJRCxDaGFydCBvZiBBY2NvdW50cyxDYXRlZ29yeSwzLzI2LzIwMjEsIlExLCAyMDIwIiwiUTIsIDIwMjAiLCJRMywgMjAyMCIsIlE0LCAyMDIwIiwiUTEsIDIwMjEiLCJRMiwgMjAyMSINCjQsYTByMWgwMDAwMDF2dzJUQUFRLGRzNTQsZHNmZHNmZHNmLDQsNCw0LDQsNCw0LDQNCixhMHIxaDAwMDAwMlZaWUtBQTQsaTMsZHNmZHNmZHNmLDAsMCwwLDAsMCwwLDANCixhMHIxaDAwMDAwMkRuYWJBQUMsQVJSLEV4cGVuc2UsMTAuNDUsMjAwLDUsNDAwLDUwMCw5MDAsOTAwDQosYTByMWgwMDAwMDJWWlk1QUFPLEFSUiBZT1ksRXhwZW5zZSwwLDAsMCwwLDAsMCwwDQosYTByMWgwMDAwMDF2dzJSQUFRLGV4cCxFeHBlbnNlLDAs',a.Id, 'All', 'Dollars');
         
         CapTableDHTMLXController.deleteSeries (round.Id);
         CapTableDHTMLXController.deleteShareholder (a.Id,a.Id);
         system.debug(CapTableDHTMLXController.getCommunityAccId());
 
         CapTableDHTMLXController.fetchLookUpValues('test','Account');
+        
         
         
         

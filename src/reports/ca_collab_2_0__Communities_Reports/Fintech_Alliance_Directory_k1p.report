@@ -42,7 +42,7 @@
             <columnToColumn>false</columnToColumn>
             <isUnlocked>true</isUnlocked>
             <operator>equals</operator>
-            <value>Account.Bank_LP</value>
+            <value>Account.Principal,Account.Bank_LP,Account.Limited_Partner</value>
         </criteriaItems>
     </filter>
     <format>Summary</format>
